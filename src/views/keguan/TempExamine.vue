@@ -247,6 +247,7 @@
       },
       changeJycp(val) {
         this.isMask = false
+
         this.getTempData()
       },
       switchChange(val) {
