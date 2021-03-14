@@ -1,0 +1,27 @@
+.el-main-body {
+  height: 100%;
+}
+.head-menu {
+  position: relative;
+  height: 40px;
+  box-shadow: 0 2px 3px -1px rgba(0, 0, 0, .1);
+
+  .el-menu.el-menu--horizontal {
+    position: absolute;
+    border-bottom: none;
+    top: 50%;
+    margin-top: -14px;
+  }
+
+  .el-menu--horizontal > .el-menu-item {
+    border-bottom: none;
+    height: 28px;
+    line-height: 28px;
+    margin-left: 30px;
+
+    &.is-active {
+      background-color: #359BE0;
+      border-radius: 14px;
+    }
+  }
+}
