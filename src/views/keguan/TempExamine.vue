@@ -45,6 +45,7 @@
               <span>检验时效：</span>
               <el-radio-group v-model="jysx" @change="changeJysx">
                 <el-radio-button label="1">1H</el-radio-button>
+                <el-radio-button label="3">3H</el-radio-button>
                 <el-radio-button label="24">24H</el-radio-button>
               </el-radio-group>
             </el-menu-item>
@@ -73,7 +74,7 @@
               <el-radio-button label="mintmae" v-show="jyx === 'fxzl'">最低温平均绝对误差</el-radio-button>
               <el-radio-button label="mintrmse" v-show="jyx === 'fxzl'">最低温均方根误差</el-radio-button>
             </el-radio-group>
-            <el-radio-group v-model="jyys" @change="changeJyyx" v-show="jysx == '1'">
+            <el-radio-group v-model="jyys" @change="changeJyyx" v-show="jysx != '24'">
               <el-radio-button label="1" disabled>1小时</el-radio-button>
               <el-radio-button label="sst" v-show="jyx === 'jqpf'">平均绝对误差技巧</el-radio-button>
 <!--              <el-radio-button label="rmse">均方根误差</el-radio-button>-->
@@ -95,7 +96,7 @@
               </el-switch>
               <!--            <span style="vertical-align: middle; margin-left: 10px">0~24时</span>-->
               <el-checkbox-group v-model="ftime" @change="changeJysd">
-                <el-checkbox v-for="item in ftimeView" :label="item">{{item}}时</el-checkbox>
+                <el-checkbox v-for="item in ftimeView" :label="item">{{item == '0' ? '综合' : item + '时'}}</el-checkbox>
               </el-checkbox-group>
             </div>
           </div>
@@ -120,13 +121,35 @@
             <el-checkbox-group v-model="modes" @change="changeModes">
               <el-checkbox v-for="(zwname, mode) in modeViews" :label="mode">{{zwname}}</el-checkbox>
             </el-checkbox-group>
-            <el-radio-group v-model="showType" size="mini">
+            <el-radio-group v-model="showType" size="mini" @change="changeType">
               <el-radio-button label="图表"></el-radio-button>
               <el-radio-button label="表格"></el-radio-button>
             </el-radio-group>
-            <div id="grid-chart" style="width: 100%; height: calc(100% - 50px)">
+            <div id="grid-chart" style="width: 100%; height: calc(100% - 50px)" v-show="showType === '图表'">
 
             </div>
+
+            <el-table
+                    v-show="showType === '表格'"
+                    :data="tableData"
+                    border
+                    height="calc(100% - 64px)"
+                    style="width: calc(100% - 50px); margin: 0 auto; transform: translateY(10px)"
+                    :header-cell-style="{'text-align': 'center'}">
+              <el-table-column
+                      prop="ftime"
+                      label="预报时段（小时）"
+                      align="center"
+              >
+              </el-table-column>
+              <el-table-column
+                      v-for="(value, key) in tableHeader"
+                      :prop="key"
+                      :label="value"
+                      align="center"
+              >
+              </el-table-column>
+            </el-table>
           </div>
         </div>
       </div>
@@ -139,6 +162,7 @@
   import * as Basic from "../../common/Base"
   import moment from "momnet"
   import {getTempHttp} from "../../network/keguan";
+  import * as Utils from "../../common/utils";
 
   let placeName = {
     maxtok2: '最高小于2度准确率',
@@ -165,7 +189,7 @@
     data() {
       return {
         items: [
-          {img: require('../../assets/img/rain.png'), text: '温度评分', index: 'tmpScore'},
+          {img: require('../../assets/img/tem.png'), text: '温度评分', index: 'tmpScore'},
           {img: require('../../assets/img/ybsk.png'), text: '预报及实况监测', index: 'monitor'}
         ],
         isMask: false,
@@ -210,23 +234,26 @@
         },
         showType: '图表',
         loading: true,
-        data: null
+        data: null,
+        tableHeader: {},
+        tableData: []
       }
     },
     methods: {
       changeDate() {
+        this.isMask = false
         this.getTempData()
       },
       changJyx(val) {
         if (val === 'fxzl') {
-          if (this.jysx == '1') {
+          if (this.jysx != '24') {
             this.jyys = 'ok2'
           } else {
             this.jyys = 'maxtok2'
           }
           this.isJq = false
         } else {
-          if (this.jysx == '1') {
+          if (this.jysx != '24') {
             this.jyys = 'sst'
           } else {
             this.jyys = 'maxtsst'
@@ -256,10 +283,11 @@
         } else {
           this.ftime = []
           let ftimes = 24 / this.jysx;
-          for (let i = 1; i <= ftimes; i++) {
+          for (let i = 0; i <= ftimes; i++) {
             this.ftime.push(i * this.jysx)
           }
         }
+        Basic.initEcharts(this.data, this.modes, this.modeViews, this.ftime, this.jyys, this.jysx)
       },
       changeYbsc() {
         console.log(process.env.NODE_ENV)
@@ -268,13 +296,13 @@
       changeJysx(val) {
         this.switchStatus = true
         if (this.jyx === 'fxzl') {
-          if (val == '1') {
+          if (val != '24') {
             this.jyys = 'ok2'
           } else {
             this.jyys = 'maxtok2'
           }
         } else {
-          if (val == '1') {
+          if (val != '24') {
             this.jyys = 'sst'
           } else {
             this.jyys = 'maxtsst'
@@ -282,7 +310,8 @@
         }
         this.ftime = []
         let ftimes = 24 / val
-        for (let i = 1; i <= ftimes; i++) {
+        for (let i = 0; i <= ftimes; i++) {
+          if (i === 0 && val === '24') continue
           this.ftime.push(i * val)
         }
         this.ftimeView = this.ftime
@@ -331,6 +360,33 @@
         ybsc === 'zh' ? ybscName = '综合' : ybscName = ybsc + '(北京时)'
         this.mainTitle = '湖南省' + jysx + '小时' + placeName[jyys]
         this.subTitle = '起报时间：' + startStr + '至' + endStr + '逐' + jysx + '时 ' + ybscName
+      },
+      changeType(val) {
+        if (val === '表格') {
+          this.initTable()
+        } else {
+          Basic.initEcharts(this.data, this.modes, this.modeViews, this.ftime, this.jyys, this.jysx)
+        }
+      },
+      initTable() {
+        this.tableHeader = {}
+        this.tableData = []
+        for (let i = 0; i < this.modes.length; i++) {
+          this.tableHeader[this.modes[i]] = this.modeViews[this.modes[i]]
+        }
+        for (let i = 0; i < this.ftime.length; i++) {
+          let item = {}
+          item['ftime'] = this.ftime[i] === 0 ? '综合' : this.ftime[i]
+          for (let j = 0; j < this.modes.length; j++) {
+            let res = this.data.filter(res => res['wfsrc'] === this.modes[j] && res['wfhour'] === this.ftime[i])
+            if (res.length > 0) {
+              item[this.modes[j]] = Utils.toFix(res[0][this.jyys], 3)
+            } else {
+              item[this.modes[j]] = NaN
+            }
+          }
+          this.tableData.push(item)
+        }
       }
     },
     watch: {
@@ -338,7 +394,7 @@
     },
     created() {
       let ftimes = 24 / this.jysx;
-      for (let i = 1; i <= ftimes; i++) {
+      for (let i = 0; i <= ftimes; i++) {
         this.ftime.push(i * this.jysx)
         this.ftimeView.push(i * this.jysx)
       }

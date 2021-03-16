@@ -81,7 +81,7 @@
               </el-switch>
               <!--            <span style="vertical-align: middle; margin-left: 10px">0~24时</span>-->
               <el-checkbox-group v-model="ftime" @change="changeJysd">
-                <el-checkbox v-for="item in ftimeView" :label="item">{{item}}时</el-checkbox>
+                <el-checkbox v-for="item in ftimeView" :label="item">{{item == '0' ? '综合' : item + '时'}}</el-checkbox>
               </el-checkbox-group>
             </div>
           </div>
@@ -106,13 +106,35 @@
             <el-checkbox-group v-model="modes" @change="changeModes">
               <el-checkbox v-for="(zwname, mode) in modeViews" :label="mode">{{zwname}}</el-checkbox>
             </el-checkbox-group>
-            <el-radio-group v-model="showType" size="mini">
+            <el-radio-group v-model="showType" size="mini" @change="changeType">
               <el-radio-button label="图表"></el-radio-button>
               <el-radio-button label="表格"></el-radio-button>
             </el-radio-group>
-            <div id="grid-chart" style="width: 100%; height: calc(100% - 50px)">
+            <div id="grid-chart" style="width: 100%; height: calc(100% - 50px)" v-show="showType === '图表'">
 
             </div>
+
+            <el-table
+                    v-show="showType === '表格'"
+                    :data="tableData"
+                    border
+                    height="calc(100% - 64px)"
+                    style="width: calc(100% - 50px); margin: 0 auto; transform: translateY(10px)"
+                    :header-cell-style="{'text-align': 'center'}">
+              <el-table-column
+                      prop="ftime"
+                      label="预报时段（小时）"
+                      align="center"
+              >
+              </el-table-column>
+              <el-table-column
+                      v-for="(value, key) in tableHeader"
+                      :prop="key"
+                      :label="value"
+                      align="center"
+              >
+              </el-table-column>
+            </el-table>
           </div>
         </div>
       </div>
@@ -125,6 +147,7 @@
   import * as Basic from "../../common/Base"
   import moment from "momnet"
   import {getHeavyHttp} from "../../network/keguan";
+  import * as Utils from "../../common/utils";
 
   let placeName = {
     spo: '短时强降水命中率技巧',
@@ -140,8 +163,8 @@
     data() {
       return {
         items: [
-          {img: require('../../assets/img/rain.png'), text: '短时强降水评分', index: 'RAT'},
-          {img: require('../../assets/img/rain.png'), text: '雷暴大风', index: 'SMG'},
+          {img: require('../../assets/img/heavy.png'), text: '短时强降水评分', index: 'RAT'},
+          {img: require('../../assets/img/smg.png'), text: '雷暴大风', index: 'SMG'},
           {img: require('../../assets/img/ybsk.png'), text: '预报及实况监测', index: 'monitor'}
         ],
         isMask: false,
@@ -186,11 +209,14 @@
         },
         showType: '图表',
         loading: true,
-        data: null
+        data: null,
+        tableHeader: {},
+        tableData: []
       }
     },
     methods: {
       changeDate() {
+        this.isMask = false
         this.getHeavyData()
       },
       changJyx(val) {
@@ -220,11 +246,12 @@
           this.ftime = []
         } else {
           this.ftime = []
-          let ftimes = 24 / this.jysx;
-          for (let i = 1; i <= ftimes; i++) {
+          let ftimes = 12 / this.jysx;
+          for (let i = 0; i <= ftimes; i++) {
             this.ftime.push(i * this.jysx)
           }
         }
+        Basic.initEcharts(this.data, this.modes, this.modeViews, this.ftime, this.jyys, this.jysx)
       },
       changeYbsc() {
         console.log(process.env.NODE_ENV)
@@ -240,7 +267,7 @@
         }
         this.ftime = []
         let ftimes = 24 / val
-        for (let i = 1; i <= ftimes; i++) {
+        for (let i = 0; i <= ftimes; i++) {
           this.ftime.push(i * val)
         }
         this.ftimeView = this.ftime
@@ -294,12 +321,40 @@
         this.mainTitle = '湖南省' + jysx + '小时' + placeName[jyys]
         this.subTitle = '起报时间：' + startStr + '至' + endStr + '逐' + jysx + '时 ' + ybscName
       },
+      changeType(val) {
+        if (val === '表格') {
+          this.initTable()
+        } else {
+          Basic.initEcharts(this.data, this.modes, this.modeViews, this.ftime, this.jyys, this.jysx)
+        }
+      },
+      initTable() {
+        this.tableHeader = {}
+        this.tableData = []
+        for (let i = 0; i < this.modes.length; i++) {
+          this.tableHeader[this.modes[i]] = this.modeViews[this.modes[i]]
+        }
+        for (let i = 0; i < this.ftime.length; i++) {
+          let item = {}
+          item['ftime'] = this.ftime[i] === 0 ? '综合' : this.ftime[i]
+          for (let j = 0; j < this.modes.length; j++) {
+            let res = this.data.filter(res => res['wfsrc'] === this.modes[j] && res['wfhour'] === this.ftime[i])
+            if (res.length > 0) {
+              item[this.modes[j]] = Utils.toFix(res[0][this.jyys], 3)
+            } else {
+              item[this.modes[j]] = NaN
+            }
+          }
+          this.tableData.push(item)
+        }
+      },
       changeFac(facname) {
         this.facname = facname
         this.jyx = 'jqpf'
         this.ybsc = 'zh'
         this.jycp = 'BBBUSI'
         this.jyys = 'spo'
+        this.showType = '图表'
         if (facname === 'RAT') {
           placeName = {
             spo: '短时强降水命中率技巧',
@@ -324,7 +379,7 @@
     },
     created() {
       let ftimes = 12 / this.jysx;
-      for (let i = 1; i <= ftimes; i++) {
+      for (let i = 0; i <= ftimes; i++) {
         this.ftime.push(i * this.jysx)
         this.ftimeView.push(i * this.jysx)
       }

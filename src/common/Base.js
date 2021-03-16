@@ -10,9 +10,6 @@ export function initEcharts(data, modes, modeViews, ftime, jyys, jysx) {
     let seriesDate = []
     for (let j = 0; j < ftime.length; j++) {
       let dataItem = data.filter(res => res['wfsrc'] === modes[i] && res['wfhour'] === ftime[j])
-      if (jysx === 'zh') {
-        dataItem = data.filter(res => res['wfsrc'] === modes[i])
-      }
       if (dataItem.length > 0) {
         seriesDate.push(dataItem[0][jyys])
       } else {
@@ -23,10 +20,13 @@ export function initEcharts(data, modes, modeViews, ftime, jyys, jysx) {
     seriesItem.data = seriesDate
     series.push(seriesItem)
   }
-  renderChart('grid-chart', ftime, series)
+  let categories = []
+  categories.push(...ftime)
+  if (categories[0] === 0) categories[0] = '综合'
+  renderChart('grid-chart', categories, series)
 }
 
-function renderChart(id, ftime, series) {
+function renderChart(id, categories, series) {
   let option = {
     chart: {
       type: 'column',
@@ -44,7 +44,7 @@ function renderChart(id, ftime, series) {
       //   1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
       //   14, 15, 16, 17, 18, 19, 20,21, 22, 23, 24
       // ],
-      categories: ftime,
+      categories: categories,
       crosshair: true
     },
     yAxis: {
@@ -63,7 +63,11 @@ function renderChart(id, ftime, series) {
     },
     plotOptions: {
       column: {
-        borderWidth: 0
+        borderWidth: 0,
+        // dataLabels: {
+        //   enabled: true,
+        //   format: '{point.y:.3f}'
+        // }
       }
     },
     series

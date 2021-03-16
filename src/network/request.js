@@ -5,6 +5,7 @@ export function request(config) {
   const instance = axios.create({
     baseURL: 'http://localhost:9000/grid-server/api',
     // baseURL: 'http://192.168.0.146:9000/grid-server/api',
+    // baseURL: 'http://10.111.102.27:9000/grid-server/api',
     timeout: 5000
   })
 

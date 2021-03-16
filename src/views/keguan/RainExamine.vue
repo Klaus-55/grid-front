@@ -45,7 +45,7 @@
               <span>检验时效：</span>
               <el-radio-group v-model="jysx" @change="changeJysx">
                 <el-radio-button label="1">1H</el-radio-button>
-                <el-radio-button label="zh">综合</el-radio-button>
+                <el-radio-button label="3">3H</el-radio-button>
                 <el-radio-button label="24">24H</el-radio-button>
               </el-radio-group>
             </el-menu-item>
@@ -85,7 +85,7 @@
               </el-switch>
               <!--            <span style="vertical-align: middle; margin-left: 10px">0~24时</span>-->
               <el-checkbox-group v-model="ftime" @change="changeJysd">
-                <el-checkbox v-for="item in ftimeView" :label="item">{{jysx === 'zh' ? item : item + '时'}}</el-checkbox>
+                <el-checkbox v-for="item in ftimeView" :label="item">{{item == '0' ? '综合' : item + '时'}}</el-checkbox>
               </el-checkbox-group>
             </div>
           </div>
@@ -222,6 +222,14 @@
     },
     methods: {
       changeDate() {
+        this.isMask = false
+        this.ftime = []
+        this.ftimeView = []
+        let ftimes = 24 / this.jysx;
+        for (let i = 0; i <= ftimes; i++) {
+          this.ftime.push(i * this.jysx)
+          this.ftimeView.push(i * this.jysx)
+        }
         this.getRainData()
       },
       changJyx(val) {
@@ -253,13 +261,9 @@
           this.ftime = []
         } else {
           this.ftime = []
-          if (this.jysx === 'zh') {
-            this.ftime.push('1H综合')
-          } else {
-            let ftimes = 24 / this.jysx;
-            for (let i = 1; i <= ftimes; i++) {
-              this.ftime.push(i * this.jysx)
-            }
+          let ftimes = 24 / this.jysx;
+          for (let i = 0; i <= ftimes; i++) {
+            this.ftime.push(i * this.jysx)
           }
         }
         Basic.initEcharts(this.data, this.modes, this.modeViews, this.ftime, this.jyys, this.jysx)
@@ -268,6 +272,7 @@
         this.getRainData()
       },
       changeJysx(val) {
+        this.isMask = false
         this.switchStatus = true
         if (this.jyx === 'fxzl') {
           this.jyys = 'pc'
@@ -275,23 +280,18 @@
           this.jyys = 'spc'
         }
 
-        if (val == 1 || val == 'zh') {
+        if (val == 1) {
           this.isShow = true
         } else {
           this.isShow = false
         }
         this.ftime = []
-        if (val === 'zh') {
-          this.ftime.push('1H综合')
-          this.ftimeView = []
-          this.ftimeView.push('1H综合')
-        } else {
-          let ftimes = 24 / val
-          for (let i = 1; i <= ftimes; i++) {
-            this.ftime.push(i * val)
-          }
-          this.ftimeView = this.ftime
+        let ftimes = 24 / val
+        for (let i = 0; i <= ftimes; i++) {
+          if (i === 0 && val === '24') continue
+          this.ftime.push(i * val)
         }
+        this.ftimeView = this.ftime
         this.getRainData()
       },
       changeJyyx(val) {
@@ -357,7 +357,7 @@
         }
         for (let i = 0; i < this.ftime.length; i++) {
           let item = {}
-          item['ftime'] = this.ftime[i]
+          item['ftime'] = this.ftime[i] === 0 ? '综合' : this.ftime[i]
           for (let j = 0; j < this.modes.length; j++) {
             let res = this.data.filter(res => res['wfsrc'] === this.modes[j] && res['wfhour'] === this.ftime[i])
             if (res.length > 0) {
@@ -382,7 +382,7 @@
     },
     created() {
       let ftimes = 24 / this.jysx;
-      for (let i = 1; i <= ftimes; i++) {
+      for (let i = 0; i <= ftimes; i++) {
         this.ftime.push(i * this.jysx)
         this.ftimeView.push(i * this.jysx)
       }
