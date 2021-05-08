@@ -24,6 +24,25 @@
       vertical-align: middle;
       margin-left: 10px;
     }
+    .el-checkbox-button {
+      margin-left: 20px;
+    }
+    .el-checkbox-button__inner {
+      &:hover {
+        color: #49AFCD;
+      }
+      padding: 5px 12px;
+      font-size: 12px;
+      border: 1px solid #DCDFE6;
+      border-radius: 4px;
+      box-shadow: none;
+    }
+    .el-checkbox-button.is-checked .el-checkbox-button__inner {
+      background-color: #49AFCD;
+      &:hover {
+        color: #fff;
+      }
+    }
   }
   //日期选择器相关样式
   .el-date-editor {
@@ -125,7 +144,7 @@
         width: 1061px;
         height: 50px;
         .el-switch {
-          padding-left: 30px;
+          padding-left: 20px;
           /*height: 100%;*/
           /*vertical-align: baseline;*/
         }

@@ -22,6 +22,11 @@ const routes = [
 
   },
   {
+    path: '/keguan/test',
+    component: () => import("../views/keguan/HeadMenu"),
+
+  },
+  {
     path: '/shengji',
     component: () => import("../views/shengji/HeadMenu")
   }

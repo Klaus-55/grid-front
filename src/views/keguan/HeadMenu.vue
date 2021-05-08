@@ -16,6 +16,7 @@
           强对流预报检验
         </el-menu-item>
       </el-menu>
+      <el-link target="_blank" @click="changeLink">{{linkName}}</el-link>
     </div>
     <component :is="conName"></component>
   </div>
@@ -34,7 +35,8 @@
     },
     data() {
       return {
-        conName: 'rain-examine'
+        conName: 'rain-examine',
+        linkName: '测试版'
       }
     },
     methods: {
@@ -46,6 +48,19 @@
         } else {
           this.conName = 'qdl-examine'
         }
+      },
+      changeLink() {
+        let path = this.$route.path
+        if (path.indexOf('test') === -1) {
+          this.linkName = '返回'
+          let lastChar = path.charAt(path.length - 1)
+          let name = 'test'
+          if (lastChar !== '/') name = '/' +name
+          this.$router.push(path + name)
+        } else {
+          this.linkName = '测试版'
+          this.$router.push(path.substr(0, path.indexOf('test') - 1))
+        }
       }
     }
   }
@@ -53,4 +68,5 @@
 
 <style lang="less">
   @import "../../assets/less/headMenu";
+
 </style>

@@ -29,6 +29,7 @@
                     :value="item.value">
             </el-option>
           </el-select>
+          <el-checkbox-button label="zhuri" key="zhuri" @change="changeValue">逐日检验</el-checkbox-button>
         </div>
         <hr>
         <div class="middle">
@@ -59,13 +60,13 @@
             </el-menu-item>
             <el-menu-item>
               <span>检验要素：</span>
-              <el-radio-group v-model="jyys" @change="changeJyyx" v-show="isJq">
+              <el-radio-group v-model="jyys" @change="changeJyys" v-show="isJq">
                 <el-radio-button label="spc">晴雨预报质量技巧</el-radio-button>
                 <el-radio-button label="sts">强降水预报TS技巧</el-radio-button>
                 <el-radio-button label="sbi">强降水预报BIAS技巧</el-radio-button>
                 <el-radio-button v-if="isShow" label="sme">降水量预报技巧</el-radio-button>
               </el-radio-group>
-              <el-radio-group v-model="jyys" @change="changeJyyx" v-show="!isJq">
+              <el-radio-group v-model="jyys" @change="changeJyys" v-show="!isJq">
                 <el-radio-button label="pc">晴雨预报质量</el-radio-button>
                 <el-radio-button label="ts">强降水预报TS评分</el-radio-button>
                 <el-radio-button label="bi">强降水预报BIAS评分</el-radio-button>
@@ -73,19 +74,24 @@
               </el-radio-group>
             </el-menu-item>
           </el-menu>
-          <div class="jysd">
+<!--          <div class="tense-list-content">-->
+<!--            <span style="vertical-align: top">检验时段：</span>-->
+<!--            <tense-view></tense-view>-->
+<!--          </div>-->
+
+          <div class="jysd" v-show="!isZhuri">
             <span style="vertical-align: top">检验时段：</span>
             <div class="border-content">
               <el-switch
                       v-model="switchStatus"
                       @change="switchChange"
-                      active-text="0~24时"
+                      :active-text="active"
                       active-color="#03B452"
                       inactive-color="#7E7772">
               </el-switch>
-              <!--            <span style="vertical-align: middle; margin-left: 10px">0~24时</span>-->
               <el-checkbox-group v-model="ftime" @change="changeJysd">
-                <el-checkbox v-for="item in ftimeView" :label="item">{{item == '0' ? '综合' : item + '时'}}</el-checkbox>
+                <el-checkbox v-for="item in ftimeView" :label="item" v-if="!isZhuri">{{item == '0' ? '综合' : item + '时'}}</el-checkbox>
+<!--                <el-checkbox v-for="item in ftimeView" :label="item" v-if="isZhuri">{{item + '日'}}</el-checkbox>-->
               </el-checkbox-group>
             </div>
           </div>
@@ -107,8 +113,8 @@
             </div>
             <div class="highcharts-content" v-show="!isMask">
 <!--              <div style="width: 100%;height: 100%;background-color: red" v-show="true"></div>-->
-              <el-checkbox-group v-model="modes" @change="changeModes">
-                <el-checkbox v-for="(zwname, wfsrc) in modeViews" :label="wfsrc">{{zwname}}</el-checkbox>
+              <el-checkbox-group v-model="$store.state.modes" @change="changeModes">
+                <el-checkbox v-for="item in $store.state.modelViews" :label="item">{{$store.getters.unitName(item)}}</el-checkbox>
               </el-checkbox-group>
               <el-radio-group v-model="showType" size="mini" @change="changeType">
                 <el-radio-button label="图表"></el-radio-button>
@@ -121,6 +127,7 @@
                       v-show="showType === '表格'"
                       :data="tableData"
                       border
+                      class="table-fixed"
                       height="calc(100% - 64px)"
                       style="width: calc(100% - 50px); margin: 0 auto; transform: translateY(10px)"
                       :header-cell-style="{'text-align': 'center'}">
@@ -147,10 +154,12 @@
 
 <script>
   import MenuList from "../../components/menu/MenuList";
+  import Tense from "../../components/tense/Tense";
   import * as Basic from "../../common/Base"
   import moment from "momnet"
   import {getRainHttp} from "../../network/keguan";
   import * as Utils from "../../common/utils"
+  import * as types from "../../store/mutation-types"
 
   let placeName = {
     sme: '降水量预报技巧',
@@ -165,7 +174,8 @@
   export default {
     name: "RainScore",
     components: {
-      "side-bar": MenuList
+      "side-bar": MenuList,
+      "tense-view": Tense
     },
     data() {
       return {
@@ -191,6 +201,7 @@
           {value: 'jqpf', label: '技巧评分'},
           {value: 'fxzl', label: '分项质量'}
         ],
+        active: '0~24时',
         ybsc: 'zh',
         jysx: 1,
         jycp: 'BBBUSI',
@@ -205,31 +216,28 @@
           // 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
           // 14, 15, 16, 17, 18, 19, 20,21, 22, 23, 24
         ],
-        modes: [
-          // '中央台','省台指导', '地市订正', '欧洲中心', 'GRAPES_GFS', 'GRAPES_3KM',
-          // '华南模式', '华东模式', '省台客观DL', '省台客观0-24小时'
-        ],
-        modeViews: {
-          // '中央台','省台指导', '地市订正', '欧洲中心', 'GRAPES_GFS', 'GRAPES_3KM',
-          // '华南模式', '华东模式', '省台客观DL', '省台客观0-24小时'
-        },
         showType: '图表',
-        loading: true,
+        isZhuri: false,
+        loading: false,
         data: null,
         tableHeader: {},
         tableData: []
       }
     },
     methods: {
+      changeValue(isZhuri) {
+        this.isZhuri = isZhuri
+        if (isZhuri) {
+          this.getRainData()
+        } else {
+          this.initFtime()
+          this.active = '0~24时'
+          this.getRainData()
+        }
+      },
       changeDate() {
         this.isMask = false
-        this.ftime = []
-        this.ftimeView = []
-        let ftimes = 24 / this.jysx;
-        for (let i = 0; i <= ftimes; i++) {
-          this.ftime.push(i * this.jysx)
-          this.ftimeView.push(i * this.jysx)
-        }
+        this.initFtime()
         this.getRainData()
       },
       changJyx(val) {
@@ -241,8 +249,8 @@
           this.jyys = 'spc'
         }
         this.updateTitle()
-        Basic.initEcharts(this.data, this.modes, this.modeViews, this.ftime, this.jyys, this.jysx)
-
+        this.$store.commit({type: types.updateModes, data: this.data, jyx: val})
+        this.initEcharts()
       },
       changeJysd(val) {
         if (val.length === 0) {
@@ -250,7 +258,7 @@
         } else {
           this.switchStatus = true
         }
-        Basic.initEcharts(this.data, this.modes, this.modeViews, val, this.jyys, this.jysx)
+        this.initEcharts()
       },
       changeJycp() {
         this.isMask = false
@@ -260,13 +268,9 @@
         if (!val) {
           this.ftime = []
         } else {
-          this.ftime = []
-          let ftimes = 24 / this.jysx;
-          for (let i = 0; i <= ftimes; i++) {
-            this.ftime.push(i * this.jysx)
-          }
+          this.initFtime()
         }
-        Basic.initEcharts(this.data, this.modes, this.modeViews, this.ftime, this.jyys, this.jysx)
+        this.initEcharts()
       },
       changeYbsc() {
         this.getRainData()
@@ -285,53 +289,32 @@
         } else {
           this.isShow = false
         }
-        this.ftime = []
-        let ftimes = 24 / val
-        for (let i = 0; i <= ftimes; i++) {
-          if (i === 0 && val === '24') continue
-          this.ftime.push(i * val)
-        }
-        this.ftimeView = this.ftime
+        this.initFtime()
         this.getRainData()
       },
-      changeJyyx(val) {
-        let {startDate, endDate, jysx, jyys, ybsc, ftime} = this
-        let startStr = moment(startDate).format("YYYY-MM-DD")
-        let endStr = moment(endDate).format("YYYY-MM-DD")
-        let ybscName = ''
-        ybsc === 'zh' ? ybscName = '综合' : ybscName = ybsc + '(北京时)'
-        this.mainTitle = '湖南省' + jysx + '小时' + placeName[jyys]
-        this.subTitle = '起报时间：' + startStr + '至' + endStr + '逐' + jysx + '时 ' + ybscName
-        Basic.initEcharts(this.data, this.modes, this.modeViews, this.ftime, val, this.jysx)
+      changeJyys() {
+        this.updateTitle()
+        this.initEcharts()
       },
       changeModes(modes) {
-        if (this.showType === '表格') {
-          this.initTable()
-        } else {
-          Basic.initEcharts(this.data, modes, this.modeViews, this.ftime, this.jyys, this.jysx)
-        }
+        this.$store.commit(types.changeModes, modes)
+        this.initEcharts()
       },
       getRainData() {
+        this.isMask = false
         this.loading = true
-        let {startDate, endDate, jysx, jyys, ybsc, ftime, jycp} = this
+        let {startDate, endDate, jysx, jyys, ybsc, ftime, jycp, isZhuri} = this
         this.updateTitle()
-        getRainHttp(startDate, endDate, ybsc, ftime, jysx, jycp).then(res => {
+        getRainHttp(startDate, endDate, ybsc, ftime, jysx, jycp, isZhuri).then(res => {
           console.log(res.data)
           if (res.data.length === 0) {
             this.isMask = true
             return
           }
-          this.modes = []
-          this.modeViews = {}
+          this.$store.commit({type: types.updateModes, data: res.data, jyx: this.jyx})
           this.data = res.data
-          for (let i = 0; i < this.data.length; i++) {
-            if (this.modes.indexOf(this.data[i]['wfsrc']) === -1) {
-              this.modes.push(this.data[i]['wfsrc'])
-              this.modeViews[this.data[i]['wfsrc']] = this.data[i]['zwname']
-            }
-          }
-          this.modes = this.modes.splice(0, 4)
-          Basic.initEcharts(this.data, this.modes, this.modeViews, ftime, jyys, jysx)
+          this.initFtime()
+          this.initEcharts()
         }).catch(err => {
           console.log(err);
         })
@@ -350,42 +333,78 @@
         this.subTitle = '起报时间：' + startStr + '至' + endStr + '逐' + jysx + '时 ' + ybscName
       },
       initTable() {
-        this.tableHeader = {}
+        this.ftime.sort((a, b) => a - b)
         this.tableData = []
-        for (let i = 0; i < this.modes.length; i++) {
-          this.tableHeader[this.modes[i]] = this.modeViews[this.modes[i]]
+        this.tableHeader = {}
+        let modes = this.$store.state.modes
+        for (let i = 0; i < modes.length; i++) {
+          this.tableHeader[modes[i]] = this.$store.getters.unitName(modes[i])
         }
         for (let i = 0; i < this.ftime.length; i++) {
           let item = {}
           item['ftime'] = this.ftime[i] === 0 ? '综合' : this.ftime[i]
-          for (let j = 0; j < this.modes.length; j++) {
-            let res = this.data.filter(res => res['wfsrc'] === this.modes[j] && res['wfhour'] === this.ftime[i])
-            if (res.length > 0) {
-              item[this.modes[j]] = Utils.toFix(res[0][this.jyys], 3)
+          for (let j = 0; j < modes.length; j++) {
+            let res = []
+            if (this.isZhuri) {
+              res = this.data.filter(res => res['wfsrc'] === modes[j] && res['wfdatetime'] === this.ftime[i])
             } else {
-              item[this.modes[j]] = NaN
+              res = this.data.filter(res => res['wfsrc'] === modes[j] && res['wfhour'] === this.ftime[i])
+            }
+            if (res.length > 0) {
+              item[modes[j]] = Utils.toFix(res[0][this.jyys], 3)
+            } else {
+              item[modes[j]] = -999.0
             }
           }
           this.tableData.push(item)
         }
       },
-      changeType(val) {
-        if (val === '表格') {
-          this.initTable()
+      initEcharts() {
+        if (this.showType === '图表') {
+          if (this.isZhuri) {
+            Basic.initZhuri(this.data, this.ftime, this.jyys)
+          } else {
+            Basic.initEcharts(this.data, this.ftime, this.jyys)
+          }
         } else {
-          Basic.initEcharts(this.data, this.modes, this.modeViews, this.ftime, this.jyys, this.jysx)
+          this.initTable()
+        }
+
+      },
+      changeType() {
+        this.initEcharts()
+      },
+      initFtime() {
+        if (this.isZhuri) {
+          this.ftime = []
+          for (const dataItem of this.data) {
+            if (this.ftime.indexOf(dataItem['wfdatetime']) === -1) {
+              this.ftime.push(dataItem['wfdatetime'])
+            }
+          }
+        } else {
+          this.ftime = []
+          this.ftimeView = []
+          let ftimes = 24 / this.jysx;
+          let i = 0
+          if (this.jysx == 24) i = 1
+          for (i; i <= ftimes; i++) {
+            this.ftime.push(i * this.jysx)
+            this.ftimeView.push(i * this.jysx)
+          }
         }
       }
     },
     watch: {
-
+      '$route' (to, from) {
+        this.initFtime()
+        this.$store.state.modelViews = []
+        this.getRainData()
+      }
     },
     created() {
-      let ftimes = 24 / this.jysx;
-      for (let i = 0; i <= ftimes; i++) {
-        this.ftime.push(i * this.jysx)
-        this.ftimeView.push(i * this.jysx)
-      }
+      this.initFtime()
+      this.$store.state.modelViews = []
       this.$nextTick(() =>{
         this.getRainData()
       })
@@ -395,4 +414,12 @@
 
 <style lang="less">
   @import "../../assets/less/content";
+  .tense-list-content {
+    margin-left: 20px;
+  }
+  .table-fixed {
+    /deep/.el-table__body-wrapper {
+      height: calc(100% - 47px) !important;
+    }
+  }
 </style>
