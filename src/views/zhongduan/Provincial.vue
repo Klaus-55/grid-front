@@ -7,14 +7,16 @@
 
 <script>
   import MenuList from "../../components/menu/MenuList";
-  import WarningMessage from "./shengji/WarningMessage";
-  import WarningDetail from "./shengji/WarningDetail";
+  import WarningMessage from "./provincial/WarningMessage";
+  import WarningDetail from "./provincial/WarningDetail";
+  import RainProgress from "./provincial/RainProgress";
   export default {
     name: "Provincial",
     components: {
       "side-bar": MenuList,
       WarningMessage,
-      WarningDetail
+      WarningDetail,
+      RainProgress
     },
     data() {
       return {
@@ -26,8 +28,8 @@
           {img: require('assets/img/rainstorm.png'), text: '暴雨公众预报', index: 'rainstorm'},
           {img: require('assets/img/rsd.png'), text: '暴雨公众预报详情', index: 'rainstormDetail'},
           {img: require('assets/img/df.png'), text: '每日预报评分', index: 'dailyForecast'},
-          {img: require('assets/img/dlfc.png'), text: '每日实况预报对比', index: 'comparision'},
-          {img: require('assets/img/report.png'), text: '预报质量报表', index: 'report'},
+          {img: require('assets/img/dlfc.png'), text: '每日实况预报对比', index: 'dailyComparision'},
+          {img: require('assets/img/report.png'), text: '预报质量报表', index: 'qualityReport'},
         ],
         conName: 'warning-message'
       }
@@ -38,6 +40,20 @@
           this.conName = 'warning-message'
         } else if (activeName === 'warningDetail') {
           this.conName = 'warning-detail'
+        } else if (activeName === 'rainProcess') {
+          this.conName = 'rain-progress'
+        } else if (activeName === 'rainDetail') {
+          this.conName = 'rain-detail'
+        } else if (activeName === 'rainstorm') {
+          this.conName = 'rainstorm'
+        } else if (activeName === 'rainstormDetail') {
+          this.conName = 'rainstorm-detail'
+        } else if (activeName === 'dailyForecast') {
+          this.conName = 'daily-forecast'
+        } else if (activeName === 'dailyComparision') {
+          this.conName = 'daily-comparision'
+        } else if (activeName === 'qualityReport') {
+          this.conName = 'quality-report'
         }
       }
     }

@@ -69,4 +69,7 @@
   .el-date-editor.el-input, .el-date-editor.el-input__inner {
     width: 120px;
   }
+  .el-button {
+    line-height: normal;
+  }
 </style>

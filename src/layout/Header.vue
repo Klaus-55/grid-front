@@ -32,7 +32,7 @@
 
 <script>
   let zhongduan = [
-    {text: '省级评分', path: '/zhongduan/shengji'},
+    {text: '省级评分', path: '/zhongduan/provincial'},
     {text: '市级评分', path: '/zhongduan/shiji'}
   ]
   let duanlin = [
@@ -47,8 +47,8 @@
     {text: '强对流预报检验', path: '/keguan/qdl'}
   ]
   let shengji = [
-    {text: '省级评分', path: '/shengji/shengji'},
-    {text: '市级评分', path: '/shengji/shiji'}
+    {text: '省级评分', path: '/provincial/provincial'},
+    {text: '市级评分', path: '/provincial/shiji'}
   ]
   export default {
     name: "Header",
