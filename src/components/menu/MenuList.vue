@@ -27,7 +27,7 @@
     },
     methods: {
       handleSelect(facname) {
-        console.log("index->", facname)
+        // console.log("index->", facname)
         this.$emit('changeFac', facname)
       }
     }

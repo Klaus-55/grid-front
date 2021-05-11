@@ -20,12 +20,10 @@
     name: "HeadMenu",
     data() {
       return {
-
       }
     },
     methods: {
       handleSelect(val) {
-
       }
     }
   }

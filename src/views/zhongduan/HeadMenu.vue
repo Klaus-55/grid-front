@@ -20,10 +20,12 @@
 
 <script>
   import Provincial from "./Provincial";
+  import CityLevel from "./CityLevel";
   export default {
     name: "HeadMenu",
     components: {
-      Provincial
+      Provincial,
+      CityLevel
     },
     data() {
       return {
@@ -32,7 +34,11 @@
     },
     methods: {
       handleSelect(val) {
-
+        if (val === 'provincial') {
+          this.conName = 'provincial'
+        } else {
+          this.conName = 'city-level'
+        }
       }
     }
   }

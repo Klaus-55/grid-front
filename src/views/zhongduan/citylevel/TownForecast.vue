@@ -1,14 +1,13 @@
 <template>
-  <div>
-    竞赛
-  </div>
+  <div class="side-content"></div>
 </template>
 
 <script>
   export default {
-    name: "Rain"
+    name: "TownForecast"
   }
 </script>
 
 <style scoped>
+
 </style>

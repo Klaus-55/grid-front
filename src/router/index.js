@@ -27,7 +27,7 @@ const routes = [
 
   },
   {
-    path: '/provincial',
+    path: '/shengji',
     component: () => import("../views/shengji/HeadMenu")
   }
 ]
