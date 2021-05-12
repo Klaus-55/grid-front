@@ -126,7 +126,7 @@
           },
           series: [{
             name: '预报质量',
-            data: [2.3, 2.3, 2.3, 2.3,3.1, 3.1, 3.1]
+            data: [2.3, 2.3, 2.3, 2.3,3.1, 3.1, 3.1, 2.1]
           }]
         }
         Highcharts.chart('rs-container', options)
