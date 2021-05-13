@@ -79,15 +79,19 @@
         </el-menu>
       </div>
       <div class="daily-comparision-bottom">
-        <div class="left-map">111</div>
-        <div class="right-map">222</div>
+        <div id="left-map">
+
+        </div>
+        <div id="right-map"></div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+  import * as L from "leaflet";
   import moment from "momnet";
+  import data from "../../../assets/js/hunan"
   export default {
     name: "DailyComparision",
     data() {
@@ -140,6 +144,30 @@
       changeOption(val) {
         // alert(val)
       }
+    },
+    created() {
+      let myStyle = {
+        color: '#AFC7E5',
+        weight: 1.5,
+        fillColor: '#D5E2F3',
+        fillOpacity: 1
+      }
+      this.$nextTick(() => {
+        let options = {
+          zoomControl: false,
+          attributionControl: false,
+          center: [27.4, 111.5],
+          zoom: 7
+        }
+        let left = L.map('left-map', options)
+        let right = L.map('right-map', options)
+        L.geoJSON(data, {
+          style: myStyle
+        }).addTo(left)
+        L.geoJSON(data, {
+          style: myStyle
+        }).addTo(right)
+      })
     }
   }
 </script>
@@ -292,13 +320,13 @@
   }
   .daily-comparision-bottom {
     height: calc(100% - 131px);
-    .left-map {
+    #left-map {
       float: left;
       width: 49.8%;
       height: 100%;
       background-color: #F8F8F8;
     }
-    .right-map {
+    #right-map {
       float: right;
       width: 49.8%;
       height: 100%;

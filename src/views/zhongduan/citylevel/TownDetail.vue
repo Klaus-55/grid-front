@@ -1,12 +1,14 @@
 <template>
-  <div class="side-content">
-
-  </div>
+  <warning-detail/>
 </template>
 
 <script>
+  import WarningDetail from "../provincial/WarningDetail";
   export default {
-    name: "TownDetail"
+    name: "TownDetail",
+    components: {
+      WarningDetail
+    }
   }
 </script>
 
