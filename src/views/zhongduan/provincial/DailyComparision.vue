@@ -80,7 +80,6 @@
       </div>
       <div class="daily-comparision-bottom">
         <div id="left-map">
-
         </div>
         <div id="right-map"></div>
       </div>
@@ -161,6 +160,19 @@
         }
         let left = L.map('left-map', options)
         let right = L.map('right-map', options)
+        let bounds = [[29.99300228455108,108.41366886438497],[ 24.53712939907994,114.43628217399184]]
+        left.fitBounds(bounds)
+        right.fitBounds(bounds)
+        let maps = [left, right]
+        function maplink(e) {
+          let _this = this
+          maps.map(function (t) {
+            t.setView(_this.getCenter(), _this.getZoom())
+          })
+        }
+        maps.map(function (t) {
+          t.on({drag: maplink, zoom: maplink})
+        })
         L.geoJSON(data, {
           style: myStyle
         }).addTo(left)
