@@ -9,20 +9,25 @@
             <el-radio-button label="24">24小时</el-radio-button>
             <el-radio-button label="48">48小时</el-radio-button>
             <el-radio-button label="72">72小时</el-radio-button>
+            <el-radio-button label="96">96小时</el-radio-button>
+            <el-radio-button label="120">120小时</el-radio-button>
             <el-radio-button label="h72">0-72小时</el-radio-button>
-            <el-radio-button label="120">0-120小时</el-radio-button>
+            <el-radio-button label="h120">0-120小时</el-radio-button>
           </el-radio-group>
         </div>
+
+        <el-button size="mini" type="primary" @click="exportExcel" style="margin-left: 30px">导出</el-button>
       </div>
       <hr>
-      <div class="daily-forecast-middle">
+      <div class="daily-forecast-middle" v-show="false">
         <span>评分类型：</span>
         <el-checkbox-group v-model="scoreType" @change="changeType">
           <el-checkbox v-for="(value, index) in types" :label="index" :key="index">{{value}}</el-checkbox>
         </el-checkbox-group>
-      </div>
+      </div >
       <div class="daily-forecast-bottom">
         <el-table
+                id="table"
                 :data="tableData"
                 height="100%"
                 border
@@ -33,89 +38,41 @@
           <el-table-column
                   fixed
                   prop="forecaster"
-                  label="用户名">
+                  label="预报员">
           </el-table-column>
-          <el-table-column label="晴雨准确率技巧">
-            <el-table-column label="国家站">
-              <el-table-column prop="qy_gj_st" label="省"></el-table-column>
-              <el-table-column prop="qy_gj_yt" label="央"></el-table-column>
-              <el-table-column prop="qy_gj_jq" label="技"></el-table-column>
-            </el-table-column>
-            <el-table-column label="骨干站">
-              <el-table-column prop="qy_gg_st" label="省"></el-table-column>
-              <el-table-column prop="qy_gg_yt" label="央"></el-table-column>
-              <el-table-column prop="qy_gg_jq" label="技"></el-table-column>
-            </el-table-column>
+          <el-table-column label="S99">
+            <el-table-column label="晴雨" prop="qy_S99"></el-table-column>
+            <el-table-column label="一般性降水" prop="ybx_S99"></el-table-column>
+            <el-table-column label="暴雨及以上" prop="by_S99"></el-table-column>
+            <el-table-column label="综合降水" prop="zh_S99"></el-table-column>
+            <el-table-column label="最高温" prop="maxt_S99"></el-table-column>
+            <el-table-column label="最低温" prop="mint_S99"></el-table-column>
           </el-table-column>
-          <el-table-column label="一般性降水技巧">
-            <el-table-column label="国家站">
-              <el-table-column prop="ybx_gj_st" label="省"></el-table-column>
-              <el-table-column prop="ybx_gj_yt" label="央"></el-table-column>
-              <el-table-column prop="ybx_gj_jq" label="技"></el-table-column>
-            </el-table-column>
-            <el-table-column label="骨干站">
-              <el-table-column prop="ybx_gg_st" label="省"></el-table-column>
-              <el-table-column prop="ybx_gg_yt" label="央"></el-table-column>
-              <el-table-column prop="ybx_gg_jq" label="技"></el-table-column>
-            </el-table-column>
+          <el-table-column label="S322">
+            <el-table-column label="晴雨" prop="qy_S322"></el-table-column>
+            <el-table-column label="一般性降水" prop="ybx_S322"></el-table-column>
+            <el-table-column label="暴雨及以上" prop="by_S322"></el-table-column>
+            <el-table-column label="综合降水" prop="zh_S322"></el-table-column>
+            <el-table-column label="最高温" prop="maxt_S322"></el-table-column>
+            <el-table-column label="最低温" prop="mint_S322"></el-table-column>
           </el-table-column>
-          <el-table-column label="暴雨及以上技巧">
-            <el-table-column label="国家站">
-              <el-table-column prop="by_gj_st" label="省"></el-table-column>
-              <el-table-column prop="by_gj_yt" label="央"></el-table-column>
-              <el-table-column prop="by_gj_jq" label="技"></el-table-column>
-            </el-table-column>
-            <el-table-column label="骨干站">
-              <el-table-column prop="by_gg_st" label="省"></el-table-column>
-              <el-table-column prop="by_gg_yt" label="央"></el-table-column>
-              <el-table-column prop="by_gg_jq" label="技"></el-table-column>
-            </el-table-column>
+          <el-table-column label="S421">
+            <el-table-column label="晴雨" prop="qy_S421"></el-table-column>
+            <el-table-column label="一般性降水" prop="ybx_S421"></el-table-column>
+            <el-table-column label="暴雨及以上" prop="by_S421"></el-table-column>
+            <el-table-column label="综合降水" prop="zh_S421"></el-table-column>
+            <el-table-column label="最高温" prop="maxt_S421"></el-table-column>
+            <el-table-column label="最低温" prop="mint_S421"></el-table-column>
           </el-table-column>
-          <el-table-column label="最高温技巧">
-            <el-table-column label="国家站">
-              <el-table-column prop="maxt_gj_st" label="省"></el-table-column>
-              <el-table-column prop="maxt_gj_yt" label="央"></el-table-column>
-              <el-table-column prop="maxt_gj_jq" label="技"></el-table-column>
-            </el-table-column>
-            <el-table-column label="骨干站">
-              <el-table-column prop="maxt_gg_st" label="省"></el-table-column>
-              <el-table-column prop="maxt_gg_yt" label="央"></el-table-column>
-              <el-table-column prop="maxt_gg_jq" label="技"></el-table-column>
-            </el-table-column>
+          <el-table-column label="S1912">
+            <el-table-column label="晴雨" prop="qy_S1912"></el-table-column>
+            <el-table-column label="一般性降水" prop="ybx_S1912"></el-table-column>
+            <el-table-column label="暴雨及以上" prop="by_S1912"></el-table-column>
+            <el-table-column label="综合降水" prop="zh_S1912"></el-table-column>
+            <el-table-column label="最高温" prop="maxt_S1912"></el-table-column>
+            <el-table-column label="最低温" prop="mint_S1912"></el-table-column>
           </el-table-column>
-          <el-table-column label="最低温技巧">
-            <el-table-column label="国家站">
-              <el-table-column prop="mint_gj_st" label="省"></el-table-column>
-              <el-table-column prop="mint_gj_yt" label="央"></el-table-column>
-              <el-table-column prop="mint_gj_jq" label="技"></el-table-column>
-            </el-table-column>
-            <el-table-column label="骨干站">
-              <el-table-column prop="mint_gg_st" label="省"></el-table-column>
-              <el-table-column prop="mint_gg_yt" label="央"></el-table-column>
-              <el-table-column prop="mint_gg_jq" label="技"></el-table-column>
-            </el-table-column>
-          </el-table-column>
-          <el-table-column label="最高温准确率">
-            <el-table-column label="国家站">
-              <el-table-column prop="maxt_gj_pc" label="省"></el-table-column>
-            </el-table-column>
-            <el-table-column label="骨干站">
-              <el-table-column prop="maxt_gg_pc" label="省"></el-table-column>
-            </el-table-column>
-          </el-table-column>
-          <el-table-column label="最低温准确率">
-            <el-table-column label="国家站">
-              <el-table-column prop="mint_gj_pc" label="省"></el-table-column>
-            </el-table-column>
-            <el-table-column label="骨干站">
-              <el-table-column prop="mint_gg_pc" label="省"></el-table-column>
-            </el-table-column>
-          </el-table-column>
-          <el-table-column label="技巧">
-            <el-table-column prop="gj_zh" label="国家站"></el-table-column>
-            <el-table-column prop="gg_zh" label="骨干站"></el-table-column>
-            <el-table-column prop="zh" label="综合技巧"></el-table-column>
-          </el-table-column>
+          <el-table-column label="班次" prop="bc"></el-table-column>
         </el-table>
       </div>
     </div>
@@ -125,6 +82,9 @@
 <script>
   import DatePicker from "../../../components/content/DatePicker";
   import moment from "momnet";
+  import {dailyForecast} from "../../../network/zhongduan";
+  import FileSaver from "file-saver";
+  import XLSX from "xlsx";
 
   export default {
     name: "DailyForecast",
@@ -133,80 +93,90 @@
     },
     data() {
       return {
+        // start: moment(moment(Date.now()).add(-7,'days')).format('YYYYMMDD'),
+        start: '20210501',
+        // end: moment(moment(Date.now()).add(-1,'days')).format('YYYYMMDD'),
+        end: '20210510',
         period: '24',
-        scoreType: ['qy', 'ybx', 'by', 'maxt_jq', 'mint_jq', 'maxt_pc', 'mint_pc', 'zh'],
+        scoreType: ['qy', 'ybx', 'by', 'maxt_pc', 'mint_pc'],
         types: {
-          qy: '晴雨准确率技巧',
-          ybx: '一般性降水技巧',
-          by: '暴雨及以上技巧',
-          maxt_jq: '最高温技巧',
-          mint_jq: '最低温技巧',
+          qy: '晴雨准确率',
+          ybx: '一般性降水准确率',
+          by: '暴雨及以上准确率',
           maxt_pc: '最高温准确率',
-          mint_pc: '最低温准确率',
-          zh: '综合技巧',
+          mint_pc: '最低温准确率'
         },
         tableData: []
       }
     },
     methods: {
       changeDate(startTime, endTime) {
-        let startStr = moment(startTime).format("YYYY-MM-DD")
-        let endStr = moment(endTime).format("YYYY-MM-DD")
-        console.log(startStr)
-        console.log(endStr)
+        this.start = moment(startTime).format("YYYYMMDD")
+        this.end = moment(endTime).format("YYYYMMDD")
+        this.getDailyForecast(this.start, this.end, this.period)
       },
-      changePeriod(period) {
-
+      changePeriod() {
+        this.getDailyForecast(this.start, this.end, this.period)
       },
       changeType(type) {
         alert(type)
+      },
+      getDailyForecast(start, end, fTime) {
+        const loading = this.$loading({
+          lock: true,//lock的修改符--默认是false
+          text: '加载中',//显示在加载图标下方的加载文案
+          spinner: 'el-icon-loading',//自定义加载图标类名
+          target: document.querySelector('#table')//loadin覆盖的dom元素节点
+        })
+        dailyForecast(start, end, fTime).then(res => {
+          this.tableData = res.data
+          loading.close()
+        }).catch(err => {
+          console.log(err)
+        })
+      },
+      exportExcel() {
+        let id = '#table'
+        let period = this.period
+        if (period.indexOf('h') !== -1) {
+          period = period.replace('h', '0-')
+        }
+        let title = this.start + '-' + this.end + '日' + period + '时评分结果.xlsx'
+        /* 从表生成工作簿对象 */
+        let fix = document.querySelector('.el-table__fixed');
+        let wb;
+        if (fix) {
+          wb = XLSX.utils.table_to_book(document.querySelector(id).removeChild(fix));
+          document.querySelector(id).appendChild(fix);
+        } else {
+          wb = XLSX.utils.table_to_book(document.querySelector(id));
+        }
+        /* 获取二进制字符串作为输出 */
+        let wbout = XLSX.write(wb, {
+          bookType: "xlsx",
+          bookSST: true,
+          type: "array"
+        });
+        try {
+          FileSaver.saveAs(
+            //Blob 对象表示一个不可变、原始数据的类文件对象。
+            //Blob 表示的不一定是JavaScript原生格式的数据。
+            //File 接口基于Blob，继承了 blob 的功能并将其扩展使其支持用户系统上的文件。
+            //返回一个新创建的 Blob 对象，其内容由参数中给定的数组串联组成。
+            new Blob([wbout], { type: "application/octet-stream" }),
+            //设置导出文件名称
+            title
+          );
+        } catch (e) {
+          if (typeof console !== "undefined") console.log(e, wbout);
+        }
+        return wbout;
       }
     },
     created() {
-      for (let i = 0; i < 20; i++) {
-        let data = {
-          qy_gj_st: 87.9,
-          qy_gj_yt: -999,
-          qy_gj_jq: -999,
-          qy_gg_st: 83.4,
-          qy_gg_yt: -999,
-          qy_gg_jq: -999,
-          ybx_gj_st: 87.9,
-          ybx_gj_yt: -999,
-          ybx_gj_jq: -999,
-          ybx_gg_st: 83.4,
-          ybx_gg_yt: -999,
-          ybx_gg_jq: -999,
-          by_gj_st: 87.9,
-          by_gj_yt: -999,
-          by_gj_jq: -999,
-          by_gg_st: 83.4,
-          by_gg_yt: -999,
-          by_gg_jq: -999,
-          maxt_gj_st: 87.9,
-          maxt_gj_yt: -999,
-          maxt_gj_jq: -999,
-          maxt_gg_st: 83.4,
-          maxt_gg_yt: -999,
-          maxt_gg_jq: -999,
-          mint_gj_st: 87.9,
-          mint_gj_yt: -999,
-          mint_gj_jq: -999,
-          mint_gg_st: 83.4,
-          mint_gg_yt: -999,
-          mint_gg_jq: -999,
-          maxt_gj_pc: 77.8,
-          maxt_gg_pc: 77.8,
-          mint_gj_pc: 77.8,
-          mint_gg_pc: 77.8,
-          gj_zh: -999,
-          gg_zh: -999,
-          zh: -999,
-        }
-        let forecaster = '预报员' + (i + 1)
-        data['forecaster'] = forecaster
-        this.tableData.push(data)
-      }
+      this.$nextTick(() => {
+        this.getDailyForecast(this.start, this.end, this.period)
+      })
     }
   }
 </script>
@@ -277,7 +247,8 @@
   }
 
   .daily-forecast-bottom {
-    height: calc(100% - 131px);
+    /*height: calc(100% - 131px);*/
+    height: calc(100% - 71px);
     background-color: @bgColor;
   }
 </style>

@@ -3,9 +3,9 @@ import axios from "axios";
 export function request(config) {
   //1. 创建axios实例
   const instance = axios.create({
-    // baseURL: 'http://localhost:9000/grid-server/api',
+    baseURL: 'http://localhost:9000/grid-server/api',
     // baseURL: 'http://192.168.0.146:9000/grid-server/api',
-    baseURL: 'http://10.111.100.216:9000/grid-server/api',
+    // baseURL: 'http://10.111.100.216:9000/grid-server/api',
     timeout: 5000
   })
 
