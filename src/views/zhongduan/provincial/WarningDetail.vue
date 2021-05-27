@@ -2,9 +2,9 @@
   <div class="side-content">
     <div class="content">
       <div class="head">
-        <date-picker @changeDate="changeDate"/>
-        <el-link target="_blank" @click="" style="float: right;">评定方法</el-link>
-        <el-button type="primary" size="mini" @click="" style="float: right; margin-right: 80px">预警详细信息</el-button>
+        <date-picker @changeDate="changeDate" :start="start" :end="end"/>
+        <el-button type="text" @click="open">评定方法</el-button>
+<!--        <el-button type="primary" size="mini" @click="" style="float: right; margin-right: 80px">预警详细信息</el-button>-->
       </div>
       <hr>
       <div class="warning-detail-middle">
@@ -13,24 +13,24 @@
             <span>预警类型：</span>
             <el-radio-group v-model="type" @change="changeType">
               <el-radio-button label="all">所有类型</el-radio-button>
-              <el-radio-button label="rainstorm">暴雨</el-radio-button>
-              <el-radio-button label="blizzard">暴雪</el-radio-button>
-              <el-radio-button label="codeWave">寒潮</el-radio-button>
-              <el-radio-button label="lowTemp">低温雨雪冰冻</el-radio-button>
-              <el-radio-button label="highTemp">高温</el-radio-button>
-              <el-radio-button label="strongConvection">强对流</el-radio-button>
-              <el-radio-button label="heavyFog">大雾</el-radio-button>
-              <el-radio-button label="haze">霾</el-radio-button>
+              <el-radio-button label="暴雨">暴雨</el-radio-button>
+              <el-radio-button label="暴雪">暴雪</el-radio-button>
+              <el-radio-button label="寒潮">寒潮</el-radio-button>
+              <el-radio-button label="低温雨雪冰冻">低温雨雪冰冻</el-radio-button>
+              <el-radio-button label="高温">高温</el-radio-button>
+              <el-radio-button label="强对流">强对流</el-radio-button>
+              <el-radio-button label="大雾">大雾</el-radio-button>
+              <el-radio-button label="霾">霾</el-radio-button>
             </el-radio-group>
           </el-menu-item>
           <el-menu-item>
             <span>预警等级：</span>
             <el-radio-group v-model="level" @change="changeLevel">
               <el-radio-button label="all">所有等级</el-radio-button>
-              <el-radio-button label="blue">蓝色</el-radio-button>
-              <el-radio-button label="yellow">黄色</el-radio-button>
-              <el-radio-button label="orange">橙色</el-radio-button>
-              <el-radio-button label="red">红色</el-radio-button>
+              <el-radio-button label="蓝色">蓝色</el-radio-button>
+              <el-radio-button label="黄色">黄色</el-radio-button>
+              <el-radio-button label="橙色">橙色</el-radio-button>
+              <el-radio-button label="红色">红色</el-radio-button>
             </el-radio-group>
           </el-menu-item>
         </el-menu>
@@ -38,6 +38,7 @@
 
       <div class="warning-detail-bottom">
         <el-table
+                id="table"
                 :data="tableData"
                 height="100%"
                 border
@@ -46,11 +47,11 @@
                 :header-cell-style="{'text-align': 'center', backgroundColor: '#39A5F8', color: '#FFF'}"
                 :cell-style="{'text-align': 'center'}">
           <el-table-column
-                  prop="date"
+                  prop="checkdate"
                   label="日期">
           </el-table-column>
           <el-table-column
-                  prop="type"
+                  prop="warntype"
                   label="类型">
           </el-table-column>
           <el-table-column
@@ -58,27 +59,27 @@
                   label="预报员">
           </el-table-column>
           <el-table-column
-                  prop="factCity"
+                  prop="area"
                   label="实况地市">
           </el-table-column>
           <el-table-column
-                  prop="factDistrict"
+                  prop="district"
                   label="实况县">
           </el-table-column>
           <el-table-column
-                  prop="forecastLevel"
+                  prop="forelevel"
                   label="预警等级">
           </el-table-column>
           <el-table-column
-                  prop="factLevel"
+                  prop="factlevel"
                   label="实况等级">
           </el-table-column>
           <el-table-column
-                  prop="examineLevel"
+                  prop="testlevel"
                   label="检验等级">
           </el-table-column>
           <el-table-column
-                  prop="rs"
+                  prop="graded"
                   label="检验结果">
           </el-table-column>
         </el-table>
@@ -88,8 +89,11 @@
 </template>
 
 <script>
-  import DatePicker from "../../../components/content/DatePicker";
+  import DatePicker from "../../../components/content/DatePicker2";
   import moment from "momnet";
+  import {warningDetail} from "../../../network/zhongduan";
+  import {warningDetailVar} from "../../../common/vars";
+
   export default {
     name: "WarningDetail",
     components: {
@@ -97,6 +101,8 @@
     },
     data() {
       return {
+        start: moment(Date.now()).add(-7, 'd').format('YYYY-MM-DD'),
+        end: moment(Date.now()).format('YYYY-MM-DD'),
         type: 'all',
         level: 'all',
         tableData: []
@@ -104,33 +110,36 @@
     },
     methods: {
       changeDate(startTime, endTime) {
-        let startStr = moment(startTime).format("YYYY-MM-DD")
-        let endStr = moment(endTime).format("YYYY-MM-DD")
-        console.log(startStr)
-        console.log(endStr)
+        this.start = moment(startTime).format("YYYY-MM-DD")
+        this.end = moment(endTime).format("YYYY-MM-DD")
+        this.getWarningDetail()
       },
-      changeType(type) {
-        // alert(type)
+      changeType() {
+        this.getWarningDetail()
       },
-      changeLevel(level) {
-        // alert(level)
+      changeLevel() {
+        this.getWarningDetail()
+      },
+      getWarningDetail() {
+        let loading = this.openLoading('#table');
+        warningDetail(this.start, this.end, this.type, this.level).then(res => {
+          this.tableData = res.data
+          loading.close()
+        }).catch(err => {
+          console.log(err)
+        })
+      },
+      open() {
+        this.$alert(warningDetailVar, '评定办法', {
+          confirmButtonText: '确定',
+          dangerouslyUseHTMLString: true
+        });
       }
     },
     created() {
-      for (let i = 0; i < 20; i++) {
-        let data = {
-          date: '2018-10-13',
-          type: '大雾',
-          forecaster: '预报员1',
-          factCity: '湘西州',
-          factDistrict: '龙山县',
-          forecastLevel: '黄色',
-          factLevel: '黄色',
-          examineLevel: '黄色',
-          rs: 'NA',
-        }
-        this.tableData.push(data)
-      }
+      this.$nextTick(() => {
+        this.getWarningDetail()
+      })
     }
   }
 </script>

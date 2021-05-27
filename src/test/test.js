@@ -15,12 +15,3 @@
 //   {unit: 'YCP1', unitName: '预案产品1', color: '#0040FF'},
 //   {unit: 'YCP2', unitName: '预案产品2', color: '#FF0000'}
 // ]
-function scalarArrayEquals(array1,array2) {
-  array1.sort()
-  array2.sort()
-  return array1.length==array2.length && array1.every(function(v,i) { return v === array2[i]});
-}
-
-let arr1 = ['SOTP', 'UPLD', 'YCP1']
-let arr2 = ['SOTP', 'YCP1', 'UPLD']
-console.log(scalarArrayEquals(arr1, arr2))

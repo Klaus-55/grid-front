@@ -122,12 +122,7 @@
         alert(type)
       },
       getDailyForecast(start, end, fTime) {
-        const loading = this.$loading({
-          lock: true,//lock的修改符--默认是false
-          text: '加载中',//显示在加载图标下方的加载文案
-          spinner: 'el-icon-loading',//自定义加载图标类名
-          target: document.querySelector('#table')//loadin覆盖的dom元素节点
-        })
+        let loading = this.openLoading('#table');
         dailyForecast(start, end, fTime).then(res => {
           this.tableData = res.data
           loading.close()
