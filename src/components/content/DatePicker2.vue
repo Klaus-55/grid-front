@@ -41,6 +41,14 @@
         this.$emit('changeDate', this.startTime, this.endTime)
       }
     },
+    watch: {
+      start(newValue) {
+        this.startTime = newValue
+      },
+      end(newValue) {
+        this.endTime = newValue
+      }
+    },
     created() {
       this.startTime = this.start
       this.endTime = this.end

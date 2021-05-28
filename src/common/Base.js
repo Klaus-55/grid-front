@@ -1,6 +1,7 @@
 
 import Highcharts from "highcharts";
 import store from "../store";
+import HighchartsNoData from "highcharts/modules/no-data-to-display";
 
 export function initEcharts(data, ftime, jyys) {
   ftime.sort((a, b) => a - b)
@@ -46,6 +47,64 @@ export function initZhuri(data, ftime, jyys) {
     series.push(seriesItem)
   }
   renderChart('grid-chart', ftime, series)
+}
+
+//中短期预报质量图表初始化
+export function initMsEcharts(data) {
+  let options = {
+    chart: {
+      type: 'column',
+      backgroundColor: '#F8F8F8',
+    },
+    credits: {
+      enabled: false
+    },
+    colors: ['#5E8CEB', '#59BDBE', '#978EBA', '#EBC980'],
+    title: {
+      text: ''
+    },
+    lang: {
+      noData: '暂无数据'
+    },
+    noData: {
+      style: {
+        fontWeight: 'bold',
+        fontSize: '15px',
+        color: '#303030'
+      }
+    },
+    xAxis: {
+      // categories: ['湖南省','预报员1','预报员2','预报员3'],
+      categories: data.categories,
+      crosshair: true
+    },
+    yAxis: {
+      // min: 0,
+      title: {
+        text: ''
+      }
+    },
+    tooltip: {
+      // head + 每个 point + footer 拼接成完整的 table
+      headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+      pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+        '<td style="padding:0"><b>{point.y:.1f}</b></td></tr>',
+      footerFormat: '</table>',
+      shared: true,
+      useHTML: true
+    },
+    plotOptions: {
+      column: {
+        borderWidth: 0,
+        dataLabels: {
+          enabled: true
+        }
+      }
+    },
+    series: data.series
+  }
+  Highcharts.chart('container', options)
+  HighchartsNoData(Highcharts)
 }
 
 function renderChart(id, categories, series) {

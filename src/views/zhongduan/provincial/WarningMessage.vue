@@ -26,7 +26,7 @@
 
       <div class="warning-message-bottom">
         <h2>{{titleTime}}预警消息预报质量</h2>
-        <div id="wm-container" style="width: 100%; height:calc(100% - 84px)"></div>
+        <div id="container" style="width: 100%; height:calc(100% - 84px)"></div>
       </div>
 
     </div>
@@ -36,11 +36,10 @@
 <script>
   import DatePicker2 from "../../../components/content/DatePicker2";
   import moment from "momnet";
-  import Highcharts from "highcharts";
-  import HighchartsNoData from 'highcharts/modules/no-data-to-display'
   import {warningMessage} from "../../../network/zhongduan";
   import {initRadios, initYears} from "../../../common/utils";
   import {waringMessageVar} from "../../../common/vars";
+  import {initMsEcharts} from "../../../common/Base";
 
   export default {
     name: "WarningMessage",
@@ -69,62 +68,6 @@
       changeTimePeriod() {
         this.updateInfo('month')
         this.getWarningMessage()
-      },
-      initEcharts() {
-        let options = {
-          chart: {
-            type: 'column',
-            backgroundColor: '#F8F8F8',
-          },
-          credits: {
-            enabled: false
-          },
-          colors: ['#5E8CEB', '#59BDBE', '#978EBA', '#EBC980'],
-          title: {
-            text: ''
-          },
-          lang: {
-            noData: '暂无数据'
-          },
-          noData: {
-            style: {
-              fontWeight: 'bold',
-              fontSize: '15px',
-              color: '#303030'
-            }
-          },
-          xAxis: {
-            // categories: ['湖南省','预报员1','预报员2','预报员3'],
-            categories: this.data.categories,
-            crosshair: true
-          },
-          yAxis: {
-            min: 0,
-            title: {
-              text: ''
-            }
-          },
-          tooltip: {
-            // head + 每个 point + footer 拼接成完整的 table
-            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-              '<td style="padding:0"><b>{point.y:.1f}</b></td></tr>',
-            footerFormat: '</table>',
-            shared: true,
-            useHTML: true
-          },
-          plotOptions: {
-            column: {
-              borderWidth: 0,
-              dataLabels: {
-                enabled: true
-              }
-            }
-          },
-          series: this.data.series
-        }
-        Highcharts.chart('wm-container', options)
-        HighchartsNoData(Highcharts)
       },
       changeYear(year) {
         this.radios = initRadios(year)
@@ -157,7 +100,7 @@
         }
       },
       getWarningMessage() {
-        let loading = this.openLoading('#wm-container');
+        let loading = this.openLoading('#container');
         warningMessage(this.start, this.end).then(res => {
           if (res.data.categories.length === 0) {
             res.data.series = []
@@ -165,7 +108,7 @@
           } else {
             this.data = res.data
           }
-          this.initEcharts()
+          initMsEcharts(this.data)
           this.$nextTick(() => {
             loading.close()
           })

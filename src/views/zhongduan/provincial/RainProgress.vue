@@ -2,8 +2,8 @@
   <div class="side-content">
     <div class="content">
       <div class="head">
-        <date-picker @changeDate="changeDate"/>
-        <el-link target="_blank" @click="" style="float: right">评定方法</el-link>
+        <date-picker @changeDate="changeDate" :start="start" :end="end"/>
+<!--        <el-link target="_blank" @click="" style="float: right">评定方法</el-link>-->
       </div>
       <hr>
 
@@ -19,39 +19,28 @@
                       :value="item">
               </el-option>
             </el-select>
-            <el-radio-button label="1">一月</el-radio-button>
-            <el-radio-button label="2">二月</el-radio-button>
-            <el-radio-button label="3">三月</el-radio-button>
-            <el-radio-button label="q1">一季度</el-radio-button>
-            <el-radio-button label="4">四月</el-radio-button>
-            <el-radio-button label="5">五月</el-radio-button>
-            <el-radio-button label="6">六月</el-radio-button>
-            <el-radio-button label="q2">二季度</el-radio-button>
-            <el-radio-button label="7">七月</el-radio-button>
-            <el-radio-button label="8">八月</el-radio-button>
-            <el-radio-button label="9">九月</el-radio-button>
-            <el-radio-button label="q3">三季度</el-radio-button>
-            <el-radio-button label="10">十月</el-radio-button>
-            <el-radio-button label="11">十一月</el-radio-button>
-            <el-radio-button label="12">十二月</el-radio-button>
-            <el-radio-button label="q4">四季度</el-radio-button>
-            <el-radio-button label="year">全年</el-radio-button>
+            <el-radio-button v-for="item in radios"
+                             :label="item.label"
+                             :disabled="item.disabled">{{item.name}}</el-radio-button>
           </el-radio-group>
         </div>
       </div>
 
       <div class="rain-progress-bottom">
-        <h2>{{year}}年{{titleTime}}降水过程预报质量</h2>
-        <div id="rs-container" style="width: 100%; height:calc(100% - 84px)"></div>
+        <h2>{{titleTime}}降水过程预报质量</h2>
+        <div id="container" style="width: 100%; height:calc(100% - 84px)"></div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-  import DatePicker from "../../../components/content/DatePicker";
+  import DatePicker from "../../../components/content/DatePicker2";
   import moment from "momnet";
-  import Highcharts from "highcharts";
+  import {initRadios, initYears} from "../../../common/utils";
+  import {rainProgress} from "../../../network/zhongduan";
+  import {initMsEcharts} from "../../../common/Base";
+
   export default {
     name: "RainProgress",
     components: {
@@ -59,85 +48,73 @@
     },
     data() {
       return {
-        years: [2021, 2020, 2019, 2018, 2017],
-        year: 2021,
+        years: [],
+        year: moment().year(),
         month: moment().month() + 1,
-        titleTime: moment().month() + 1 + '月'
+        titleTime: moment().year() + '年' + (moment().month() + 1) + '月',
+        radios: [],
+        start: moment(Date.now()).startOf('month').format('YYYY-MM-DD'),
+        end: moment(Date.now()).format('YYYY-MM-DD'),
+        data: {}
       }
     },
     methods: {
       changeDate(startTime, endTime) {
-        let startStr = moment(startTime).format("YYYY-MM-DD")
-        let endStr = moment(endTime).format("YYYY-MM-DD")
-        console.log(startStr)
-        console.log(endStr)
+        this.start = moment(startTime).format("YYYY-MM-DD")
+        this.end = moment(endTime).format("YYYY-MM-DD")
+        this.updateInfo('date')
+        this.getRainProgress()
       },
-      changeTimePeriod(time) {
-        if (time === 'year') {
-          this.titleTime = '全年'
-        } else if (time.indexOf('q') !== -1) {
-          this.titleTime = '第' + time.charAt(time.length - 1) + '季度'
+      changeTimePeriod() {
+        this.updateInfo('month')
+      },
+      updateInfo(type) {
+        if (type === 'date') {
+          let startStr = moment(this.start).format('YYYY年M月D日');
+          let endStr = moment(this.end).format('YYYY年M月D日');
+          this.titleTime = startStr + '~' + endStr
         } else {
-          this.titleTime = this.month + '月'
-        }
-      },
-      initEcharts() {
-        let options = {
-          chart: {
-            type: 'column',
-            backgroundColor: '#F8F8F8',
-          },
-          credits: {
-            enabled: false
-          },
-          legend: {
-            enabled: false
-          },
-          colors: ['#59BDBE'],
-          title: {
-            text: ''
-          },
-          xAxis: {
-            categories: ['湖南省','预报员1','预报员2','预报员3','预报员4','预报员5','预报员6', '预报员7'],
-            crosshair: true
-          },
-          yAxis: {
-            min: 0,
-            title: {
-              text: ''
+          if (this.month == 'year') {
+            this.titleTime = this.year + '年全年'
+            this.start = moment().year(this.year).month(0).startOf('month').format('YYYY-MM-DD')
+            this.end = moment().year(this.year).month(11).endOf('month').format('YYYY-MM-DD')
+          } else if ((this.month + '').indexOf('q') !== -1) {
+            this.titleTime = this.year + '年第' + this.month.charAt(this.month.length - 1) + '季度'
+            let q = parseInt(this.month.charAt(this.month.length - 1));
+            this.start = moment().year(this.year).month(q * 3 - 3).startOf('month').format('YYYY-MM-DD')
+            this.end = moment().year(this.year).month(q * 3 - 1).endOf('month').format('YYYY-MM-DD')
+          } else {
+            this.titleTime = this.year + '年' + this.month + '月'
+            this.start = moment().year(this.year).month(this.month - 1).startOf('month').format('YYYY-MM-DD')
+            this.end = moment().year(this.year).month(this.month - 1).endOf('month').format('YYYY-MM-DD')
+            if (this.month == moment().month() + 1 && this.year === moment().year()) {
+              this.end = moment(Date.now()).format('YYYY-MM-DD')
             }
-          },
-          tooltip: {
-            // head + 每个 point + footer 拼接成完整的 table
-            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-              '<td style="padding:0"><b>{point.y:.1f}</b></td></tr>',
-            footerFormat: '</table>',
-            shared: true,
-            useHTML: true
-          },
-          plotOptions: {
-            column: {
-              borderWidth: 0,
-              dataLabels: {
-                enabled: true
-              }
-            }
-          },
-          series: [{
-            name: '预报质量',
-            data: [2.3, 2.3, 2.3, 2.3,3.1, 3.1, 3.1, 2.1]
-          }]
+          }
         }
-        Highcharts.chart('rs-container', options)
       },
       changeYear(year) {
-
+        this.radios = initRadios(year)
+        this.updateInfo('month')
+      },
+      getRainProgress() {
+        let loading = this.openLoading('#container');
+        rainProgress(this.start, this.end).then(res => {
+          this.data = res.data
+          initMsEcharts(this.data)
+          this.$nextTick(() => {
+            loading.close()
+          })
+        }).catch(err => {
+          console.log(err)
+        })
       }
     },
     created() {
-      this.$nextTick(() =>{
-        this.initEcharts()
+      this.$nextTick(() => {
+        this.radios = initRadios(this.year)
+        this.years = initYears(7)
+        this.getRainProgress()
       })
     }
   }

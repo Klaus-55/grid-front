@@ -16,15 +16,16 @@
           <el-menu-item>
             <span>检验产品：</span>
             <el-radio-group v-model="product" @change="changeProduct">
-              <el-radio-button label="skillScore">技巧评分</el-radio-button>
-              <el-radio-button label="quality">分项质量</el-radio-button>
+              <el-radio-button label="技巧评分"></el-radio-button>
+              <el-radio-button label="分项质量"></el-radio-button>
             </el-radio-group>
           </el-menu-item>
           <el-menu-item>
             <span>检验模式：</span>
             <el-radio-group v-model="model" @change="changeModel">
-              <el-radio-button label="BABJ">中央台</el-radio-button>
-              <el-radio-button label="GIFTZD">省台</el-radio-button>
+              <el-radio-button label="中央台" v-show="product === '分项质量'">中央台</el-radio-button>
+              <el-radio-button label="湖南省气象台">省台</el-radio-button>
+              <el-radio-button label="地市">地市</el-radio-button>
             </el-radio-group>
           </el-menu-item>
         </el-menu>
@@ -52,17 +53,21 @@
 
           }
         },
-        product: 'skillScore',
-        model: 'BABJ',
-        titleYear: moment(Date.now()).format('YYYY')
+        product: '技巧评分',
+        model: '湖南省气象台',
+        titleYear: moment(Date.now()).year()
       }
     },
     methods: {
       changeDate() {
-        this.titleYear = moment(this.year).format('YYYY')
+        this.titleYear = moment(this.year).year()
       },
       changeProduct(product) {
-        // alert(product)
+        if (product === '技巧评分') {
+          this.model = '湖南省气象台'
+        } else {
+          this.model = '中央台'
+        }
       },
       changeModel(model) {
         // alert(model)
@@ -167,6 +172,7 @@
       height: 18px;
       line-height: 18px;
       background-color: #F8F8F8;
+      border-left: 1px solid #DCDFE6;
       box-sizing: content-box;
     }
     .el-radio-button__orig-radio:checked+.el-radio-button__inner {

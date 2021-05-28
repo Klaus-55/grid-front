@@ -2,11 +2,12 @@
   <div class="side-content">
     <div class="content">
       <div class="head">
-        <date-picker @changeDate="changeDate"/>
+        <date-picker @changeDate="changeDate" :start="start" :end="end"/>
       </div>
       <hr>
       <div class="rain-detail-content">
         <el-table
+                id="table"
                 :data="tableData"
                 height="100%"
                 border
@@ -23,27 +24,27 @@
                   label="站号">
           </el-table-column>
           <el-table-column
-                  prop="issueTime"
+                  prop="inputtime"
                   label="发布时间">
           </el-table-column>
           <el-table-column
-                  prop="startTime"
+                  prop="start"
                   label="开始时间">
           </el-table-column>
           <el-table-column
-                  prop="endTime"
+                  prop="end"
                   label="结束时间">
           </el-table-column>
           <el-table-column
-                  prop="forecastRainfall"
+                  prop="forerain"
                   label="预报降雨量">
           </el-table-column>
           <el-table-column
-                  prop="factRainfall"
+                  prop="factrain"
                   label="实况降雨">
           </el-table-column>
           <el-table-column
-                  prop="rs"
+                  prop="rain"
                   label="检验结果">
           </el-table-column>
         </el-table>
@@ -53,8 +54,10 @@
 </template>
 
 <script>
-  import DatePicker from "../../../components/content/DatePicker";
+  import DatePicker from "../../../components/content/DatePicker2";
   import moment from "momnet";
+  import {rainDetail} from "../../../network/zhongduan";
+
   export default {
     name: "RainDetail",
     components: {
@@ -62,31 +65,31 @@
     },
     data() {
       return {
+        start: moment(Date.now()).add(-7, 'd').format('YYYY-MM-DD'),
+        end: moment(Date.now()).format('YYYY-MM-DD'),
         tableData: []
       }
     },
     methods: {
       changeDate(startTime, endTime) {
-        let startStr = moment(startTime).format("YYYY-MM-DD")
-        let endStr = moment(endTime).format("YYYY-MM-DD")
-        console.log(startStr)
-        console.log(endStr)
+        this.start = moment(startTime).format("YYYY-MM-DD")
+        this.end = moment(endTime).format("YYYY-MM-DD")
+        this.getRainDetail()
+      },
+      getRainDetail() {
+        let loading = this.openLoading('#table');
+        rainDetail(this.start, this.end).then(res => {
+          this.tableData = res.data
+          loading.close()
+        }).catch(err => {
+          console.log(err)
+        })
       }
     },
     created() {
-      for (let i = 0; i < 20; i++) {
-        let data = {
-          forecaster: '预报员1',
-          obtid: 'P5463',
-          issueTime: '2020-06-04 09:00',
-          startTime: '2020-06-03 08:00',
-          endTime: '2020-06-07 09:00',
-          forecastRainfall: '50.0-100.0mm',
-          factRainfall: '50.0-100.0mm',
-          rs: 'NA',
-        }
-        this.tableData.push(data)
-      }
+      this.$nextTick(() => {
+        this.getRainDetail()
+      })
     }
   }
 </script>

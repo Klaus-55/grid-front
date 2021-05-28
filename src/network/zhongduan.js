@@ -16,6 +16,22 @@ export function warningDetail(start, end, type, level) {
   })
 }
 
+//降水过程评分
+export function rainProgress(start, end) {
+  let url = '/zhongduan/rainProgress/' + start + '/' + end
+  return request({
+    url
+  })
+}
+
+//降水过程评定详情
+export function rainDetail(start, end) {
+  let url = '/zhongduan/rainDetail/' + start + '/' + end
+  return request({
+    url
+  })
+}
+
 //每日预报员评分
 // /zhongduan/dailyForecast/{start}/{end}/{fTime}
 export function dailyForecast(start, end, fTime) {
