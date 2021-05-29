@@ -32,6 +32,22 @@ export function rainDetail(start, end) {
   })
 }
 
+//暴雨公众预报
+export function rainstormPublic(year, product, model) {
+  let url = '/zhongduan/rainstormPublic/' + year + '/' + product + '/' + model
+  return request({
+    url
+  })
+}
+
+//暴雨公众预报详情
+export function rainstormDetail(start, end) {
+  let url = '/zhongduan/rainstormDetail/' + start + '/' + end
+  return request({
+    url
+  })
+}
+
 //每日预报员评分
 // /zhongduan/dailyForecast/{start}/{end}/{fTime}
 export function dailyForecast(start, end, fTime) {

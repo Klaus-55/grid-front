@@ -40,7 +40,9 @@
 
 <script>
   import moment from "momnet"
-  import Highcharts from "highcharts";
+  import {rainstormPublic} from "../../../network/zhongduan";
+  import {initMsEcharts} from "../../../common/Base";
+
   export default {
     name: "RainstormPublic",
     data() {
@@ -55,12 +57,14 @@
         },
         product: '技巧评分',
         model: '湖南省气象台',
-        titleYear: moment(Date.now()).year()
+        titleYear: moment(Date.now()).year(),
+        data: {}
       }
     },
     methods: {
       changeDate() {
         this.titleYear = moment(this.year).year()
+        this.getRainstormPublic()
       },
       changeProduct(product) {
         if (product === '技巧评分') {
@@ -68,66 +72,23 @@
         } else {
           this.model = '中央台'
         }
+        this.getRainstormPublic()
       },
-      changeModel(model) {
-        // alert(model)
+      changeModel() {
+        this.getRainstormPublic()
       },
-      initEcharts() {
-        let options = {
-          chart: {
-            type: 'column',
-            backgroundColor: '#F8F8F8',
-          },
-          credits: {
-            enabled: false
-          },
-          colors: ['#5E8CEB', '#59BDBE', '#EBC56A'],
-          title: {
-            text: ''
-          },
-          xAxis: {
-            categories: ['一月','二月','三月','四月', '五月', '六月'],
-            crosshair: true
-          },
-          yAxis: {
-            title: {
-              text: ''
-            }
-          },
-          tooltip: {
-            // head + 每个 point + footer 拼接成完整的 table
-            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-              '<td style="padding:0"><b>{point.y:.1f}</b></td></tr>',
-            footerFormat: '</table>',
-            shared: true,
-            useHTML: true
-          },
-          plotOptions: {
-            column: {
-              borderWidth: 0,
-              dataLabels: {
-                enabled: true
-              }
-            }
-          },
-          series: [{
-            name: '50MM级技巧评分',
-            data: [3.1, 3.1, 3.1, 3.1, 3.1, 3.1]
-          }, {
-            name: '100MM级技巧评分',
-            data: [2.1, 2.1, 2.1, 2.1, 2.1, 2.1]
-          }, {
-            name: '250MM级技巧评分',
-            data: [-3.1, -3.1, -3.1, -3.1, -3.1, -3.1]
-          }]
-        }
-        Highcharts.chart('container', options)
-      },
+      getRainstormPublic() {
+        let loading = this.openLoading('#container');
+        rainstormPublic(this.titleYear, this.product, this.model).then(res => {
+          this.data = res.data
+          initMsEcharts(this.data)
+          loading.close()
+        })
+      }
     },
     created() {
       this.$nextTick(() =>{
-        this.initEcharts()
+        this.getRainstormPublic()
       })
     }
   }

@@ -67,6 +67,7 @@
       },
       changeTimePeriod() {
         this.updateInfo('month')
+        this.getRainProgress()
       },
       updateInfo(type) {
         if (type === 'date') {
@@ -96,6 +97,7 @@
       changeYear(year) {
         this.radios = initRadios(year)
         this.updateInfo('month')
+        this.getRainProgress()
       },
       getRainProgress() {
         let loading = this.openLoading('#container');

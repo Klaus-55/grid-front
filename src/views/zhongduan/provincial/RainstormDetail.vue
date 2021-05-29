@@ -2,11 +2,12 @@
   <div class="side-content">
     <div class="content">
       <div class="head">
-        <date-picker @changeDate="changeDate"/>
+        <date-picker @changeDate="changeDate" :start="start" :end="end"/>
       </div>
       <hr>
       <div class="rainstorm-detail-content">
         <el-table
+                id="table"
                 :data="tableData"
                 height="100%"
                 border
@@ -15,7 +16,7 @@
                 :header-cell-style="{'text-align': 'center', backgroundColor: '#39A5F8', color: '#FFF'}"
                 :cell-style="{'text-align': 'center'}">
           <el-table-column
-                  prop="forecastTime"
+                  prop="inputtime"
                   label="预报时间">
           </el-table-column>
           <el-table-column
@@ -23,31 +24,31 @@
                   label="站点">
           </el-table-column>
           <el-table-column
-                  prop="forecastRainfall"
+                  prop="rain"
                   label="预报降雨量">
           </el-table-column>
           <el-table-column
-                  prop="factRainfall"
+                  prop="factrain"
                   label="实况降雨量">
           </el-table-column>
           <el-table-column
-                  prop="nearObt"
+                  prop="bestobtid"
                   label="临近最高分站站点">
           </el-table-column>
           <el-table-column
-                  prop="nearObtRainfall"
+                  prop="factrainbest"
                   label="最高分站点雨量">
           </el-table-column>
           <el-table-column
-                  prop="ins50"
+                  prop="rain50"
                   label="50mm检验">
           </el-table-column>
           <el-table-column
-                  prop="ins100"
+                  prop="rain100"
                   label="100mm检验">
           </el-table-column>
           <el-table-column
-                  prop="ins250"
+                  prop="rain250"
                   label="250mm检验">
           </el-table-column>
           <el-table-column
@@ -62,8 +63,10 @@
 </template>
 
 <script>
-  import DatePicker from "../../../components/content/DatePicker";
+  import DatePicker from "../../../components/content/DatePicker2";
   import moment from "momnet";
+  import {rainstormDetail} from "../../../network/zhongduan";
+
   export default {
     name: "RainstormDetail",
     components: {
@@ -71,33 +74,29 @@
     },
     data() {
       return {
+        start: moment(Date.now()).add(-7, 'd').format('YYYY-MM-DD'),
+        end: moment(Date.now()).format('YYYY-MM-DD'),
         tableData: []
       }
     },
     methods: {
       changeDate(startTime, endTime) {
-        let startStr = moment(startTime).format("YYYY-MM-DD")
-        let endStr = moment(endTime).format("YYYY-MM-DD")
-        console.log(startStr)
-        console.log(endStr)
+        this.start = moment(startTime).format("YYYY-MM-DD")
+        this.end = moment(endTime).format("YYYY-MM-DD")
+        this.getRainstormDetail()
+      },
+      getRainstormDetail() {
+        let loading = this.openLoading('#table')
+        rainstormDetail(this.start, this.end).then(res => {
+          this.tableData = res.data
+          loading.close()
+        })
       }
     },
     created() {
-      for (let i = 0; i < 20; i++) {
-        let data = {
-          forecastTime: '2020-01-21 12:00',
-          obtid: '57585',
-          forecastRainfall: '50.0',
-          factRainfall: '21.8',
-          nearObt: 'P3536',
-          nearObtRainfall: '53.1',
-          ins50: 'NF',
-          ins100: '-',
-          ins250: '-',
-          score: '100.0',
-        }
-        this.tableData.push(data)
-      }
+      this.$nextTick(() => {
+        this.getRainstormDetail()
+      })
     }
   }
 </script>

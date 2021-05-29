@@ -19,6 +19,7 @@
 </template>
 
 <script>
+  import moment from "momnet";
   export default {
     name: "DatePicker2",
     props: {
@@ -43,15 +44,15 @@
     },
     watch: {
       start(newValue) {
-        this.startTime = newValue
+        this.startTime = moment(newValue).format('YYYY-MM-DD')
       },
       end(newValue) {
-        this.endTime = newValue
+        this.endTime = moment(newValue).format('YYYY-MM-DD')
       }
     },
     created() {
-      this.startTime = this.start
-      this.endTime = this.end
+      this.startTime = moment(this.start).format('YYYY-MM-DD')
+      this.endTime = moment(this.end).format('YYYY-MM-DD')
     }
   }
 </script>

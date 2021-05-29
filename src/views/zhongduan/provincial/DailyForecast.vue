@@ -2,7 +2,7 @@
   <div class="side-content">
     <div class="content">
       <div class="head">
-        <date-picker @changeDate="changeDate"/>
+        <date-picker @changeDate="changeDate" :start="start" :end="end"/>
         <div class="head-time-period">
           <span>检验时段：</span>
           <el-radio-group v-model="period" @change="changePeriod">
@@ -80,7 +80,7 @@
 </template>
 
 <script>
-  import DatePicker from "../../../components/content/DatePicker";
+  import DatePicker from "../../../components/content/DatePicker2";
   import moment from "momnet";
   import {dailyForecast} from "../../../network/zhongduan";
   import FileSaver from "file-saver";
@@ -93,10 +93,8 @@
     },
     data() {
       return {
-        // start: moment(moment(Date.now()).add(-7,'days')).format('YYYYMMDD'),
-        start: '20210501',
-        // end: moment(moment(Date.now()).add(-1,'days')).format('YYYYMMDD'),
-        end: '20210510',
+        start: moment(moment(Date.now()).add(-5,'days')).format('YYYYMMDD'),
+        end: moment(moment(Date.now())).format('YYYYMMDD'),
         period: '24',
         scoreType: ['qy', 'ybx', 'by', 'maxt_pc', 'mint_pc'],
         types: {
@@ -113,17 +111,17 @@
       changeDate(startTime, endTime) {
         this.start = moment(startTime).format("YYYYMMDD")
         this.end = moment(endTime).format("YYYYMMDD")
-        this.getDailyForecast(this.start, this.end, this.period)
+        this.getDailyForecast()
       },
       changePeriod() {
-        this.getDailyForecast(this.start, this.end, this.period)
+        this.getDailyForecast()
       },
       changeType(type) {
         alert(type)
       },
-      getDailyForecast(start, end, fTime) {
+      getDailyForecast() {
         let loading = this.openLoading('#table');
-        dailyForecast(start, end, fTime).then(res => {
+        dailyForecast(this.start, this.end, this.period).then(res => {
           this.tableData = res.data
           loading.close()
         }).catch(err => {
@@ -170,7 +168,8 @@
     },
     created() {
       this.$nextTick(() => {
-        this.getDailyForecast(this.start, this.end, this.period)
+        console.log(moment('2020-05-01').format('YYYY-MM-DD'))
+        this.getDailyForecast()
       })
     }
   }
