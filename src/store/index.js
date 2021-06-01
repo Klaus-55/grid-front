@@ -26,7 +26,15 @@ const store = new Vuex.Store({
       {unit: 'v1_3km', unitName: 'v1_3km', color: '#5BCFFF'},
       {unit: 'v2_3km', unitName: 'v2_3km', color: '#FFBFB7'},
       {unit: 'v3_nmc', unitName: 'v3_nmc', color: '#00F62E'},
-      {unit: 'v3_3km', unitName: 'v3_3km', color: '#4BF8FF'}
+      {unit: 'v3_3km', unitName: 'v3_3km', color: '#4BF8FF'},
+      {unit: 'SMG_FORECAST_PL', unitName: 'SMG_FORECAST_PL', color: '#7EB4EA'},
+      {unit: 'RAT_QPF', unitName: 'RAT_QPF', color: '#5BCFFF'},
+      {unit: 'RAT_FORECAST_PL', unitName: 'RAT_FORECAST_PL', color: '#FFBFB7'},
+      {unit: 'RAT_Nowcast', unitName: 'RAT_Nowcast', color: '#00F62E'},
+      {unit: 'RAT_FORECAST_DL', unitName: 'RAT_FORECAST_DL', color: '#4BF8FF'},
+      {unit: 'RAT_TL', unitName: 'RAT_TL', color: '#FF0000'},
+      {unit: 'SMG_Nowcast', unitName: 'SMG_Nowcast', color: '#15F6BA'},
+      {unit: 'SMG_FORECAST_DL', unitName: 'SMG_FORECAST_DL', color: '#C7FFB4'}
     ],
     modes: [],
     modelViews: [],

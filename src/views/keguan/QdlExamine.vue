@@ -288,10 +288,10 @@
           this.data = res.data
           this.initFtime()
           this.initEcharts()
+          this.loading = false
         }).catch(err => {
           console.log(err);
         })
-        this.loading = false
       },
       updateTitle() {
         let {startDate, endDate, jysx, jyys, ybsc} = this
