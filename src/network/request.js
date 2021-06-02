@@ -1,12 +1,19 @@
 import axios from "axios";
 
 export function request(config) {
+  let baseURL
+  if (process.env.NODE_ENV === 'development') {
+    baseURL = 'http://localhost:9000/grid-server/api'
+  } else {
+    baseURL = 'http://10.111.100.216:9000/grid-server/api'
+  }
   //1. 创建axios实例
   const instance = axios.create({
-    baseURL: 'http://localhost:9000/grid-server/api',
+    // baseURL: 'http://localhost:9000/grid-server/api',
     // baseURL: 'http://192.168.0.146:9000/grid-server/api',
     // baseURL: 'http://10.111.100.216:9000/grid-server/api',
     // timeout: 5000c
+    baseURL
   })
 
   //2.axios拦截器
