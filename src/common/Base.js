@@ -107,6 +107,115 @@ export function initMsEcharts(data) {
   HighchartsNoData(Highcharts)
 }
 
+//短临预报质量图表初始化
+export function initSaEcharts(data) {
+  let options = {
+    chart: {
+      type: "column",
+      backgroundColor: "#F8F8F8",
+    },
+    credits: {
+      enabled: false,
+    },
+    colors: [
+      "#8FCACB",
+      "#C1BAD8",
+      "#EA7B7B",
+      "#F6A467",
+      "#F9CE73",
+      "#83A8F2",
+    ],
+    lang: {
+      noData: '暂无数据'
+    },
+    noData: {
+      style: {
+        fontWeight: 'bold',
+        fontSize: '15px',
+        color: '#303030'
+      }
+    },
+    title: {
+      text: '',
+    },
+    xAxis: {
+      // categories: [
+      //   "湖南省气象台",
+      //   "长沙市气象台",
+      //   "株洲市气象台",
+      //   "湘潭市气象台",
+      //   "衡阳市气象台",
+      //   "邵阳市气象台",
+      //   "岳阳市气象台",
+      //   "常德市气象台",
+      //   "张家界市气象台",
+      //   "益阳市气象台",
+      //   "郴州市气象台",
+      //   "永州市气象台",
+      //   "怀化市气象台",
+      //   "娄底市气象台",
+      //   "湘西州气象台",
+      // ],
+      categories: data.categories,
+      crosshair: true,
+    },
+    yAxis: {
+      // min: 0,
+      title: {
+        text: "",
+      },
+    },
+    tooltip: {
+      // head + 每个 point + footer 拼接成完整的 table
+      headerFormat:
+        '<span style="font-size:10px">{point.key}</span><table>',
+      pointFormat:
+        '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+        '<td style="padding:0"><b>{point.y:.2f}</b></td></tr>',
+      footerFormat: "</table>",
+      shared: true,
+      useHTML: true,
+    },
+    plotOptions: {
+      column: {
+        borderWidth: 0,
+        dataLabels: {
+          enabled: true,
+        },
+      },
+    },
+    // series: [
+    //   {
+    //     name: "不分级别",
+    //     data: [2.3, 2.3, 2.3, 2.3, 2.3, 2.3, 2.3, 2.3, 2.3, 2.3, 2.3, 2.3, 2.3, 2.3, 2.3],
+    //   },
+    //   {
+    //     name: "所有级别",
+    //     data: [3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1],
+    //   },
+    //   {
+    //     name: "红色",
+    //     data: [1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8],
+    //   },
+    //   {
+    //     name: "橙色",
+    //     data: [2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1],
+    //   },
+    //   {
+    //     name: "黄色",
+    //     data: [2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5],
+    //   },
+    //   {
+    //     name: "蓝色",
+    //     data: [2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4],
+    //   },
+    // ],
+    series: data.series
+  };
+  Highcharts.chart("container", options);
+  HighchartsNoData(Highcharts)
+}
+
 function renderChart(id, categories, series) {
   let option = {
     chart: {

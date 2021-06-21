@@ -1,66 +1,56 @@
 <template>
   <div class="side-content">
     <div class="content">
-      <div class="head"><DatePicker /></div>
+      <div class="head"><DatePicker :start="start" :end="end" @changeDate="changeDate"/></div>
       <hr />
       <div class="rain-examine-middle">
         <el-menu mode="horizontal">
           <el-menu-item>
-            <span>检验指标：</span>
-            <el-radio-group v-model="defIndicator">
+            <span>预警类型：</span>
+            <el-radio-group v-model="warningType" @change="changeType">
               <el-radio-button
-                v-for="item in indItems"
+                v-for="item in typeItems"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value"
-                >{{ item.label }}</el-radio-button
+                >{{ item.value }}</el-radio-button
               >
             </el-radio-group>
           </el-menu-item>
           <el-menu-item>
-            <span>地区级别：</span>
-            <el-radio-group v-model="defLevel">
+            <span>检验要素：</span>
+            <el-radio-group v-model="factory" @change="changeFactory">
               <el-radio-button
-                v-for="item in levelItems"
+                v-for="item in factories"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value"
-                >{{ item.label }}</el-radio-button
+                >{{ item.value }}</el-radio-button
               >
             </el-radio-group>
           </el-menu-item>
         </el-menu>
-        <el-menu mode="horizontal" class="inspection-time">
-          <el-menu-item>
+          <div class="time-period-radio">
             <span>检验时段：</span>
-            <el-select v-model="defYear">
-              <el-option
-                v-for="item in yearItem"
-                :key="item.value"
-                :label="item.label + '年'"
-                :value="item.value"
-              >
-              </el-option>
-            </el-select>
-          </el-menu-item>
-          <el-menu-item>
-            <el-radio-group v-model="defMonth">
-              <el-radio-button
-                v-for="item in monthItem"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              >
-              </el-radio-button>
+            <el-radio-group v-model="month" @change="changeTimePeriod">
+              <el-select v-model="year" @change="changeYear">
+                <el-option
+                        v-for="item in years"
+                        :key="item"
+                        :label="item + '年'"
+                        :value="item"></el-option>
+              </el-select>
+              <el-radio-button v-for="item in radios"
+                               :label="item.label"
+                               :disabled="item.disabled">{{item.name}}</el-radio-button>
             </el-radio-group>
-          </el-menu-item>
-        </el-menu>
+          </div>
       </div>
       <div class="rain-examine-bottom">
         <div class="highcharts-title">
-          <div class="maintitle">{{ title }}</div>
+          <div class="maintitle">湖南省{{titleTime + warningType}}预警{{facTitle}}</div>
           <div class="highcharts-content" v-show="!isMask">
-            <el-radio-group v-model="showType" size="mini">
+            <el-radio-group v-model="showType" size="mini" @change="changeShowType">
               <el-radio-button label="图表"></el-radio-button>
               <el-radio-button label="表格"></el-radio-button>
             </el-radio-group>
@@ -69,28 +59,29 @@
               style="width: 100%; height: calc(100% - 50px)"
               v-show="showType === '图表'"
             ></div>
-            <!--            <el-table-->
-            <!--                    v-show="showType === '表格'"-->
-            <!--                    :data="tableData"-->
-            <!--                    border-->
-            <!--                    class="table-fixed"-->
-            <!--                    height="calc(100% - 64px)"-->
-            <!--                    style="width: calc(100% - 50px); margin: 0 auto; transform: translateY(10px)"-->
-            <!--                    :header-cell-style="{'text-align': 'center'}">-->
-            <!--              <el-table-column-->
-            <!--                      prop="ftime"-->
-            <!--                      label="预报时段（小时）"-->
-            <!--                      align="center"-->
-            <!--              >-->
-            <!--              </el-table-column>-->
-            <!--              <el-table-column-->
-            <!--                      v-for="(value, key) in tableHeader"-->
-            <!--                      :prop="key"-->
-            <!--                      :label="value"-->
-            <!--                      align="center"-->
-            <!--              >-->
-            <!--              </el-table-column>-->
-            <!--            </el-table>-->
+            <el-table
+                    id="table"
+                    v-show="showType === '表格'"
+                    :data="tableData"
+                    border
+                    class="table-fixed"
+                    height="calc(100% - 64px)"
+                    style="width: calc(100% - 50px); margin: 0 auto; transform: translateY(10px)"
+                    :header-cell-style="{'text-align': 'center'}">
+<!--              <el-table-column-->
+<!--                      prop="department"-->
+<!--                      label="预报时段（小时）"-->
+<!--                      align="center"-->
+<!--              >-->
+<!--              </el-table-column>-->
+              <el-table-column
+                      v-for="(value, key) in tableHeader"
+                      :prop="key"
+                      :label="value"
+                      align="center"
+              >
+              </el-table-column>
+            </el-table>
           </div>
         </div>
       </div>
@@ -99,170 +90,195 @@
 </template>
 
 <script>
-import DatePicker from "../../../components/content/DatePicker";
-import Highcharts from "highcharts";
-export default {
-  name: "ProvincialWarning",
-  components: {
-    DatePicker,
-  },
-  data() {
-    return {
-      defIndicator: "TS评分",
-      indItems: [
-        { label: "TS评分", value: "ts" },
-        { label: "空报率", value: "kb" },
-        { label: "漏报率", value: "lb" },
-        { label: "命中率", value: "mz" },
-        { label: "及时性", value: "js" },
-      ],
-      defLevel: "市级",
-      levelItems: [
-        { label: "市级", value: "city" },
-        { label: "县级", value: "county" },
-      ],
-      yearItem: [
-        { value: "y2020", label: "2021" },
-        { value: "y2021", label: "2020" },
-        { value: "y2019", label: "2019" },
-        { value: "y2018", label: "2018" },
-      ],
-      defYear: "2020年",
-      monthItem: [
-        { value: "m1", label: "一月" },
-        { value: "m2", label: "二月" },
-        { value: "m3", label: "三月" },
-        { value: "q1", label: "一季度" },
-        { value: "m4", label: "四月" },
-        { value: "m5", label: "五月" },
-        { value: "m6", label: "六月" },
-        { value: "q2", label: "二季度" },
-        { value: "q3", label: "上半年" },
-        { value: "m7", label: "七月" },
-        { value: "m8", label: "八月" },
-        { value: "m9", label: "九月" },
-        { value: "q4", label: "三季度" },
-        { value: "m10", label: "十月" },
-        { value: "m11", label: "十一月" },
-        { value: "m12", label: "十二月" },
-        { value: "q5", label: "四季度" },
-        { value: "q6", label: "全年" },
-      ],
-      defMonth: "一月",
-      isMask: false,
-      showType: "图表",
-      title: "湖南省2020年9月暴雨预警预报质量",
-    };
-  },
-  created() {
-    this.$nextTick(() => {
-      this.initEcharts();
-    });
-  },
-  methods: {
-    initEcharts() {
-      let options = {
-        chart: {
-          type: "column",
-          backgroundColor: "#F8F8F8",
-        },
-        credits: {
-          enabled: false,
-        },
-        colors: [
-          "#8FCACB",
-          "#C1BAD8",
-          "#EA7B7B",
-          "#F6A467",
-          "#F9CE73",
-          "#83A8F2",
-        ],
-        title: {
-          text: "",
-        },
-        xAxis: {
-          categories: [
-            "湖南省气象台",
-            "预报员1",
-            "预报员2",
-            "预报员3",
-            "预报员4",
-            "预报员5",
-            "预报员6",
-          ],
-          crosshair: true,
-        },
-        yAxis: {
-          min: 0,
-          title: {
-            text: "",
-          },
-        },
-        tooltip: {
-          // head + 每个 point + footer 拼接成完整的 table
-          headerFormat:
-            '<span style="font-size:10px">{point.key}</span><table>',
-          pointFormat:
-            '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-            '<td style="padding:0"><b>{point.y:.1f}</b></td></tr>',
-          footerFormat: "</table>",
-          shared: true,
-          useHTML: true,
-        },
-        plotOptions: {
-          column: {
-            borderWidth: 0,
-            dataLabels: {
-              enabled: true,
-            },
-          },
-        },
-        series: [
-          {
-            name: "不分级别",
-            data: [2.3, 2.3, 2.3, 2.3, 2.3, 2.3, 2.3, 2.3],
-          },
-          {
-            name: "所有级别",
-            data: [3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1],
-          },
-          {
-            name: "红色",
-            data: [1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8],
-          },
-          {
-            name: "橙色",
-            data: [2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1],
-          },
-          {
-            name: "黄色",
-            data: [2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5],
-          },
-          {
-            name: "蓝色",
-            data: [2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4],
-          },
-        ],
-      };
-      Highcharts.chart("container", options);
+  import DatePicker from "../../../components/content/DatePicker2";
+  import {initRadios, initYears, toFix} from "../../../common/utils";
+  import moment from "momnet";
+  import {provincialWarning} from "../../../network/duanlin";
+  import {initSaEcharts} from "../../../common/Base";
+
+  export default {
+    name: "ProvincialWarning",
+    components: {
+      DatePicker,
     },
-  },
+    data() {
+      return {
+        warningType: "暴雨",
+        typeItems: [
+          { label: "暴雨", value: "暴雨" },
+          { label: "雷雨大风", value: "雷雨大风" },
+          { label: "雷电", value: "雷电" },
+          { label: "冰雹", value: "冰雹" },
+          { label: "综合", value: "综合" },
+        ],
+        factory: "ts",
+        factories: [
+          { label: "ts", value: "预报准确率" },
+          { label: "leadtime", value: "预警提前量" },
+          { label: "zh", value: "综合成绩" },
+        ],
+        year: moment().year(),
+        years: [],
+        month: moment().month() + 1,
+        radios: [],
+        start: moment(Date.now()).startOf('month').format('YYYY-MM-DD'),
+        end: moment(Date.now()).format('YYYY-MM-DD'),
+        isMask: false,
+        showType: "图表",
+        titleTime: moment().year() + '年' + (moment().month() + 1) + '月',
+        facTitle: '预报质量',
+        data: {},
+        tableHeader: {},
+        tableData: []
+      };
+    },
+    created() {
+      this.$nextTick(() => {
+        this.radios = initRadios(this.year)
+        this.years = initYears(7)
+        this.getProvincialWarning()
+      });
+    },
+    methods: {
+      changeDate(startTime, endTime) {
+        this.start = moment(startTime).format("YYYY-MM-DD")
+        this.end = moment(endTime).format("YYYY-MM-DD")
+        this.updateInfo('date')
+        this.getProvincialWarning()
+      },
+      changeFactory(val) {
+        if (val === 'ts') {
+          this.facTitle = '预报质量'
+        } else if (val === 'leadtime') {
+          this.facTitle = '提前量'
+        } else {
+          this.facTitle = '综合成绩'
+        }
+        this.getProvincialWarning()
+      },
+      changeType() {
+        this.getProvincialWarning()
+      },
+      changeTimePeriod() {
+        this.updateInfo('month')
+        this.getProvincialWarning()
+      },
+      updateInfo(type) {
+        if (type === 'date') {
+          let startStr = moment(this.start).format('YYYY年M月D日');
+          let endStr = moment(this.end).format('YYYY年M月D日');
+          this.titleTime = startStr + '~' + endStr
+        } else {
+          if (this.month == 'year') {
+            this.titleTime = this.year + '年'
+            this.start = moment().year(this.year).month(0).startOf('month').format('YYYY-MM-DD')
+            this.end = moment().year(this.year).month(11).endOf('month').format('YYYY-MM-DD')
+          } else if ((this.month + '').indexOf('q') !== -1) {
+            this.titleTime = this.year + '年第' + this.month.charAt(this.month.length - 1) + '季度'
+            let q = parseInt(this.month.charAt(this.month.length - 1));
+            this.start = moment().year(this.year).month(q * 3 - 3).startOf('month').format('YYYY-MM-DD')
+            this.end = moment().year(this.year).month(q * 3 - 1).endOf('month').format('YYYY-MM-DD')
+          } else {
+            this.titleTime = this.year + '年' + this.month + '月'
+            this.start = moment().year(this.year).month(this.month - 1).startOf('month').format('YYYY-MM-DD')
+            this.end = moment().year(this.year).month(this.month - 1).endOf('month').format('YYYY-MM-DD')
+            if (this.month == moment().month() + 1 && this.year === moment().year()) {
+              this.end = moment(Date.now()).format('YYYY-MM-DD')
+            }
+          }
+        }
+      },
+      changeYear(year) {
+        this.radios = initRadios(year)
+        this.updateInfo('month')
+        this.getProvincialWarning()
+      },
+      getProvincialWarning() {
+        let target = '#container'
+        if (this.showType === '表格') target = '#table'
+        let loading = this.openLoading(target);
+        provincialWarning(this.start, this.end, this.warningType, this.factory).then(res => {
+          this.data = res.data
+          if (this.showType === '图表') {
+            initSaEcharts(this.data)
+          } else {
+            this.initTable()
+          }
+          loading.close()
+        }).catch(err => {
+          console.log(err)
+        })
+      },
+      changeShowType() {
+        this.getProvincialWarning()
+      },
+      initTable() {
+        this.tableHeader = {}
+        this.tableData = []
+        let selectedFac = this.data['series']
+        if (selectedFac.length === 0) return
+        let departments = this.data['categories']
+        this.tableHeader['department'] = '发布单位'
+        for (let i = 0; i < selectedFac.length; i++) {
+          this.tableHeader['name' + i] = selectedFac[i].name
+        }
+        for (let i = 0; i < departments.length; i++) {
+          let data = {}
+          data['department'] = departments[i]
+          for (let j = 0; j < selectedFac.length; j++) {
+            data['name' + j] = toFix(selectedFac[j]['data'][i], 2)
+          }
+          this.tableData.push(data)
+        }
+      }
+    },
 };
 </script>
 
 <style lang="less">
-.inspection-time {
-  .el-menu-item {
-    .el-select .el-input .el-input__inner {
-      width: 90px;
-      height: 18px;
-      font-size: 12px;
-      margin-top: -2px;
-      border-radius: 0;
+  @import "../../../assets/less/common";
+    .time-period-radio {
+      margin-left: 20px;
+      margin-top: 10px;
+      .el-select {
+        vertical-align: middle;
+      }
+      .el-input__inner {
+        width: 65px;
+        height: 25px;
+        line-height: 25px;
+        font-size: 12px;
+        background-color: @bgColor;
+        border-radius: 0;
+        padding: 0 0 0 6px;
+
+      }
+      .el-input__suffix {
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      .el-select .el-input .el-select__caret {
+        font-size: 12px;
+        color: @mainColor;
+      }
+      .el-radio-button__inner:disabled:hover {
+        color: #C0C4CC;
+      }
+      .el-input__icon {
+        width: 20px;
+        line-height: 25px;
+      }
+      .el-icon-arrow-up:before {
+        content: "\e78f";
+      }
+      .el-radio-button__inner {
+        width: 65px;
+        height: 25px;
+        line-height: 25px;
+        font-size: 12px;
+        background: @bgColor;
+        padding: 0;
+      }
     }
-    .el-radio-group {
-      margin-left: -41px;
-    }
-  }
-}
 </style>

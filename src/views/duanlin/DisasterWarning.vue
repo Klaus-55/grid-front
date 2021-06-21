@@ -27,7 +27,7 @@
           {img: require('assets/img/wms.png'), text: '省级预警预报质量', index: 'pw'},
           {img: require('assets/img/wmd.png'), text: '省级预警评定详情', index: 'pwd'},
           {img: require('assets/img/cw.png'), text: '市级预警预报质量', index: 'cw'},
-          {img: require('assets/img/ybsk.png'), text: '市级预警预报质量', index: 'cwd'}
+          {img: require('assets/img/ybsk.png'), text: '市级预警评定详情', index: 'cwd'}
         ]
       }
     },
