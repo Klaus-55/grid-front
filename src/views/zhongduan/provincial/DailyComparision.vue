@@ -91,6 +91,7 @@
   import * as L from "leaflet";
   import moment from "momnet";
   import data from "../../../assets/js/hunan"
+
   export default {
     name: "DailyComparision",
     data() {
