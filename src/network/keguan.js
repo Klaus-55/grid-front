@@ -26,7 +26,6 @@ export function getRainHttp(start, end, ybsc, jysd, jysx, jycp, isZhuri) {
     // {start}/{end}/{time}/{hour}/{interval}/{type}
     url += '/checkRainScore/' + startStr + '/' + endStr + '/' + ybsc + '/' + hour + '/' + jysx + '/' + jycp
   }
-  console.log(url)
   return request({
     url: url
   })
@@ -63,14 +62,12 @@ export function getTempHttp(start, end, ybsc, jysd, jysx, jyyx, jycp, isZhuri) {
     // {start}/{end}/{time}/{hour}/{interval}/{facname}/{type}
      url += '/checkTemScore/' + startStr + '/' + endStr + '/' + ybsc + '/' + hour + '/' + jysx + '/' + jyyx + '/' + jycp
   }
-  console.log(url);
   return request({
     url: url
   })
 }
 
 //短时强降水、雷暴大风数据访问接口
-
 export function getHeavyHttp(start, end, ybsc, jysd, jysx, facname, jycp, isZhuri) {
   let path = window.location.pathname
   let startStr = moment(start).format('YYYYMMDD')
@@ -94,8 +91,18 @@ export function getHeavyHttp(start, end, ybsc, jysd, jysx, facname, jycp, isZhur
     // {start}/{end}/{time}/{hour}/{interval}/{facname}/{type}
     url += '/checkHeavyScore/' + startStr + '/' + endStr + '/' + ybsc + '/' + hour + '/' + jysx + '/' + facname + '/' + jycp
   }
-  console.log(url)
   return request({
     url: url
+  })
+}
+
+//预报及实况监测
+// /keguan/foreAndLiveMonitor/{start}/{end}/{facname}
+export function foreAndLiveMonitor(start, end, facname) {
+  start = moment(start).format('YYYYMMDD')
+  end = moment(end).format('YYYYMMDD')
+  let url = '/keguan/foreAndLiveMonitor/' + start + '/' + end + '/' + facname
+  return request({
+    url
   })
 }

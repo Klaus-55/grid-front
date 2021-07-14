@@ -1,7 +1,8 @@
 <template>
   <div class="rain-content">
-    <side-bar :items="items"/>
-    <div class="side-content">
+    <side-bar :items="items" @changeFac="changeFac"/>
+    <fl-monitor v-if="isMonitor" type="rain"/>
+    <div v-else class="side-content">
       <div class="content">
         <div class="head">
           <span>选择时段：</span>
@@ -160,6 +161,7 @@
   import {getRainHttp} from "../../network/keguan";
   import * as Utils from "../../common/utils"
   import * as types from "../../store/mutation-types"
+  import FlMonitor from "./FlMonitor";
 
   let placeName = {
     sme: '降水量预报技巧',
@@ -175,7 +177,8 @@
     name: "RainScore",
     components: {
       "side-bar": MenuList,
-      "tense-view": Tense
+      "tense-view": Tense,
+      FlMonitor
     },
     data() {
       return {
@@ -221,10 +224,18 @@
         loading: false,
         data: null,
         tableHeader: {},
-        tableData: []
+        tableData: [],
+        isMonitor: false
       }
     },
     methods: {
+      changeFac(facname) {
+        if (facname === 'monitor') {
+          if (!this.isMonitor) this.isMonitor = !this.isMonitor
+        } else {
+          if (this.isMonitor) this.isMonitor = !this.isMonitor
+        }
+      },
       changeValue(isZhuri) {
         this.isZhuri = isZhuri
         if (isZhuri) {

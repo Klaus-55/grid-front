@@ -1,7 +1,8 @@
 <template>
   <div class="tmp-content">
-    <side-bar :items="items"/>
-    <div class="side-content">
+    <side-bar :items="items" @changeFac="changeFac"/>
+    <fl-monitor type="tem" v-if="isMonitor"/>
+    <div v-else class="side-content">
       <div class="content">
         <div class="head">
           <span>选择时段：</span>
@@ -161,6 +162,7 @@
   import {getTempHttp} from "../../network/keguan";
   import * as Utils from "../../common/utils";
   import * as types from "../../store/mutation-types";
+  import FlMonitor from "./FlMonitor";
 
   let placeName = {
     maxtok2: '最高小于2度准确率',
@@ -182,7 +184,8 @@
   export default {
     name: "RainScore",
     components: {
-      "side-bar": MenuList
+      "side-bar": MenuList,
+      FlMonitor
     },
     data() {
       return {
@@ -228,10 +231,18 @@
         active: '',
         isZhuri: false,
         tableHeader: {},
-        tableData: []
+        tableData: [],
+        isMonitor: false
       }
     },
     methods: {
+      changeFac(facname) {
+        if (facname === 'monitor') {
+          if (!this.isMonitor) this.isMonitor = !this.isMonitor
+        } else {
+          if (this.isMonitor) this.isMonitor = !this.isMonitor
+        }
+      },
       changeDate() {
         this.isMask = false
         this.getTempData()

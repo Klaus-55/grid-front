@@ -1,7 +1,8 @@
 <template>
   <div class="qdl-content">
     <side-bar @changeFac="changeFac" :items="items"/>
-    <div class="side-content">
+    <fl-monitor type="qdl" v-if="isMonitor"/>
+    <div v-else class="side-content">
       <div class="content">
         <div class="head">
           <span>选择时段：</span>
@@ -88,13 +89,7 @@
           </div>
         </div>
 
-        <div class="footer"
-             v-loading="loading"
-             element-loading-text="加载中"
-             element-loading-spinner="el-icon-loading"
-             element-loading-background="rgba(248, 248, 248, 0.8)"
-             custom-class="loading-class-custom"
-        >
+        <div class="footer">
           <div class="highcharts-title">
             <div class="maintitle">{{mainTitle}}</div>
             <div class="subtitle">{{subTitle}}</div>
@@ -150,6 +145,7 @@
   import {getHeavyHttp} from "../../network/keguan";
   import * as Utils from "../../common/utils";
   import * as types from "../../store/mutation-types";
+  import FlMonitor from "./FlMonitor";
 
   let placeName = {
     spo: '短时强降水命中率技巧',
@@ -160,7 +156,8 @@
   export default {
     name: "RainScore",
     components: {
-      "side-bar": MenuList
+      "side-bar": MenuList,
+      FlMonitor
     },
     data() {
       return {
@@ -210,12 +207,12 @@
           // '华南模式', '华东模式', '省台客观DL', '省台客观0-24小时'
         },
         showType: '图表',
-        loading: true,
         data: null,
         isZhuri: false,
         active: '',
         tableHeader: {},
-        tableData: []
+        tableData: [],
+        isMonitor: false
       }
     },
     methods: {
@@ -275,11 +272,9 @@
         this.initEcharts()
       },
       getHeavyData() {
-        this.loading = true
         let {startDate, endDate, jysx, facname, ybsc, ftime, jycp, isZhuri} = this
         this.updateTitle()
         getHeavyHttp(startDate, endDate, ybsc, ftime, jysx, facname, jycp, isZhuri).then(res => {
-          console.log(res.data)
           if (res.data.length === 0) {
             this.isMask = true
             return
@@ -288,7 +283,6 @@
           this.data = res.data
           this.initFtime()
           this.initEcharts()
-          this.loading = false
         }).catch(err => {
           console.log(err);
         })
@@ -345,6 +339,12 @@
 
       },
       changeFac(facname) {
+        if (facname === 'monitor') {
+          if (!this.isMonitor) this.isMonitor = !this.isMonitor
+          return
+        } else {
+          if (this.isMonitor) this.isMonitor = !this.isMonitor
+        }
         this.facname = facname
         this.jyx = 'jqpf'
         this.ybsc = 'zh'
