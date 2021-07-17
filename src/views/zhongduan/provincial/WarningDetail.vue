@@ -33,6 +33,13 @@
               <el-radio-button label="红色">红色</el-radio-button>
             </el-radio-group>
           </el-menu-item>
+          <el-menu-item>
+            <span>时次：</span>
+            <el-radio-group v-model="fdate" @change="changeFdate">
+              <el-radio-button label="08">08时</el-radio-button>
+              <el-radio-button label="20">20时</el-radio-button>
+            </el-radio-group>
+          </el-menu-item>
         </el-menu>
       </div>
 
@@ -105,7 +112,8 @@
         end: moment(Date.now()).format('YYYY-MM-DD'),
         type: 'all',
         level: 'all',
-        tableData: []
+        tableData: [],
+        fdate: '08'
       }
     },
     methods: {
@@ -120,9 +128,12 @@
       changeLevel() {
         this.getWarningDetail()
       },
+      changeFdate() {
+        this.getWarningDetail()
+      },
       getWarningDetail() {
         let loading = this.openLoading('#table');
-        warningDetail(this.start, this.end, this.type, this.level).then(res => {
+        warningDetail(this.start, this.end, this.type, this.level, this.fdate).then(res => {
           this.tableData = res.data
           loading.close()
         }).catch(err => {
@@ -148,7 +159,7 @@
   @import "../../../assets/less/common";
   .warning-detail-middle {
     position: relative;
-    height:60px;
+    height:100px;
     background-color: @bgColor;
     margin-bottom: 20px;
     >span {
@@ -201,7 +212,7 @@
     }
   }
   .warning-detail-bottom {
-    height: calc(100% - 141px);
+    height: calc(100% - 181px);
     background-color: @bgColor;
 
   }

@@ -2,7 +2,11 @@
   <div class="side-content">
     <div class="content">
       <div class="head">
-        <date-picker :start="start" :end="end" @changeDate="changeDate"/>
+        <date-picker style="margin-right: 20px" :start="start" :end="end" @changeDate="changeDate"/>
+        <el-radio-group v-model="type" @change="changeForeOrFact">
+          <el-radio-button label="forecast">预报</el-radio-button>
+          <el-radio-button label="fact">实况</el-radio-button>
+        </el-radio-group>
       </div>
       <hr>
       <el-table
@@ -35,17 +39,21 @@
       DatePicker
     },
     props: {
-      type: String
+      facname: String
     },
     data() {
       return {
         start: moment(Date.now()).add(-7, 'd').format('YYYY-MM-DD'),
         end: moment(Date.now()).add(-1, 'd').format('YYYY-MM-DD'),
         tableHeader: {},
-        tableData: []
+        tableData: [],
+        type: 'forecast'
       }
     },
     methods: {
+      changeForeOrFact() {
+        this.foreAndLiveMonitor()
+      },
       changeDate(start, end) {
         this.start = moment(start).format("YYYY-MM-DD")
         this.end = moment(end).format("YYYY-MM-DD")
@@ -60,7 +68,7 @@
       },
       foreAndLiveMonitor() {
         let loading = this.openLoading('#table');
-        foreAndLiveMonitor(this.start, this.end, this.type).then(res => {
+        foreAndLiveMonitor(this.start, this.end, this.facname, this.type).then(res => {
           this.tableHeader = res.data.tableHeader
           this.tableData = res.data.tableData
           loading.close()
@@ -77,6 +85,28 @@
   }
 </script>
 
-<style scoped>
-
+<style lang="less">
+  .el-radio-button__inner {
+    font-size: 12px;
+    padding: 6px 15px;
+  }
+  .el-radio-button:first-child .el-radio-button__inner {
+    border-radius: 0;
+  }
+  .el-radio-button:last-child .el-radio-button__inner {
+    border-radius: 0;
+  }
+  .el-radio-button__inner:hover {
+    color: #49afcd;
+  }
+  .el-radio-button__orig-radio:checked+.el-radio-button__inner {
+    background-color: #49afcd;
+    border-color: #49afcd;
+  }
+  .el-radio-button__orig-radio:checked+.el-radio-button__inner:hover {
+    color: #fff;
+  }
+  .el-radio-button__orig-radio:checked+.el-radio-button__inner {
+    box-shadow: none;
+  }
 </style>

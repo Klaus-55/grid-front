@@ -1,7 +1,7 @@
 <template>
   <div class="rain-content">
     <side-bar :items="items" @changeFac="changeFac"/>
-    <fl-monitor v-if="isMonitor" type="rain"/>
+    <fl-monitor v-if="isMonitor" facname="rain"/>
     <div v-else class="side-content">
       <div class="content">
         <div class="head">
@@ -234,6 +234,7 @@
           if (!this.isMonitor) this.isMonitor = !this.isMonitor
         } else {
           if (this.isMonitor) this.isMonitor = !this.isMonitor
+          this.getRainData()
         }
       },
       changeValue(isZhuri) {
@@ -317,7 +318,6 @@
         let {startDate, endDate, jysx, jyys, ybsc, ftime, jycp, isZhuri} = this
         this.updateTitle()
         getRainHttp(startDate, endDate, ybsc, ftime, jysx, jycp, isZhuri).then(res => {
-          console.log(res.data)
           if (res.data.length === 0) {
             this.isMask = true
             return

@@ -1,7 +1,7 @@
 <template>
   <div class="tmp-content">
     <side-bar :items="items" @changeFac="changeFac"/>
-    <fl-monitor type="tem" v-if="isMonitor"/>
+    <fl-monitor facname="tem" v-if="isMonitor"/>
     <div v-else class="side-content">
       <div class="content">
         <div class="head">
@@ -241,6 +241,7 @@
           if (!this.isMonitor) this.isMonitor = !this.isMonitor
         } else {
           if (this.isMonitor) this.isMonitor = !this.isMonitor
+          this.getTempData()
         }
       },
       changeDate() {

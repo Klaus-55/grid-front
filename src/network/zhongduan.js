@@ -9,8 +9,8 @@ export function warningMessage(start, end) {
 }
 
 //预警消息评定详情
-export function warningDetail(start, end, type, level) {
-  let url = '/zhongduan/warningDetail/' + start + '/' + end + '/' + type + '/' + level
+export function warningDetail(start, end, type, level, fdate) {
+  let url = '/zhongduan/warningDetail/' + start + '/' + end + '/' + type + '/' + level + '/' + fdate
   return request({
     url
   })

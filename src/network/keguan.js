@@ -97,11 +97,14 @@ export function getHeavyHttp(start, end, ybsc, jysd, jysx, facname, jycp, isZhur
 }
 
 //预报及实况监测
-// /keguan/foreAndLiveMonitor/{start}/{end}/{facname}
-export function foreAndLiveMonitor(start, end, facname) {
+// /keguan/forecastMonitor/{start}/{end}/{facname}
+// /keguan/factMonitor/{start}/{end}/{facname}
+export function foreAndLiveMonitor(start, end, facname, type) {
   start = moment(start).format('YYYYMMDD')
   end = moment(end).format('YYYYMMDD')
-  let url = '/keguan/foreAndLiveMonitor/' + start + '/' + end + '/' + facname
+  let url = '/keguan/forecastMonitor/'
+  if (type === 'fact') url = '/keguan/factMonitor/'
+  url += start + '/' + end + '/' + facname
   return request({
     url
   })

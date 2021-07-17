@@ -1,7 +1,7 @@
 <template>
   <div class="qdl-content">
     <side-bar @changeFac="changeFac" :items="items"/>
-    <fl-monitor type="qdl" v-if="isMonitor"/>
+    <fl-monitor facname="qdl" v-if="isMonitor"/>
     <div v-else class="side-content">
       <div class="content">
         <div class="head">
