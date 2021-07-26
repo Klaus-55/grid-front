@@ -28628,7 +28628,7 @@ export default {
       "type": "Feature",
       "properties": {
         "adcode": 433100,
-        "name": "湘西土家族苗族自治州",
+        "name": "湘西州",
         "color": '#D5E2F3',
         "center": [
           109.739735,

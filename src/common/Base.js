@@ -2,6 +2,7 @@
 import Highcharts from "highcharts";
 import store from "../store";
 import HighchartsNoData from "highcharts/modules/no-data-to-display";
+import HighchartsDrilldown from "highcharts/modules/drilldown";
 
 export function initEcharts(data, ftime, jyys) {
   ftime.sort((a, b) => a - b)
@@ -212,8 +213,123 @@ export function initSaEcharts(data) {
     // ],
     series: data.series
   };
-  Highcharts.chart("container", options);
   HighchartsNoData(Highcharts)
+  Highcharts.chart("container", options);
+}
+
+//市级预警图表初始化
+export function initCityEcharts(data, title) {
+  let options = {
+    chart: {
+      type: "column",
+      backgroundColor: "#F8F8F8",
+    },
+    lang: {
+      drillUpText: '<< 返回上一级',
+      noData: '暂无数据'
+    },
+    credits: {
+      enabled: false,
+    },
+    colors: ["#88B5EB"],
+    title: {
+      text: title,
+    },
+    legend: {
+      enabled: false
+    },
+    xAxis: {
+      type: 'category'
+    },
+    yAxis: {
+      title: {
+        text: "",
+      },
+    },
+    tooltip: {
+      headerFormat:
+        '<span style="font-size:10px"><b>{point.key}:{point.y:.1f}</b></span>',
+      pointFormat: "",
+      footerFormat: "",
+      shared: true,
+      useHTML: true,
+    },
+    plotOptions: {
+      column: {
+        borderWidth: 0,
+        dataLabels: {
+          enabled: true,
+        },
+      },
+    },
+    series: [{
+      colorByPoint: true,
+      data: data.data
+      // data: [
+      //   {name: '湖南省', y: 75.2, drilldown: '湖南省'},
+      //   {name: '长沙', y: 3.2, drilldown: 'changsha'},
+      //   {name: '株洲', y: 3.1, drilldown: 'zhuzhou'},
+      //   {name: '湘潭', y: 3.0, drilldown: 'xiangtan'},
+      //   {name: '衡阳', y: 3.0, drilldown: 'hengyang'},
+      //   {name: '岳阳', y: 3.0, drilldown: 'yueyang'},
+      //   {name: '张家界', y: 3.0, drilldown: 'zhangjiajie'},
+      //   {name: '娄底', y: 3.0, drilldown: 'loudi'},
+      //   {name: '郴州', y: 3.0, drilldown: 'chenzhou'},
+      //   {name: '常德', y: 3.0, drilldown: 'changde'},
+      //   {name: '益阳', y: 3.0, drilldown: 'yiyang'},
+      //   {name: '邵阳', y: 3.0, drilldown: 'shaoyang'},
+      //   {name: '永州', y: 3.0, drilldown: 'yongzhou'},
+      //   {name: '怀化', y: 3.0, drilldown: 'huaihua'},
+      //   {name: '湘西州', y: 3.0, drilldown: 'xiangxizhou'},
+      // ]
+    }],
+    drilldown: {
+      drillUpButton: {
+        relativeTo: 'spacingBox',
+        position: {
+          align: 'left',
+          y: -5,
+          x: -5
+        }
+      },
+      series: data.series
+      // series: [
+      //   {
+      //     id: '湖南省',
+      //     data: [
+      //       {name: '唐佳', y: 2.1},
+      //       {name: '陈龙', y: 1.8},
+      //       {name: '兰明才', y: 1.6},
+      //       {name: '徐靖宇', y: 1.8},
+      //       {name: '蔡瑾婕', y: 1.3},
+      //       {name: '苏涛', y: 1.1},
+      //     ]
+      //   }, {
+      //     id: 'changsha',
+      //     data: [
+      //       {name: '长沙市气象台', y: 4}
+      //     ]
+      //   }, {
+      //     id: 'zhuzhou',
+      //     data: [
+      //       {name: '株洲市气象台', y: 4}
+      //     ]
+      //   }, {
+      //     id: 'xiangtan',
+      //     data: [
+      //       {name: '湘潭市气象台', y: 4}
+      //     ]
+      //   }, {
+      //     id: 'hengyang',
+      //     data: [
+      //
+      //     ]
+      //   }
+      // ]
+    }
+  };
+  HighchartsDrilldown(Highcharts)
+  Highcharts.chart("bottom-highcharts", options);
 }
 
 function renderChart(id, categories, series) {
@@ -273,3 +389,4 @@ function renderChart(id, categories, series) {
   }
   Highcharts.chart(id, option)
 }
+

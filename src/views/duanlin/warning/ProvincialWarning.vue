@@ -132,13 +132,6 @@
         tableData: []
       };
     },
-    created() {
-      this.$nextTick(() => {
-        this.radios = initRadios(this.year)
-        this.years = initYears(7)
-        this.getProvincialWarning()
-      });
-    },
     methods: {
       changeDate(startTime, endTime) {
         this.start = moment(startTime).format("YYYY-MM-DD")
@@ -232,6 +225,13 @@
         }
       }
     },
+    created() {
+      this.$nextTick(() => {
+        this.radios = initRadios(this.year)
+        this.years = initYears(7)
+        this.getProvincialWarning()
+      });
+    }
 };
 </script>
 
