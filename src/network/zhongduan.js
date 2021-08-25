@@ -56,3 +56,12 @@ export function dailyForecast(start, end, fTime) {
     url: url
   })
 }
+
+//模式检验评分
+// /zhongduan/modelScore/{year}/{month}/{feHour}/{type}/{rtc}/{item}
+export function modelScore(year, month, feHour, type, rtc, item) {
+  let url = '/zhongduan/modelScore/' + year + '/' + month + '/' + feHour + '/' + type + '/' + rtc + '/' + item
+  return request({
+    url: url
+  })
+}

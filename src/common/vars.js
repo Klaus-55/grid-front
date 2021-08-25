@@ -16,3 +16,28 @@ export const warningDetailVar = `
 2.预报日期和实况时间：预报日期为预警发布日期，假如是漏报（未发布预警），则预报日期为预报员值班日期。
 实况时间对应预报生效日，例如预报日期（漏报值班日期）2016-03-03，对应实况时间则为2016-03-04
 某些情况比较特殊，如暴雨预警对应发布后的24小时，10点前发布的高温对应当日实况。`
+
+export const skill = ['zhjq', 'qyjq', 'genjq', 'baoyujq', 'maxtjq', 'mintjq']
+export const quality = ["qyzql","qyts","genzql","stormzql", "ljo1zql","ljo2zql",
+  "ljo3zql","ljo4zql", "zhjs","tmaxozql","tmaxtzql","tminozql","tmintzql"]
+export const keyValue = {
+  zhjq: "综合技巧",
+  qyjq: "晴雨（雪）预报技巧",
+  genjq: "一般性降水技巧",
+  baoyujq: "暴雨以上技巧",
+  maxtjq: "最高温度预报技巧",
+  mintjq: "最低温度预报技巧",
+  qyzql: "晴雨（雪）准确率",
+  qyts: "晴雨（雪）TS",
+  genzql: "一般性降水准确率",
+  stormzql: "暴雨（雪）以上准确率",
+  ljo1zql: "累加降水量≥0.0mm",
+  ljo2zql: "累加降水量≥10mm",
+  ljo3zql: "累加降水量≥25mm",
+  ljo4zql: "累加降水量≥50mm",
+  zhjs: "综合降水",
+  tmaxozql: "最高气温误差≤1℃准确率",
+  tmaxtzql: "最高气温误差≤2℃准确率",
+  tminozql: "最低气温误差≤1℃准确率",
+  tmintzql: "最低气温误差≤2℃准确率",
+}

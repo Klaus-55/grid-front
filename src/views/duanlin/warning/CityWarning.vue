@@ -44,29 +44,6 @@
                              :disabled="item.disabled">{{item.name}}</el-radio-button>
           </el-radio-group>
         </div>
-<!--        <el-menu class="year-select" mode="horizontal">-->
-<!--          <el-menu-item>-->
-<!--            <span>检验时段：</span>-->
-<!--            <el-select v-model="defYear">-->
-<!--              <el-option-->
-<!--                      v-for="item in yearItem"-->
-<!--                      :key="item.value"-->
-<!--                      :label="item.label + '年'"-->
-<!--                      :value="item.value"-->
-<!--              >-->
-<!--              </el-option>-->
-<!--            </el-select>-->
-<!--            <el-radio-group v-model="defMonth">-->
-<!--              <el-radio-button-->
-<!--                      v-for="item in monthItem"-->
-<!--                      :key="item.value"-->
-<!--                      :label="item.label"-->
-<!--                      :value="item.value"-->
-<!--              >-->
-<!--              </el-radio-button>-->
-<!--            </el-radio-group>-->
-<!--          </el-menu-item>-->
-<!--        </el-menu>-->
       </div>
       <div class="rain-examine-bottom">
         <div class="top">
@@ -88,10 +65,7 @@
         </div>
         <div class="center"></div>
         <div class="bottom">
-<!--          <div class="h-10 highcharts-title">-->
-<!--            <div class="maintitle">湖南省{{titleTime + warningType + facTitle}}</div>-->
-            <div id="bottom-highcharts"></div>
-<!--          </div>-->
+          <div id="bottom-highcharts"></div>
         </div>
       </div>
     </div>
@@ -307,7 +281,6 @@
         }
       },
       getCityWarning() {
-        this.tableData = []
         let title = '湖南省' + this.titleTime + this.warningType + this.facTitle
         cityWarning(this.start, this.end, this.warningType, this.factory).then(res => {
           this.data = res.data

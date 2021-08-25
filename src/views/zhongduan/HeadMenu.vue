@@ -12,6 +12,9 @@
         <el-menu-item index="city">
           市级评分
         </el-menu-item>
+        <el-menu-item index="model">
+          模式检验评分
+        </el-menu-item>
       </el-menu>
     </div>
     <component :is="conName"/>
@@ -21,11 +24,14 @@
 <script>
   import Provincial from "./Provincial";
   import CityLevel from "./CityLevel";
+  import ModelExamination from "./ModelExamination";
+
   export default {
     name: "HeadMenu",
     components: {
       Provincial,
-      CityLevel
+      CityLevel,
+      ModelExamination
     },
     data() {
       return {
@@ -36,8 +42,10 @@
       handleSelect(val) {
         if (val === 'provincial') {
           this.conName = 'provincial'
-        } else {
+        } else if (val === 'city') {
           this.conName = 'city-level'
+        } else if (val === 'model') {
+          this.conName = 'model-examination'
         }
       }
     }
