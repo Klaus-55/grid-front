@@ -86,9 +86,13 @@ L.tileLayer.baidu = function (option) {
       });
       break;
     case "white-map":
-      layer = L.tileLayer('https://api.map.baidu.com/customimage/tile?&x={x}&y={y}&z={z}&udt=20191224&scale=1&ak=8d6c8b8f3749aed6b1aff3aad6f40e37&styles=t%3Awater%7Ce%3Aall%7Cc%3A%23a5d6ffff%2Ct%3Aland%7Ce%3Aall%7Cc%3A%23ffffffff%2Ct%3Agreen%7Ce%3Aall%7Cc%3A%23ffffffff%2Ct%3Aroad%7Ce%3Aall%7Cv%3Aoff%2Ct%3Aadministrative%7Ce%3Aall%7Cv%3Aoff%2Ct%3Abuilding%7Ce%3Aall%7Cv%3Aoff%2Ct%3Apoi%7Ce%3Aall%7Cv%3Aoff', {
-        name: option.name, subdomains: subdomains, tms: true,
+      // layer = L.tileLayer('https://api.map.baidu.com/customimage/tile?&x={x}&y={y}&z={z}&udt=20191224&scale=1&ak=8d6c8b8f3749aed6b1aff3aad6f40e37&styles=t%3Awater%7Ce%3Aall%7Cc%3A%23a5d6ffff%2Ct%3Aland%7Ce%3Aall%7Cc%3A%23ffffffff%2Ct%3Agreen%7Ce%3Aall%7Cc%3A%23ffffffff%2Ct%3Aroad%7Ce%3Aall%7Cv%3Aoff%2Ct%3Aadministrative%7Ce%3Aall%7Cv%3Aoff%2Ct%3Abuilding%7Ce%3Aall%7Cv%3Aoff%2Ct%3Apoi%7Ce%3Aall%7Cv%3Aoff', {
+      //   name: option.name, subdomains: subdomains, tms: true,
         // attribution: attribution
+      // });
+      layer = L.tileLayer('http://api0.map.bdimg.com/customimage/tile?&x={x}&y={y}&z={z}&udt=20171110&scale=1&ak=8d6c8b8f3749aed6b1aff3aad6f40e37&styles=t%3Aadministrative%7Ce%3Al%7Cv%3Aoff%7Cc%3A%2300000000%2Ct%3Aland%7Ce%3Aall%7Cc%3A%23fdf9f3ff%2Ct%3Awater%7Ce%3Aall%7Cc%3A%23a3cdffff%2Ct%3Agreen%7Ce%3Aall%7Cc%3A%23c9e59dff%2Ct%3Amanmade%7Ce%3Aall%7Cv%3Aoff%2Ct%3Abuilding%7Ce%3Aall%7Cv%3Aoff%2Ct%3Apoi%7Ce%3Aall%7Cv%3Aoff%2Ct%3Aroad%7Ce%3Aall%7Cv%3Aoff', {
+        name: option.name, subdomains: subdomains, tms: true,
+      // attribution: attribution
       });
       break;
   }

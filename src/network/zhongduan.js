@@ -65,3 +65,22 @@ export function modelScore(year, month, feHour, type, rtc, item) {
     url: url
   })
 }
+
+//获取实况站点数据
+export function liveObtData(reqUrl, data) {
+  let url = '/zhongduan' + reqUrl
+  return request({
+    url: url,
+    params: data
+  })
+}
+
+//请求格点预报数据
+// /zhongduan/getWFGribData
+export function wfData(data) {
+  let url = '/zhongduan/getWFGribData'
+  return request({
+    url: url,
+    params: data
+  })
+}

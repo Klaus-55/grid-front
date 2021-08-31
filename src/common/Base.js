@@ -104,8 +104,8 @@ export function initMsEcharts(data) {
     },
     series: data.series
   }
-  Highcharts.chart('container', options)
   HighchartsNoData(Highcharts)
+  Highcharts.chart('container', options)
 }
 
 //短临预报质量图表初始化
