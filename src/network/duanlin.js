@@ -1,5 +1,24 @@
 import {request} from "./request";
 
+
+//降水检验
+// /rainScore/{start}/{end}/{ftime}/{wfinterval}/{product}
+export function rainScore(start, end, ftime, wfinterval, product) {
+  let url = '/duanlin/rainScore/' + start + '/' + end + '/' + ftime + "/" + wfinterval + "/" + product
+  return request({
+    url
+  })
+}
+
+//温度检验
+// /temScore/{start}/{end}/{ftime}/{wfinterval}/{product}
+export function temScore(start, end, ftime, wfinterval, product) {
+  let url = '/duanlin/temScore/' + start + '/' + end + '/' + ftime + "/" + wfinterval + "/" + product
+  return request({
+    url
+  })
+}
+
 //省级预警预报质量
 export function provincialWarning(start, end, warningType, factory) {
   let url = '/duanlin/provincialWarning/' + start + '/' + end + '/' + warningType + "/" + factory

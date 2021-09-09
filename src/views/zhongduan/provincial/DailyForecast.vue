@@ -168,7 +168,6 @@
     },
     created() {
       this.$nextTick(() => {
-        console.log(moment('2020-05-01').format('YYYY-MM-DD'))
         this.getDailyForecast()
       })
     }

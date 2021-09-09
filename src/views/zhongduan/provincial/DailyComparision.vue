@@ -66,7 +66,7 @@
             <el-checkbox v-model="isDiffValue">差值</el-checkbox>
             <el-checkbox v-model="isShowObtname">站名</el-checkbox>
             <el-checkbox v-model="isShowLegend">图例</el-checkbox>
-<!--            <el-checkbox v-model="isShowDetailed">详情</el-checkbox>-->
+            <!--            <el-checkbox v-model="isShowDetailed">详情</el-checkbox>-->
           </el-menu-item>
           <el-menu-item>
             <span>放大：</span>
@@ -77,7 +77,7 @@
             </el-slider>
           </el-menu-item>
           <el-menu-item>
-            <el-button type="primary" size="mini">居中地图</el-button>
+            <el-button type="primary" size="mini" @click="backToCenter">居中地图</el-button>
           </el-menu-item>
         </el-menu>
       </div>
@@ -125,7 +125,8 @@
   import * as L from "leaflet";
   import moment from "momnet";
   import data from "../../../assets/js/hunan"
-  import {liveObtData, wfData} from "../../../network/zhongduan";
+  import {liveObtData, wfData, chartData} from "../../../network/zhongduan";
+  import * as echarts from "echarts"
 
   require('proj4')
   require('proj4leaflet')
@@ -137,7 +138,7 @@
     name: "DailyComparision",
     data() {
       return {
-        dateValue: new Date(moment().subtract(8, 'days').format('YYYY/MM/DD')),
+        dateValue: new Date(moment().subtract(2, 'days').format('YYYY/MM/DD')),
         pickerOptions: {
           disabledDate(time) {
             return time.getTime() > Date.now()
@@ -182,6 +183,8 @@
         rightPanelTitle: '误差(℃)',
         getDataColor: '',
         getTooltipContent: '',
+        openTooltips: [],
+        popups: [],
         obtpopups: {
           obt: {},
           grib: {}
@@ -197,7 +200,8 @@
         height: 0,
         stepx: 0,
         stepy: 0,
-        timeRangeHtml: ''
+        timeRangeHtml: '',
+        wfMaps: []
       }
     },
     methods: {
@@ -538,12 +542,12 @@
           //≤2℃准确率
           let ar2 = (count2 * 100 / obtWfDataInGrib.length).toFixed(1);
           resultTable += "<div>" + "<span>≤1℃个数：</span>" + "<span>" + count1 + "</span>" + "</div>" +
-                         "<div>" + "<span>≤2℃个数：</span>" + "<span>" + count2 + "</span>" + "</div>" +
-                         "<div>" + "<span>总数：</span>" + "<span>" + total + "</span>" + "</div>" +
-                         "<div>" + "<span>≤1℃预报准确率：</span>" + "<span>" + ar1 + "</span>" + "</div>" +
-                         "<div>" + "<span>≤2℃预报准确率：</span>" + "<span>" + ar2 + "</span>" + "</div>" +
-                         "<div>" + "<span>均方根误差：</span>" + "<span>" + rmse + "</span>" + "</div>" +
-                         "<div>" + "<span>平均绝对误差：</span>" + "<span>" + mae + "</span>" + "</div>"
+            "<div>" + "<span>≤2℃个数：</span>" + "<span>" + count2 + "</span>" + "</div>" +
+            "<div>" + "<span>总数：</span>" + "<span>" + total + "</span>" + "</div>" +
+            "<div>" + "<span>≤1℃预报准确率：</span>" + "<span>" + ar1 + "</span>" + "</div>" +
+            "<div>" + "<span>≤2℃预报准确率：</span>" + "<span>" + ar2 + "</span>" + "</div>" +
+            "<div>" + "<span>均方根误差：</span>" + "<span>" + rmse + "</span>" + "</div>" +
+            "<div>" + "<span>平均绝对误差：</span>" + "<span>" + mae + "</span>" + "</div>"
           this.isShowRsCon = true
           this.resultContent = resultTable
         } else {
@@ -626,8 +630,6 @@
           center: [27.4, 111.5],
         }
         let map = L.map(mapId, options)
-        let bounds = L.latLngBounds(new L.LatLng(30.25, 108.65), new L.LatLng(24.5, 114.4))
-        map.fitBounds(bounds)
         map.collisionLayer = L.layerGroup.collision({margin: 2})
         map.collisionLayer.addTo(map)
         L.geoJSON(data, {
@@ -909,6 +911,18 @@
         }
       },
       renderMap(map) {
+        this.uppperLeft = [];
+        this.lowerright = [];
+        this.width = 0;
+        this.height = 0;
+        this.stepx = 0;
+        this.stepy = 0;
+        this.data = [];
+        if (this.type === '站点') {
+          map.off('click');
+        } else {
+          map.on('click', this.mapClick);
+        }
         //legend 和 content
         let facType = this.getFacType(this.facValue);
         if (map.dataSrcCode === 'LIVE' || !this.isDiffValue) {
@@ -944,6 +958,28 @@
             this.rightPanelTitle = '误差(m/s)';
           }
         }
+        /**
+         * 地图格点点击事件
+         */
+        let _this = this
+        let popup = new L.Popup();
+        this.popups.push(popup);
+        popup.on('remove', function () {
+          _this.popupClose();
+        });
+        this.openTooltips.push(function (e) {
+          let lat = e.latlng.lat;
+          let lng = e.latlng.lng;
+          if (lat < _this.uppperLeft[0] && lat > _this.lowerright[0] - _this.stepy && lng > _this.uppperLeft[1] && lng < _this.lowerright[1] + _this.stepx) {
+            let gribData = _this.getGribDataBylatlng(lat, lng).toFixed(2);
+            let content = _this.getTooltipContent(gribData);
+            let index = _this.getIndexBylatlng(lat, lng);
+            if (map.dataSrcCode !== 'LIVE') {
+              content += '<div class="valuechart" onclick="drawSeries(\'' + (index) + '\', \'' + _this.model + '\')">查看趋势</div>'
+            }
+            popup.setLatLng(e.latlng).setContent(content).openOn(map);
+          }
+        });
         // 如果是实况
         if (map.dataSrcCode === 'LIVE') {
           if (this.type === '格点') {
@@ -953,6 +989,365 @@
           }
         } else {//预报
           this.getWFData();
+        }
+      },
+      getGribDataBylatlng(lat, lng) {
+        let x = Math.abs(Math.floor(Math.abs(this.uppperLeft[0] - lat) / this.stepy));
+        let y = Math.abs(Math.floor(Math.abs(lng - this.uppperLeft[1]) / this.stepx));
+        let index = x * width + y;
+        return this.data[index];
+      },
+      popupClose() {
+        for (let i = 0; i < this.popups.length; i++) {
+          this.popups[i].removeFrom(this.leftMap);
+          this.popups[i].removeFrom(this.rightMap);
+        }
+      },
+      mapClick(e) {
+        for (let i = 0; i < this.openTooltips.length; i++) {
+          this.openTooltips[i](e);
+        }
+      },
+      drawSeries(index, model, obtid, obtname) {
+        let title = obtname + "（" + obtid + "）" + " " + this.modelName + " " + this.getFacShortName() + ' 72小时 各预报时段值'
+        this.$msgbox({
+          title: '时序图',
+          message: '<div id="valuechart" style="width: 600px; height: 400px"></div>',
+          showConfirmButton: false,
+          dangerouslyUseHTMLString: true
+        }).then(res => {
+          console.log("box")
+        }).catch(err => {
+
+        })
+        let _this = this
+        this.$nextTick(() => {
+          document.getElementById('valuechart').innerHTML = ""
+          document.getElementById("valuechart").removeAttribute("_echarts_instance_");
+          let liveUrl;
+          let liveReqData;
+          if (obtid) {
+            liveUrl = '/chart_live_hour_obt';
+            if (this.isNeedCal()) {
+              liveUrl = '/chart_live_hour_obt_cal';
+            }
+            liveReqData = this.obtLiveReqData(obtid);
+          } else {
+            liveUrl = '/chart_live_hour_grib';
+            liveReqData = this.gribLiveReqData(index);
+          }
+          Promise.all([chartData(liveUrl, liveReqData), chartData("/chart_wf_grib", this.wfReqData(index))]).then(res => {
+            if (res[0].code === 1 && res[1].code === 1) {
+              //数据处理
+              let liveData = res[0].data;
+              let wfData = res[1].data;
+
+              let xData = [];
+              let liveSeries = [];
+              let wfSeries = [];
+              let diffSeries = [];
+
+              let wfInterval = this.wfInterval;
+              // 72小时  分逐三 和逐 24
+              for (let h = wfInterval; h <= 72; h += wfInterval) {
+                xData.push(h);
+
+                let liveV = undefined;
+                let wfV = undefined;
+                // 遍历实况数据
+                for (let i = 0; i < liveData.length; i++) {
+                  let liveMilliseconds = liveData[i]['ddatetime'];
+
+                  if (moment(this.dateValue)
+                    .add(Number(this.ftvalue), 'hour')
+                    .add(h, 'hour')
+                    .isSame(moment(liveMilliseconds))) {
+                    liveV = liveData[i]['data'];
+
+                  }
+                }
+
+                for (let i = 0; i < wfData.length; i++) {
+                  if (wfData[i]['wfhour'] === h) {
+                    wfV = wfData[i]['data'];
+                  }
+                }
+
+                typeof liveV !== 'undefined' ? liveSeries.push(Number(liveV)) : liveSeries.push(undefined);
+                typeof wfV !== 'undefined' ? wfSeries.push(Number(wfV)) : wfSeries.push(undefined);
+                if (typeof liveV !== 'undefined' && typeof wfV !== 'undefined') {
+                  diffSeries.push((Number(wfV) - Number(liveV)).toFixed(2))
+                } else {
+                  diffSeries.push(undefined);
+                }
+              }
+
+              //图表
+              let option = {
+                title: {
+                  text: title,
+                  top: 5,
+                  right: 'center',
+                },
+                tooltip: {
+                  show: true,
+                  trigger: 'axis',
+                  transitionDuration: 0,
+                  backgroundColor: '#F1F3F4',
+                  borderColor: '#7CB5EC',
+                  borderWidth: '1',
+                  textStyle: {
+                    color: '#161616',
+                    fontSize: 13
+                  },
+                  extraCssText: 'box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);',
+                  formatter: function (params) {
+                    let ret = '';
+                    if (params) {
+                      ret += '<span style="font-size: 13px">' + _this.getIntervalName(params[0].name) + ' 时段</span><br>';
+
+                      for (let key in params) {
+                        if (params.hasOwnProperty(key)) {
+                          let series = params[key];
+                          let v = series.value;
+                          if (typeof v !== 'undefined' && v !== '-' && !isNaN(v)) {
+                            ret += '<span style="font-size: 13px;color: ' + series.color + '"> \u25cf </span>' + series.seriesName + ': <b>' + v + '  ' + _this.getUnit() + '</b><br/>';
+                          }
+                        }
+                      }
+                    }
+                    return ret;
+                  },
+                },
+                grid: {
+                  left: 30,
+                  right: 30,
+                  bottom: 30,
+                  containLabel: true,
+                },
+                legend: {
+                  data: ['实况', '预报', '误差'],
+                  top: 35,
+                  right: 30,
+                },
+                xAxis: {
+                  type: 'category',
+                  data: xData,
+                },
+                yAxis: {},
+                series: [
+                  {
+                    name: '实况',
+                    type: 'line',
+                    data: liveSeries,
+                    symbol: 'rect',
+                    symbolSize: 5,
+                    itemStyle: {
+                      normal: {
+                        color: '#1883e5',
+                      }
+                    },
+                    label: {
+                      show: true,
+                      fontSize: 10,
+                      distance: 3,
+                      formatter: function (o) {
+                        return Number(o.value).toFixed(1);
+                      }
+                    },
+                    lineStyle: {
+                      normal: {
+                        width: 2,
+                      }
+                    },
+                    zLevel: 10,
+                  },
+                  {
+                    name: '预报',
+                    type: 'line',
+                    data: wfSeries,
+                    symbol: 'triangle',
+                    symbolSize: 5,
+                    itemStyle: {
+                      normal: {
+                        color: '#54b99e',
+                      }
+                    },
+                    lineStyle: {
+                      normal: {
+                        width: 2,
+                      }
+                    }
+                  },
+                  {
+                    name: '误差',
+                    type: 'line',
+                    data: diffSeries,
+                    symbol: 'circle',
+                    symbolSize: 5,
+                    itemStyle: {
+                      normal: {
+                        color: '#cd2221',
+                      }
+                    },
+                    label: {
+                      show: true,
+                      fontSize: 10,
+                      distance: 3,
+                      formatter: function (o) {
+                        return Number(o.value).toFixed(1);
+                      }
+                    },
+                    lineStyle: {
+                      normal: {
+                        width: 2,
+                      }
+                    }
+                  },
+                ]
+              };
+
+              let myChart = echarts.init(document.getElementById('valuechart'));
+              myChart.setOption(option);
+            }
+          }).catch(err => {
+            console.log(err)
+          })
+        })
+      },
+      obtLiveReqData(obtid) {
+        let obtFacname = this.getLiveObtFacname();
+
+        let satrtDatetimeMoment = moment(this.dateValue).add(this.ftvalue, 'hour');
+        let startDatetime = satrtDatetimeMoment.format('YYYYMMDDHH');
+        let endDatetime = satrtDatetimeMoment.add(72, 'hour').format('YYYYMMDDHH');
+
+        let cal_fun = '';
+        let cal_hour = '';
+        let data = '';
+
+        switch (obtFacname) {
+          case 'tem':
+            data = 'tem';
+          case 'tem_max_24h':
+            data = 'tem_max';
+            cal_fun = 'max(tem_max)'
+            cal_hour = 24;
+            break;
+          case 'tem_min_24h':
+            data = 'tem_min';
+            cal_fun = 'min(tem_min)';
+            cal_hour = 24;
+
+            break;
+          case 'pre_3h':
+            cal_fun = 'sum(pre_1h)';
+            cal_hour = 3;
+            break;
+          case 'pre_12h':
+            cal_fun = 'sum(pre_1h)';
+            cal_hour = 12;
+            break;
+          case 'pre_24h':
+            cal_fun = 'sum(pre_1h)';
+            cal_hour = 24;
+            break;
+        }
+
+        return {
+          "obtFacname": obtFacname,
+          obtid: obtid,
+          startDatetime: startDatetime,
+          endDatetime: endDatetime,
+          "cal_fun": cal_fun,
+          "cal_hour": cal_hour,
+          "data": data,
+        };
+      },
+      gribLiveReqData(index) {
+        let facname;
+        let table;
+        let startDatetime;
+        let endDatetime;
+
+        //预报时次
+        let ftvalue = this.ftvalue;
+        //预报时段数组
+        let intervalArr = this.intervalValue.split('-');
+
+        //预报时次预报时段相加
+        let foreHours = Number(intervalArr[1]) + Number(ftvalue);
+
+        let satrtDatetimeMoment = moment(this.dateValue).add(ftvalue, 'hour');
+        startDatetime = satrtDatetimeMoment.format('YYYYMMDDHH');
+        endDatetime = satrtDatetimeMoment.add(72, 'hour').format('YYYYMMDDHH');
+
+        //小时数据
+        if ((intervalArr[1] - intervalArr[0]) === 3 || (intervalArr[1] - intervalArr[0]) === 12) {
+          table = '"live"."tb_grib_hourd"';
+        } else if ((intervalArr[1] - intervalArr[0]) === 24) {
+          table = '"live"."tb_grib_dayd"';
+        }
+
+        //获取实况要素名称
+        facname = this.getLiveGribFacname();
+        return {
+          table: table,
+          facname: facname,
+          index: index,
+          startDatetime: startDatetime,
+          endDatetime: endDatetime
+        };
+      },
+      getLiveGribFacname() {
+        let liveFacname = this.facValue;
+        switch (liveFacname) {
+          case 'TMP':
+            return 'TEM';
+          case 'TMAX':
+            return 'MXT';
+          case 'TMIN':
+            return 'MNT';
+          case 'ER03':
+            return 'PRE03';
+          case 'ER12':
+            return 'PRE12';
+          case 'ER24':
+            return 'PRE';
+          case 'EDA10':
+            return 'WIN';
+          default:
+            return liveFacname;
+        }
+      },
+      wfReqData(index) {
+        let wfdatetime = moment(this.dateValue).add(Number(this.ftvalue), 'hour').format('YYYYMMDDHHmm');
+        let facname = this.facValue;
+
+        return {
+          index: index,
+          facname: facname,
+          srcCode: this.model,
+          wfdatetime: wfdatetime
+        };
+      },
+      getIntervalName(i) {
+        let interval = this.wfInterval;
+        i = Number(i);
+        if (this.instantFac()) {
+          return i;
+        } else {
+          return (i - interval) + '~' + i;
+        }
+      },
+      getUnit() {
+        let v = this.facValue;
+        if (v === 'TMP' || v === 'TMAX' || v === 'TMIN') {
+          return '°C';
+        } else if (v === 'ER03' || v === 'ER24' || v === 'ER12') {
+          return 'mm';
+        } else if (v === 'EDA10') {
+          return 'm/s';
         }
       },
       renderObtValue(map, data, type) {
@@ -1178,18 +1573,19 @@
           }
         }
         this.renderLegend(map, legendContent);
+        let _this = this
         map.on('popupopen', function (e) {
           let toPopup = e.popup.options.toPopup;
           if (toPopup.index) {
-            this.obtpopups.obt[toPopup.obtid].openPopup();
+            _this.obtpopups.obt[toPopup.obtid].openPopup();
           } else {
-            this.obtpopups.grib[toPopup.obtid].openPopup();
+            _this.obtpopups.grib[toPopup.obtid].openPopup();
           }
         });
         map.on('popupclose', function (e) {
           let toPopup = e.popup.options.toPopup;
           if (toPopup && toPopup.index) {
-            this.obtpopups.obt[toPopup.obtid].closePopup();
+            _this.obtpopups.obt[toPopup.obtid].closePopup();
           }
         });
       },
@@ -1266,8 +1662,8 @@
         }
       },
       async submit() {
-        // openTooltips = [];
-        // popups = [];
+        this.openTooltips = [];
+        this.popups = [];
         this.updateInfoLabel();
 
         if (this.type === '格点') {
@@ -1278,6 +1674,19 @@
         this.renderMap(this.leftMap);
         this.renderMap(this.rightMap);
         // updateDataType();
+      },
+      backToCenter() {
+        this.fitBounds(this.wfMaps)
+      },
+      fitBounds(wfmaps) {
+        let hnbounds = L.latLngBounds(new L.LatLng(30.25, 108.65), new L.LatLng(24.5, 114.4));
+        for (let key in wfmaps) {
+          if (wfmaps.hasOwnProperty(key)) {
+            let wfmap = wfmaps[key];
+            wfmap.invalidateSize();
+            wfmap.fitBounds(hnbounds);
+          }
+        }
       }
     },
     computed: {
@@ -1314,13 +1723,14 @@
     created() {
       this.$nextTick(() => {
 
-        let wfMaps = []
+        window.drawSeries = this.drawSeries
         this.leftMap = this.initMap('left-map')
         this.leftMap.dataSrcCode = 'LIVE'
         this.rightMap = this.initMap('right-map')
-        wfMaps.push(this.leftMap)
-        wfMaps.push(this.rightMap)
-        this.linkMap(wfMaps)
+        this.wfMaps.push(this.leftMap)
+        this.wfMaps.push(this.rightMap)
+        this.linkMap(this.wfMaps)
+        this.fitBounds(this.wfMaps)
         this.submit()
         // this.getLiveObtData()
         // this.getWFData()
@@ -1758,6 +2168,29 @@
   .obt-count {
     -webkit-transform: scale(0.8);
     font-size: 14px
+  }
+
+  .valuechart {
+    display: inline-block;
+    border-radius: 2px;
+    padding: 3px;
+    color: white;
+    line-height: 14px;
+    background-color: #0a73c2;
+    cursor: pointer;
+    margin: 0 5px;
+  }
+
+  .valuechart:hover {
+    background-color: #0a8fde;
+  }
+
+  .el-message-box__header {
+    background-color: #F9F7F9;
+  }
+
+  .el-message-box {
+    width: min-content;
   }
 
 </style>

@@ -84,3 +84,13 @@ export function wfData(data) {
     params: data
   })
 }
+
+//请求图表数据
+// /zhongduan/chart_live_hour_obt， /zhongduan/chart_live_hour_obt_cal，/zhongduan/chart_live_hour_grib
+export function chartData(url, data) {
+  let reUrl = '/zhongduan' + url
+  return request({
+    url: reUrl,
+    params: data
+  })
+}
