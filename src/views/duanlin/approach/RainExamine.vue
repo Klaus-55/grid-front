@@ -138,10 +138,10 @@
     },
     data() {
       return {
-        // start: moment(new Date()).subtract(8, 'd').format('YYYY-MM-DD'),
-        start: '2021-07-01',
-        // end: moment(new Date()).subtract(1, 'd').format('YYYY-MM-DD'),
-        end: '2021-07-31',
+        start: moment(new Date()).subtract(8, 'd').format('YYYY-MM-DD'),
+        // start: '2021-07-01',
+        end: moment(new Date()).subtract(1, 'd').format('YYYY-MM-DD'),
+        // end: '2021-07-31',
         inspectionItem: "skillScore",
         inspectionItems: [
           {value: "skillScore", label: "技巧评分"},
