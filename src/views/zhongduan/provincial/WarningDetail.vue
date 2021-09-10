@@ -3,7 +3,7 @@
     <div class="content">
       <div class="head">
         <date-picker @changeDate="changeDate" :start="start" :end="end"/>
-        <el-button type="text" @click="open">评定方法</el-button>
+<!--        <el-button type="text" @click="open">评定方法</el-button>-->
 <!--        <el-button type="primary" size="mini" @click="" style="float: right; margin-right: 80px">预警详细信息</el-button>-->
       </div>
       <hr>

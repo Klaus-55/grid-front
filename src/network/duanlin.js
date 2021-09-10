@@ -59,3 +59,12 @@ export function cityDetail(start, end, department, warningType, level, rs) {
     url
   })
 }
+
+//强降水监测警报
+// /heavyRainMonitor/{start}/{end}/{area}
+export function heavyRainMonitor(start, end, area) {
+  let url = '/duanlin/heavyRainMonitor/' + start + '/' + end + '/' + area
+  return request({
+    url
+  })
+}

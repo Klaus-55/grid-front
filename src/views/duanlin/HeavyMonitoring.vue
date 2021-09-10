@@ -14,10 +14,10 @@
               <el-radio-group v-model="defIndicator" @change="changeIndicator">
                 <el-radio-button
                         v-for="item in indItems"
-                        :key="item.value"
+                        :key="item.label"
                         :label="item.label"
                         :value="item.value"
-                >{{ item.label }}
+                >{{ item.value }}
                 </el-radio-button
                 >
               </el-radio-group>
@@ -57,53 +57,17 @@
         <div class="nav-bottom rain-examine-bottom">
           <div id="map"></div>
           <div class="rain-examine-bottom-right">
-            <span class="tableTitle">{{ tableTitle }}</span>
+            <span class="tableTitle">{{ "湖南省" + titleTime + "强降水监测警报质量" }}</span>
             <el-table
                     :data="tableData"
                     border
                     height="94%">
               <el-table-column
-                      prop="area"
-                      label="区域"
+                      v-for="item in tableHeader"
+                      :prop="item.prop"
+                      :label="item.label"
                       align="center"
-                      min-width="1"
-              >
-              </el-table-column>
-              <el-table-column
-                      prop="ts"
-                      label="TS评分"
-                      align="center"
-                      min-width="1"
-              >
-              </el-table-column>
-              <el-table-column
-                      prop="empty"
-                      label="空报率"
-                      align="center"
-                      min-width="1"
-              >
-              </el-table-column>
-              <el-table-column
-                      prop="fail"
-                      label="漏报率"
-                      align="center"
-                      min-width="1"
-              >
-              </el-table-column>
-              <el-table-column
-                      prop="hit"
-                      label="命中率"
-                      align="center"
-                      min-width="1"
-              >
-              </el-table-column>
-              <el-table-column
-                      prop="intime"
-                      label="及时性"
-                      align="center"
-                      min-width="1"
-              >
-              </el-table-column>
+                      min-width="1"></el-table-column>
             </el-table>
           </div>
         </div>
@@ -119,6 +83,7 @@
   import {initRadios, initYears} from "../../common/utils";
   import * as L from "leaflet";
   import data from "../../assets/js/hunan";
+  import {heavyRainMonitor} from "../../network/duanlin";
 
   export default {
     name: "HeavyMonitoring",
@@ -136,13 +101,13 @@
             index: "pw",
           },
         ],
-        defIndicator: "TS评分",
+        defIndicator: "ts",
         indItems: [
-          {label: "TS评分", value: "ts"},
-          {label: "空报率", value: "kb"},
-          {label: "漏报率", value: "lb"},
-          {label: "命中率", value: "mz"},
-          {label: "及时性", value: "js"},
+          {label: "ts", value: "TS评分"},
+          {label: "far", value: "空报率"},
+          {label: "po", value: "漏报率"},
+          {label: "pod", value: "命中率"},
+          {label: "t", value: "及时性"},
         ],
         levelItems: [
           {label: "市级", value: "city"},
@@ -154,12 +119,16 @@
         month: moment().month() + 1,
         radios: [],
         start: moment(Date.now()).startOf('month').format('YYYY-MM-DD'),
+        // start: '2021-05-01',
         end: moment(Date.now()).format('YYYY-MM-DD'),
-        tableTitle: "湖南省2020年1月强降水监测警报质量",
+        // end: '2021-08-01',
+        titleTime: moment().year() + '年' + (moment().month() + 1) + '月',
+        tableHeader: [],
         tableData: [],
         map: {},
         hunanLayer: {},
-        isInitCity: true
+        isInitCity: true,
+        area: '长沙市'
       };
     },
     methods: {
@@ -167,23 +136,28 @@
         this.start = moment(startTime).format("YYYY-MM-DD")
         this.end = moment(endTime).format("YYYY-MM-DD")
         this.updateInfo('date')
+        this.getHeavyMonitor()
       },
       changeYear(year) {
         this.radios = initRadios(year)
         this.updateInfo('month')
+        this.getHeavyMonitor()
       },
       changeTimePeriod() {
         this.updateInfo('month')
+        this.updateHunanLayer()
+        this.getHeavyMonitor()
       },
       changeIndicator() {
+        this.updateTableHeader()
       },
       changItems(item) {
       },
       updateInfo(type) {
         if (type === 'date') {
-          let startStr = moment(this.start).format('YYYY年M月D日');
-          let endStr = moment(this.end).format('YYYY年M月D日');
-          this.titleTime = startStr + '~' + endStr
+          let startStr = moment(this.start).format('YY-M-D');
+          let endStr = moment(this.end).format('YY-M-D');
+          this.titleTime = startStr + "至" + endStr
         } else {
           if (this.month == 'year') {
             this.titleTime = this.year + '年'
@@ -221,7 +195,7 @@
           doubleClickZoom: false,
           scrollWheelZoom: false,
           inertia: false,
-          // dragging: false,
+          dragging: false,
           center: [27.4, 111.5],
         }
         _this.map = L.map('map', options);
@@ -272,13 +246,15 @@
             });
             L.marker([citylnglat[1], citylnglat[0]], {icon: cityIcon, interactive: false}).addTo(_this.map);
           }
-          if (cityName === '长沙市') {
+          if (cityName === _this.area) {
             layer.setStyle({fillColor: '#65A4F0'})
           }
           function click() {
             return function (e) {
               _this.hunanLayer.setStyle({fillColor: '#C6DBF5'})
               layer.setStyle({fillColor: '#65A4F0'})
+              _this.area = e.target.feature.properties.name
+              _this.getHeavyMonitor()
             }
           }
 
@@ -293,12 +269,44 @@
         }
 
       },
+      updateTableHeader() {
+        let ind = this.defIndicator
+        let tableHeader = []
+        tableHeader.push({prop: 'district', label: '区域'})
+        if (ind === 'ts') {
+          tableHeader.push({prop: 'ts', label: 'TS评分'})
+        } else if (ind === 'far') {
+          tableHeader.push({prop: 'far', label: '空报率'})
+        } else if (ind === 'po') {
+          tableHeader.push({prop: 'po', label: '漏报率'})
+        } else if (ind === 'pod') {
+          tableHeader.push({prop: 'pod', label: '命中率'})
+        } else {
+          tableHeader.push({prop: 't', label: '及时性'})
+        }
+        this.tableHeader = tableHeader
+      },
+      getHeavyMonitor() {
+        let loading = this.openLoading('.rain-examine-bottom-right');
+        heavyRainMonitor(this.start, this.end, this.area).then(res => {
+          if (res.data.length > 1) {
+            this.tableData = res.data
+          } else {
+            this.tableData = []
+          }
+          this.updateTableHeader()
+          loading.close()
+        }).catch(err => {
+          console.log(err)
+        })
+      }
     },
     created() {
       this.$nextTick(() => {
         this.radios = initRadios(this.year)
         this.years = initYears(7)
         this.initMap()
+        this.getHeavyMonitor()
       });
     },
   };
