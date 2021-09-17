@@ -122,12 +122,17 @@
 </template>
 
 <script>
-  import * as L from "leaflet";
+  import * as PIXI from 'pixi.js'
+  import 'leaflet-pixi-overlay';
+  import L from "leaflet";
+  import $ from "jquery";
   import moment from "momnet";
   import data from "../../../assets/js/hunan"
-  import {liveObtData, wfData, chartData} from "../../../network/zhongduan";
+  import {liveObtData, wfData, chartData, liveGribData} from "../../../network/zhongduan";
   import * as echarts from "echarts"
 
+  // require('../../../assets/libs/pixi/pixi.js')
+  // require('../../../assets/plugs/PixiOverlay/L.PixiOverlay.js')
   require('proj4')
   require('proj4leaflet')
   require('../../../assets/plugs/map/tileLayer.baidu')
@@ -201,7 +206,9 @@
         stepx: 0,
         stepy: 0,
         timeRangeHtml: '',
-        wfMaps: []
+        wfMaps: [],
+        scale: 5,
+        hunanLayer: {}
       }
     },
     methods: {
@@ -392,7 +399,7 @@
         let data = this.getWFRequestData();
         wfData(data).then(res => {
           if (res.code === 1 && res["data"].length > 0) {
-            this.renderGribValue(res['data'][0]);
+            this.renderGribValue(res['data'][0], this.rightMap);
           } else {
             this.rightMap.collisionLayer.clearLayers();
             this.$message.warning('查无该模式格点预报数据');
@@ -401,23 +408,154 @@
           console.log(err)
         })
       },
-      renderGribValue(wfData) {
-        this.resolveOrginData(wfData)
-        this.resolveGribToObt()
-        this.renderObtValue(this.rightMap, this.data, 'zd');
+      renderGribValue(wfData, map) {
+        this.resolveOrginData(wfData, map)
+        if (this.type === '格点') { //格点
+          //resolveGribToObt();
+          this.renderColorOverlay(map);
+        } else {  //站点
+          this.resolveGribToObt()
+          this.renderObtValue(this.rightMap, this.data, 'zd');
+        }
       },
-      resolveOrginData(originalData) {
-        //解析
-        originalData = this.parseOriginalData(originalData);
-        //是否差值
-        // if (this.type === '格点' && this.isDiffValue) {
-        //   if (this.liveData) {
-        //     originalData = subtractGribData(liveData, originalData);
-        //   } else {
-        //     this.clearAll();
-        //     return;
-        //   }
-        // }
+      renderColorOverlay(map) {
+        let _this = this
+        // pixi初始化部分
+        var pixiContainer = new PIXI.Container();
+        var graphics = new PIXI.Graphics();
+        pixiContainer.addChild(graphics);
+
+        // 标记部分
+        var firstDraw = true;
+        var preZoom;
+        var scale = _this.scale;
+
+        //格点文本的颜色
+        var textStyle;
+        var baseTextStyle = {
+          fontSize: 1,
+          lineHeiht: 0,
+          align: 'center'
+        }
+        if (this.isShowGribColor) {
+          textStyle = $.extend(true, {fill: '#ffffff'}, baseTextStyle);
+        } else {
+          textStyle = $.extend(true, {fill: '#000000'}, baseTextStyle);
+        }
+
+        let legendContent = {}
+
+        var colorOverlay = L.pixiOverlay(function (utils) {
+          var container = utils.getContainer();
+          var renderer = utils.getRenderer();
+          var projected = utils.latLngToLayerPoint;
+          var zoom = utils.getMap().getZoom();
+          // var scale = utils.getScale();
+
+          var tempPosition = _this.uppperLeft.slice(0);
+
+          // 里面的图像默认会使用 * scale 进行处理保证图像的缩放, 但是如果我们不需要缩放图像, 那么我们可以对图像进行 / scale那么图像始终会保持原来的尺寸
+          //  || preZoom !== zoom
+          if (firstDraw) {
+            graphics.clear();
+
+            console.time('newtext');
+            for (var y = 0; y < _this.height; y++) {
+              tempPosition[1] = _this.uppperLeft[1];
+              for (var x = 0; x < _this.width; x++) {
+                //获得当前网格数据
+                var gribData = _this.getGribDataByXY(x, y);
+                // 排除异常值, 降水比较特殊的,值比较大
+                if (gribData > -998 && gribData < 998) {
+                  //稀疏功能
+                  if (scale === 1 || x % scale === 0 && y % scale === 0) {
+                    var color = _this.getDataColor(gribData, legendContent);
+                    //----------------------
+                    graphics.beginFill(color, 0.9);
+                    var widthHeigh = _this.getGribWidthHeigh(projected, tempPosition, scale);
+                    var projectedPaintPos = projected(tempPosition);
+
+                    if (_this.isShowGribColor) {
+                      graphics.drawRect(projectedPaintPos.x, projectedPaintPos.y, widthHeigh[0], widthHeigh[1]);
+                    }
+
+                    graphics.endFill();
+
+                    if (_this.isShowGribValue) {
+                      var text = new PIXI.Text(Number(gribData).toFixed(1), textStyle);
+
+                      text.x = projectedPaintPos.x + 2;
+                      text.y = projectedPaintPos.y + widthHeigh[1] / 4;
+                      text.height = 4 * scale;
+                      text.scale.x = text.scale.y;
+                      pixiContainer.addChild(text);
+                    }
+                  }
+                }
+
+                tempPosition[1] += _this.stepx;
+              }
+              tempPosition[0] -= _this.stepy;
+            }
+
+            console.timeEnd('newtext');
+          }
+          if (firstDraw) {
+            map.collisionLayer.clearLayers();
+            if (map.colorOverlay) {
+              map.removeLayer(map.colorOverlay);
+            }
+
+            _this.renderLegend(map, legendContent);
+          }
+          firstDraw = false;
+
+          preZoom = zoom;
+
+          renderer.render(container);
+        }, pixiContainer);
+
+        colorOverlay.addTo(map);
+
+        map.colorOverlay = colorOverlay;
+      },
+      getGribDataByXY(x, y) {
+        let index = y * this.width + x;
+        return this.data[index];
+      },
+      getGribWidthHeigh(projected, uppperLeft, scale) {
+        let projectedUpperLeft = projected(uppperLeft);
+        let lowerRight = [Number(uppperLeft[0]) - this.stepy * scale, Number(uppperLeft[1]) + this.stepx * scale];
+        let projectedLowerRight = projected(lowerRight);
+        return [projectedLowerRight.x - projectedUpperLeft.x, projectedLowerRight.y - projectedUpperLeft.y];
+      },
+      resolveOrginData(originalData, map) {
+        if (map.dataSrcCode !== 'LIVE') {
+          //解析
+          originalData = this.parseOriginalData(originalData);
+
+          //是否差值
+          if (this.type === '格点' && this.isDiffValue) {
+            if (this.liveData) {
+              originalData = this.subtractGribData(this.liveData, originalData);
+            } else {
+              map.collisionLayer.clearLayers();
+              if (map.colorOverlay) {
+                map.removeLayer(map.colorOverlay);
+              }
+              return;
+            }
+          }
+        } else {
+          // resolveResult(undefined, wfMap)
+          if (!this.liveData) {
+            map.collisionLayer.clearLayers();
+            if (map.colorOverlay) {
+              map.removeLayer(map.colorOverlay);
+            }
+            return;
+          }
+        }
         this.data = eval(originalData["data"]["value"]);
         this.uppperLeft.push(originalData["upperleft"].y);
         this.uppperLeft.push(originalData["upperleft"].x);
@@ -427,6 +565,42 @@
         this.height = originalData["height"];
         this.stepx = originalData["stepx"];
         this.stepy = originalData["stepy"];
+      },
+      subtractGribData(liveData, wfData) {
+        let retData = [];
+        let cz;
+        let count1 = 0;
+        let count2 = 0;
+        let rmse = 0;
+        let mae = 0;
+        let liveGribData = eval(liveData["data"]["value"]);
+        let wfGribData = eval(wfData["data"]["value"]);
+        for (let i = 0; i < liveGribData.length; i++) {
+          cz = (Number(wfGribData[i]) - Number(liveGribData[i])).toFixed(1);
+          retData.push(cz);
+          if (cz <= 1) count1++;
+          if (cz <= 2) count2++;
+        }
+        for (let n in retData) {
+          rmse += (retData[n] - retData[0]) * (retData[n] - retData[0]);
+          mae += Math.abs(retData[n]);
+        }
+        wfData["data"]["value"] = retData;
+        let resultTable = "<span>检验结果</span>";
+
+        if (this.facValue == 'TMP' || this.facValue == 'TMAX' || this.facValue == 'TMIN') {
+          resultTable += "<div>" + "<span>≤1℃个数：</span>" + "<span>" + count1 + "</span>" + "</div>" +
+            "<div>" + "<span>≤2℃个数：</span>" + "<span>" + count2 + "</span>" + "</div>" +
+            "<div>" + "<span>≤1℃预报准确率：</span>" + "<span>" + (count1 * 100 / liveGribData.length).toFixed(2) + "</span>" + "</div>" +
+            "<div>" + "<span>≤2℃预报准确率：</span>" + "<span>" + (count2 * 100 / liveGribData.length).toFixed(2) + "</span>" + "</div>" +
+            "<div>" + "<span>均方根误差：</span>" + "<span>" + Math.sqrt(rmse / retData.length).toFixed(2) + "</span>" + "</div>" +
+            "<div>" + "<span>平均绝对误差：</span>" + "<span>" + (mae / retData.length).toFixed(2) + "</span>" + "</div>"
+          this.isShowRsCon = true
+          this.resultContent = resultTable
+        } else {
+          this.isShowRsCon = false
+        }
+        return wfData;
       },
       parseOriginalData(data) {
         let v = this.facValue;
@@ -609,7 +783,7 @@
           color: '#AFC7E5',
           weight: 1.5,
           fillColor: '#D5E2F3',
-          fillOpacity: 1
+          fillOpacity: 0,
         }
         let baiduCustomMap = L.tileLayer.baidu({
           layer: 'white-map'
@@ -632,9 +806,10 @@
         let map = L.map(mapId, options)
         map.collisionLayer = L.layerGroup.collision({margin: 2})
         map.collisionLayer.addTo(map)
-        L.geoJSON(data, {
+        this.hunanLayer = L.geoJSON(data, {
           style: myStyle
-        }).addTo(map)
+        })
+        this.hunanLayer.addTo(map)
         return map
       },
       linkMap(wfMaps) {
@@ -983,7 +1158,7 @@
         // 如果是实况
         if (map.dataSrcCode === 'LIVE') {
           if (this.type === '格点') {
-            // renderGribValue(liveData);
+            this.renderGribValue(this.liveData, this.leftMap);
           } else {
             this.renderObtValue(map, this.liveData, 'sk');
           }
@@ -1667,7 +1842,7 @@
         this.updateInfoLabel();
 
         if (this.type === '格点') {
-          // this.getLiveGribData();
+          await this.getLiveGribData();
         } else {
           await this.getLiveObtData();
         }
@@ -1677,6 +1852,51 @@
       },
       backToCenter() {
         this.fitBounds(this.wfMaps)
+      },
+      async getLiveGribData() {
+        let data = this.getGribLiveRequestData();
+        await liveGribData(data).then(res => {
+          if (res.code === 1 && res["data"].length > 0) {
+            this.liveData = this.parseOriginalData(res["data"][0]);
+          } else {
+            this.liveData = null;
+            this.$message.warning('查无此时段格点实况数据');
+          }
+        }).catch(err => {
+          console.log(err)
+        })
+      },
+      getGribLiveRequestData() {
+        let ddatetime;
+        let facname;
+        let table;
+
+        //预报时次
+        let ftvalue = this.ftvalue;
+        //预报时段数组
+        let intervalArr = this.intervalValue.split('-');
+
+        //预报时次预报时段相加
+        let foreHours = Number(intervalArr[1]) + Number(ftvalue);
+
+        //小时数据
+        if ((intervalArr[1] - intervalArr[0]) === 3 || (intervalArr[1] - intervalArr[0]) === 12) {
+          table = 'live.tb_grib_hourd';
+          ddatetime = moment(this.dateValue).add(foreHours, 'hours').format('YYYYMMDDHH');
+          //天数据
+        } else if ((intervalArr[1] - intervalArr[0]) === 24) {
+          table = 'live.tb_grib_dayd';
+          ddatetime = moment(this.dateValue).add(foreHours, 'hours').format('YYYYMMDDHH');
+        }
+
+        //获取实况要素名称
+        facname = this.getLiveGribFacname();
+
+        return {
+          table: table,
+          ddatetime: ddatetime,
+          facname: facname,
+        };
       },
       fitBounds(wfmaps) {
         let hnbounds = L.latLngBounds(new L.LatLng(30.25, 108.65), new L.LatLng(24.5, 114.4));

@@ -36,7 +36,7 @@
               </el-radio-button>
             </el-radio-group>
           </el-menu-item>
-          <el-menu-item>
+          <el-menu-item v-show="index === 'cwd'">
             <span>检验结果：</span>
             <el-radio-group v-model="rs" @change="changeRs">
               <el-radio-button
@@ -50,7 +50,6 @@
       </div>
       <div class="table-style rain-examine-bottom">
         <el-table
-                id="table"
                 :data="tableData"
                 height="100%"
                 border
@@ -68,9 +67,9 @@
           </el-table-column>
           <el-table-column label="实况预警信号">
             <el-table-column prop="district" label="受影响县" min-width="1"/>
-            <el-table-column prop="factType" label="类型" min-width="1"/>
-            <el-table-column prop="factLevel" label="等级" min-width="1"/>
-            <el-table-column prop="occTime" label="发生时间" min-width="2"/>
+            <el-table-column prop="facttype" label="类型" min-width="1"/>
+            <el-table-column prop="factlevel" label="等级" min-width="1"/>
+            <el-table-column prop="occtime" label="发生时间" min-width="2"/>
             <el-table-column prop="farea" label="受影响地市" min-width="1"/>
           </el-table-column>
           <el-table-column label="评定结果">
@@ -87,6 +86,26 @@
             <el-table-column prop="warningp_fj" label="分级检验" min-width="1"/>
           </el-table-column>
         </el-table>
+<!--        <el-table-->
+<!--                v-show="index === 'cwed'"-->
+<!--                :data="tableData"-->
+<!--                height="100%"-->
+<!--                border-->
+<!--                stripe-->
+<!--                style="width: 100%"-->
+<!--                :header-cell-style="{ 'text-align': 'center' }"-->
+<!--                :cell-style="{ 'text-align': 'center' }">-->
+<!--          <el-table-column label="预警信号">-->
+<!--            <el-table-column prop="department" label="发布单位" min-width="2"/>-->
+<!--            <el-table-column prop="forecaster" label="发布人" min-width="2"/>-->
+<!--            <el-table-column prop="inputtime" label="发布时间" min-width="2"/>-->
+<!--            <el-table-column prop="warningtype" label="预警类型" min-width="1"/>-->
+<!--            <el-table-column prop="level" label="预警等级" min-width="1"/>-->
+<!--            <el-table-column prop="area" label="受影响地市" min-width="1"/>-->
+<!--            <el-table-column prop="district" label="受影响县" min-width="1"/>-->
+<!--            <el-table-column prop="score" label="预报得分" min-width="1"/>-->
+<!--          </el-table-column>-->
+<!--        </el-table>-->
       </div>
     </div>
   </div>
@@ -102,6 +121,11 @@
     components: {
       DatePicker,
     },
+    props: {
+      index: {
+        type: String
+      }
+    },
     data() {
       return {
         start: moment(Date.now()).startOf('month').format('YYYY-MM-DD'),
@@ -109,7 +133,7 @@
         department: "all",
         departments: [
           {label: "所有气象台", value: "all"},
-          {label: "湖南省气象台", value: "湖南省气象台"},
+          // {label: "湖南省气象台", value: "湖南省气象台"},
           {label: "长沙市气象台", value: "长沙市气象台"},
           {label: "株洲市气象台", value: "株洲市气象台"},
           {label: "湘潭市气象台", value: "湘潭市气象台"},
@@ -154,13 +178,18 @@
         this.getCityDetail()
       },
       getCityDetail() {
-        let loading = this.openLoading('#table');
-        cityDetail(this.start, this.end, this.department, this.warningType, this.level, this.rs).then(res => {
+        let loading = this.openLoading('.rain-examine-bottom');
+        cityDetail(this.start, this.end, this.department, this.warningType, this.level, this.rs, this.index).then(res => {
           this.tableData = res.data
           loading.close()
         }).catch(err => {
           console.log(err)
         })
+      }
+    },
+    watch: {
+      index() {
+        this.getCityDetail()
       }
     },
     created() {

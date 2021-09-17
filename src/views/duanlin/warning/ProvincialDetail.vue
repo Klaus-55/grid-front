@@ -3,16 +3,16 @@
     <div class="content">
       <div class="head">
         <DatePicker @changeDate="changeDate" :start="start" :end="end"/>
-        <span style="margin-left: 50px">发布单位：</span>
-        <el-select v-model="department" class="unitSelect" @change="changeDepartment">
-          <el-option
-                  v-for="item in departments"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-          >
-          </el-option>
-        </el-select>
+<!--        <span style="margin-left: 50px">发布单位：</span>-->
+<!--        <el-select v-model="department" class="unitSelect" @change="changeDepartment">-->
+<!--          <el-option-->
+<!--                  v-for="item in departments"-->
+<!--                  :key="item.value"-->
+<!--                  :label="item.label"-->
+<!--                  :value="item.value"-->
+<!--          >-->
+<!--          </el-option>-->
+<!--        </el-select>-->
       </div>
       <hr/>
       <div class="h-3rem rain-examine-middle">
@@ -80,11 +80,11 @@
           <el-table-column label="实况预警信号">
             <el-table-column prop="district" label="受影响县" min-width="1">
             </el-table-column>
-            <el-table-column prop="factType" label="类型" min-width="1">
+            <el-table-column prop="facttype" label="类型" min-width="1">
             </el-table-column>
-            <el-table-column prop="factLevel" label="等级" min-width="1">
+            <el-table-column prop="factlevel" label="等级" min-width="1">
             </el-table-column>
-            <el-table-column prop="occTime" label="发生时间" min-width="2">
+            <el-table-column prop="occtime" label="发生时间" min-width="2">
             </el-table-column>
             <el-table-column prop="farea" label="受影响地市" min-width="1">
             </el-table-column>
@@ -178,7 +178,7 @@
       },
       getProvincialDetail() {
         let loading = this.openLoading('#table');
-        provincialDetail(this.start, this.end, this.department, this.warningType, this.level, this.rs).then(res => {
+        provincialDetail(this.start, this.end, this.warningType, this.level, this.rs).then(res => {
           this.tableData = res.data
           loading.close()
         })

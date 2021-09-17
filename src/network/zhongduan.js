@@ -94,3 +94,13 @@ export function chartData(url, data) {
     params: data
   })
 }
+
+//请求格点实况数据
+// /zhongduan/getLiveGribData
+export function liveGribData(data) {
+  let url = '/zhongduan/getLiveGribData'
+  return request({
+    url: url,
+    params: data
+  })
+}

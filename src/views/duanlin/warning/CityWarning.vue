@@ -10,13 +10,17 @@
           <el-menu-item>
             <span>预警类型：</span>
             <el-radio-group v-model="warningType" @change="changeType">
-              <el-radio-button v-for="item in warningTypes" :label="item" :key="item">{{
-                item
-                }}
-              </el-radio-button>
+              <el-radio-button
+                      v-for="item in warningTypes"
+                      :label="item"
+                      :key="item">{{item}}</el-radio-button>
+              <el-radio-button
+                      v-show="index === 'cw'"
+                      label="综合"
+                      key="综合"></el-radio-button>
             </el-radio-group>
           </el-menu-item>
-          <el-menu-item>
+          <el-menu-item v-show="index === 'cw'">
             <span>检验要素：</span>
             <el-radio-group v-model="factory" @change="changeFactory">
               <el-radio-button
@@ -89,6 +93,11 @@
     components: {
       DatePicker,
     },
+    props: {
+      index: {
+        type: String
+      }
+    },
     data() {
       return {
         warningType: "暴雨",
@@ -100,8 +109,7 @@
           "暴雪",
           "大风",
           "大雾",
-          "霾",
-          "综合",
+          "霾"
         ],
         factory: "ts",
         factories: [
@@ -229,11 +237,15 @@
         let area = feature.properties.name;
         await this.getDistrictWarning(area)
         let content = "<span>" + this.titleTime + "</span><br>" +
-          "<span style='font-weight: 700;color: #0591DB'>" + this.warningType + "</span><br>"+
-          "<span>" + (this.factory === "leadtime" ? "提前量：" : "准确率：") + this.mapData[this.factory] + "</span><br>"
-        if (this.factory !== "leadtime") {
-          content += "<span>漏报率：" + this.mapData['po'] + "</span><br>" +
-            "<span>空报率：" + this.mapData['far'] + "</span>"
+          "<span style='font-weight: 700;color: #0591DB'>" + this.warningType + "</span><br>"
+        if (this.index === 'cw') {
+          content += "<span>" + (this.factory === "leadtime" ? "提前量：" : "准确率：") + this.mapData[this.factory] + "</span><br>"
+          if (this.factory !== "leadtime") {
+            content += "<span>漏报率：" + this.mapData['po'] + "</span><br>" +
+              "<span>空报率：" + this.mapData['far'] + "</span>"
+          }
+        } else {
+          content += "<span>预报得分：" + (this.mapData['score'] == null ? '/' : this.mapData['score'] + '') + "</span>"
         }
         let centroid = feature.properties.centroid;
         L.popup()
@@ -243,15 +255,20 @@
       },
       updateTableHeader() {
         let tableHeader = []
-        if (this.factory === 'ts') {
+        if (this.index === 'cwe') {
           tableHeader.push({prop: 'district', label: '地区'})
-          tableHeader.push({prop: this.factory, label: '预报准确率'})
-        } else if (this.factory === 'leadtime') {
-          tableHeader.push({prop: 'district', label: '地区'})
-          tableHeader.push({prop: this.factory, label: '预警提前量'})
+          tableHeader.push({prop: 'score', label: '预报得分'})
         } else {
-          tableHeader.push({prop: 'district', label: '地区'})
-          tableHeader.push({prop: this.factory, label: '综合成绩'})
+          if (this.factory === 'ts') {
+            tableHeader.push({prop: 'district', label: '地区'})
+            tableHeader.push({prop: this.factory, label: '预报准确率'})
+          } else if (this.factory === 'leadtime') {
+            tableHeader.push({prop: 'district', label: '地区'})
+            tableHeader.push({prop: this.factory, label: '预警提前量'})
+          } else {
+            tableHeader.push({prop: 'district', label: '地区'})
+            tableHeader.push({prop: this.factory, label: '综合成绩'})
+          }
         }
         this.tableHeader = tableHeader
       },
@@ -282,7 +299,7 @@
       },
       getCityWarning() {
         let title = '湖南省' + this.titleTime + this.warningType + this.facTitle
-        cityWarning(this.start, this.end, this.warningType, this.factory).then(res => {
+        cityWarning(this.start, this.end, this.warningType, this.factory, this.index).then(res => {
           this.data = res.data
           initCityEcharts(this.data, title)
         }).catch(err => {
@@ -290,7 +307,7 @@
         })
       },
       async getDistrictWarning(area) {
-        await districtWarning(this.start, this.end, this.warningType, this.factory, area).then(res => {
+        await districtWarning(this.start, this.end, this.warningType, this.factory, area, this.index).then(res => {
           this.tableData = res.data.tableData
           this.mapData = res.data.mapData
         }).catch(err => {
@@ -330,6 +347,13 @@
         this.updateHunanLayer()
         this.getCityWarning()
       },
+    },
+    watch: {
+      index() {
+        this.updateHunanLayer()
+        this.updateTableHeader()
+        this.getCityWarning()
+      }
     },
     created() {
       this.$nextTick(() => {

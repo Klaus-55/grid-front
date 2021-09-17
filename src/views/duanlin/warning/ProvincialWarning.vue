@@ -211,7 +211,7 @@
         let selectedFac = this.data['series']
         if (selectedFac.length === 0) return
         let departments = this.data['categories']
-        this.tableHeader['department'] = '发布单位'
+        this.tableHeader['department'] = '预报员'
         for (let i = 0; i < selectedFac.length; i++) {
           this.tableHeader['name' + i] = selectedFac[i].name
         }

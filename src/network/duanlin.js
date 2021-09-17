@@ -28,16 +28,21 @@ export function provincialWarning(start, end, warningType, factory) {
 }
 
 //省级预警评定详情
-export function provincialDetail(start, end, department, warningType, level, rs) {
-  let url = '/duanlin/provincialDetail/' + start + '/' + end + '/' + department + "/" + warningType + '/' + level + "/" + rs
+export function provincialDetail(start, end, warningType, level, rs) {
+  let url = '/duanlin/provincialDetail/' + start + '/' + end + "/" + warningType + '/' + level + "/" + rs
   return request({
     url
   })
 }
 
 //市级预警预报质量
-export function cityWarning(start, end, warningType, factory) {
-  let url = '/duanlin/cityWarning/' + start + '/' + end + "/" + warningType + "/" + factory
+export function cityWarning(start, end, warningType, factory, index) {
+  let url
+  if (index === 'cw') {
+    url = '/duanlin/cityWarning/' + start + '/' + end + "/" + warningType + "/" + factory
+  } else {
+    url = '/duanlin/cityWarningEff/' + start + '/' + end + "/" + warningType
+  }
   return request({
     url
   })
@@ -45,16 +50,26 @@ export function cityWarning(start, end, warningType, factory) {
 
 //区县预警预报质量
 // /duanlin/districtWarning/{start}/{end}/{warningType}/{factory}/{area}
-export function districtWarning(start, end, warningType, factory, area) {
-  let url = '/duanlin/districtWarning/' + start + '/' + end + "/" + warningType + "/" + factory + "/" + area
+export function districtWarning(start, end, warningType, factory, area, index) {
+  let url
+  if (index === 'cw') {
+    url = '/duanlin/districtWarning/' + start + '/' + end + "/" + warningType + "/" + factory + "/" + area
+  } else {
+    url = '/duanlin/districtWarningEff/' + start + '/' + end + "/" + warningType + "/" + area
+  }
   return request({
     url
   })
 }
 
 //市级预警评定详情
-export function cityDetail(start, end, department, warningType, level, rs) {
-  let url = '/duanlin/cityDetail/' + start + '/' + end + '/' + department + "/" + warningType + '/' + level + "/" + rs
+export function cityDetail(start, end, department, warningType, level, rs, index) {
+  let url
+  if (index === 'cwd') {
+    url = '/duanlin/cityDetail/' + start + '/' + end + '/' + department + "/" + warningType + '/' + level + "/" + rs
+  } else {
+    url = '/duanlin/cityDetailEff/' + start + '/' + end + '/' + department + "/" + warningType + '/' + level
+  }
   return request({
     url
   })
