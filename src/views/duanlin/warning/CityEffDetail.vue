@@ -36,55 +36,25 @@
               </el-radio-button>
             </el-radio-group>
           </el-menu-item>
-          <el-menu-item>
-            <span>检验结果：</span>
-            <el-radio-group v-model="rs" @change="changeRs">
-              <el-radio-button
-                      v-for="item in rss"
-                      :label="item"
-                      :key="item">{{ item === 'all' ? '所有结果' : item }}
-              </el-radio-button>
-            </el-radio-group>
-          </el-menu-item>
         </el-menu>
       </div>
-      <div class="table-style rain-examine-bottom">
+      <div class="rain-examine-bottom">
         <el-table
                 :data="tableData"
                 height="100%"
                 border
                 stripe
                 style="width: 100%"
-                :header-cell-style="{ 'text-align': 'center' }"
+                :header-cell-style="{ background: '#39A5F8', color: '#fff', 'text-align': 'center' }"
                 :cell-style="{ 'text-align': 'center' }">
-          <el-table-column label="预警信号">
-            <el-table-column prop="department" label="发布单位" min-width="2"/>
-            <el-table-column prop="forecaster" label="发布人" min-width="2"/>
-            <el-table-column prop="inputtime" label="发布时间" min-width="2"/>
-            <el-table-column prop="warningtype" label="预警类型" min-width="1"/>
-            <el-table-column prop="level" label="预警等级" min-width="1"/>
-            <el-table-column prop="area" label="受影响地市" min-width="1"/>
-          </el-table-column>
-          <el-table-column label="实况预警信号">
-            <el-table-column prop="district" label="受影响县" min-width="1"/>
-            <el-table-column prop="facttype" label="类型" min-width="1"/>
-            <el-table-column prop="factlevel" label="等级" min-width="1"/>
-            <el-table-column prop="occtime" label="发生时间" min-width="2"/>
-            <el-table-column prop="farea" label="受影响地市" min-width="1"/>
-          </el-table-column>
-          <el-table-column label="评定结果">
-            <el-table-column prop="fdistrict" label="受影响县" min-width="1"/>
-            <el-table-column
-                    prop="leadtime_bfj"
-                    label="不分级提前量/分钟"
-                    min-width="1"/>
-            <el-table-column
-                    prop="leadtime_fj"
-                    label="分级提前量/分钟"
-                    min-width="1"/>
-            <el-table-column prop="warningp_bfj" label="不分级检验" min-width="1"/>
-            <el-table-column prop="warningp_fj" label="分级检验" min-width="1"/>
-          </el-table-column>
+          <el-table-column prop="department" label="发布单位" min-width="2"/>
+          <el-table-column prop="forecaster" label="发布人" min-width="2"/>
+          <el-table-column prop="inputtime" label="发布时间" min-width="2"/>
+          <el-table-column prop="warningtype" label="预警类型" min-width="1"/>
+          <el-table-column prop="level" label="预警等级" min-width="1"/>
+          <el-table-column prop="area" label="受影响地市" min-width="1"/>
+          <el-table-column prop="district" label="受影响县" min-width="1"/>
+          <el-table-column prop="score" label="预报得分" min-width="1"/>
         </el-table>
       </div>
     </div>
@@ -94,10 +64,10 @@
 <script>
   import DatePicker from "../../../components/content/DatePicker2";
   import moment from "momnet";
-  import {cityDetail} from "../../../network/duanlin";
+  import {cityEffDetail} from "../../../network/duanlin";
 
   export default {
-    name: "CityDetail",
+    name: "CityEffDetail",
     components: {
       DatePicker,
     },
@@ -125,12 +95,9 @@
           {label: "湘西州气象台", value: "湘西州气象台"},
         ],
         warningType: "暴雨",
-        warningTypes: ["暴雨", "雷雨大风", "雷电", "冰雹", "暴雪", "大风", "大雾", "霾"],
+        warningTypes: ["暴雨", "雷雨大风"],
         level: "all",
         levels: ["all", "蓝色", "黄色", "橙色", "红色"],
-        rs: "all",
-        rss: ["all", "正确", "空报", "漏报"],
-        tableTitle: ["预警信号", "实况预警信号", "评定结果"],
         tableData: [],
       };
     },
@@ -138,23 +105,23 @@
       changeDate(startTime, endTime) {
         this.start = moment(startTime).format("YYYY-MM-DD")
         this.end = moment(endTime).format("YYYY-MM-DD")
-        this.getCityDetail()
+        this.getCityEffDetail()
       },
       changeDepartment() {
-        this.getCityDetail()
+        this.getCityEffDetail()
       },
       changeWarningType() {
-        this.getCityDetail()
+        this.getCityEffDetail()
       },
       changeLevel() {
-        this.getCityDetail()
+        this.getCityEffDetail()
       },
       changeRs() {
-        this.getCityDetail()
+        this.getCityEffDetail()
       },
-      getCityDetail() {
+      getCityEffDetail() {
         let loading = this.openLoading('.rain-examine-bottom');
-        cityDetail(this.start, this.end, this.department, this.warningType, this.level, this.rs).then(res => {
+        cityEffDetail(this.start, this.end, this.department, this.warningType, this.level).then(res => {
           this.tableData = res.data
           loading.close()
         }).catch(err => {
@@ -164,7 +131,7 @@
     },
     created() {
       this.$nextTick(() => {
-        this.getCityDetail()
+        this.getCityEffDetail()
       })
     },
   };

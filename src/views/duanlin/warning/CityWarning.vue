@@ -14,10 +14,6 @@
                       v-for="item in warningTypes"
                       :label="item"
                       :key="item">{{item}}</el-radio-button>
-              <el-radio-button
-                      v-show="index === 'cw'"
-                      label="综合"
-                      key="综合"></el-radio-button>
             </el-radio-group>
           </el-menu-item>
           <el-menu-item v-show="index === 'cw'">
@@ -101,16 +97,7 @@
     data() {
       return {
         warningType: "暴雨",
-        warningTypes: [
-          "暴雨",
-          "雷雨大风",
-          "雷电",
-          "冰雹",
-          "暴雪",
-          "大风",
-          "大雾",
-          "霾"
-        ],
+        warningTypes: [],
         factory: "ts",
         factories: [
           { label: "ts", value: "预报准确率" },
@@ -347,9 +334,28 @@
         this.updateHunanLayer()
         this.getCityWarning()
       },
+      initWarningType() {
+        if (this.index === 'cw') {
+          this.warningTypes = [
+            "暴雨",
+            "雷雨大风",
+            "雷电",
+            "冰雹",
+            "暴雪",
+            "大风",
+            "大雾",
+            "霾",
+            "综合"
+          ]
+        } else {
+          this.warningTypes  = ["暴雨", "雷雨大风"]
+        }
+      }
     },
     watch: {
       index() {
+        this.warningType = '暴雨'
+        this.initWarningType()
         this.updateHunanLayer()
         this.updateTableHeader()
         this.getCityWarning()
@@ -359,6 +365,7 @@
       this.$nextTick(() => {
         this.radios = initRadios(this.year)
         this.years = initYears(7)
+        this.initWarningType()
         this.initMap()
         this.updateTableHeader()
         this.getCityWarning()

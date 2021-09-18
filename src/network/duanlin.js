@@ -19,6 +19,15 @@ export function temScore(start, end, ftime, wfinterval, product) {
   })
 }
 
+//强降水检验
+// /heavyRainScore/{start}/{end}/{ftime}
+export function heavyRainScore(start, end, ftime) {
+  let url = '/duanlin/heavyRainScore/' + start + '/' + end + '/' + ftime
+  return request({
+    url
+  })
+}
+
 //省级预警预报质量
 export function provincialWarning(start, end, warningType, factory) {
   let url = '/duanlin/provincialWarning/' + start + '/' + end + '/' + warningType + "/" + factory
@@ -63,13 +72,16 @@ export function districtWarning(start, end, warningType, factory, area, index) {
 }
 
 //市级预警评定详情
-export function cityDetail(start, end, department, warningType, level, rs, index) {
-  let url
-  if (index === 'cwd') {
-    url = '/duanlin/cityDetail/' + start + '/' + end + '/' + department + "/" + warningType + '/' + level + "/" + rs
-  } else {
-    url = '/duanlin/cityDetailEff/' + start + '/' + end + '/' + department + "/" + warningType + '/' + level
-  }
+export function cityDetail(start, end, department, warningType, level, rs) {
+  let url = '/duanlin/cityDetail/' + start + '/' + end + '/' + department + "/" + warningType + '/' + level + "/" + rs
+  return request({
+    url
+  })
+}
+
+//市级预警评定详情
+export function cityEffDetail(start, end, department, warningType, level) {
+  let url = '/duanlin/cityDetailEff/' + start + '/' + end + '/' + department + "/" + warningType + '/' + level
   return request({
     url
   })
