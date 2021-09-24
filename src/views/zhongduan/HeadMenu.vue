@@ -24,14 +24,14 @@
 <script>
   import Provincial from "./Provincial";
   import CityLevel from "./CityLevel";
-  import ModelExamination from "./ModelExamination";
+  import Model from "./Model";
 
   export default {
     name: "HeadMenu",
     components: {
       Provincial,
       CityLevel,
-      ModelExamination
+      Model
     },
     data() {
       return {
@@ -45,7 +45,7 @@
         } else if (val === 'city') {
           this.conName = 'city-level'
         } else if (val === 'model') {
-          this.conName = 'model-examination'
+          this.conName = 'model'
         }
       }
     }

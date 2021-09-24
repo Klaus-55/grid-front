@@ -66,6 +66,15 @@ export function modelScore(year, month, feHour, type, rtc, item) {
   })
 }
 
+//降水检验
+// /zhongduan/rainScore/{start}/{end}/{fTime}/{type}
+export function rainScore(start, end, fTime, type) {
+  let url = '/zhongduan/rainScore/' + start + '/' + end + '/' + fTime + '/' + type
+  return request({
+    url: url
+  })
+}
+
 //获取实况站点数据
 export function liveObtData(reqUrl, data) {
   let url = '/zhongduan' + reqUrl

@@ -211,10 +211,9 @@
 <style lang="less">
   .rain-examine-middle {
     .heavy-examine {
-      width: 15%;
-
+      width: 15% !important;
       .heavy-examine-group {
-        margin-left: 0.5rem;
+        margin-left: 0.5rem !important;
       }
     }
   }

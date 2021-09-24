@@ -13,7 +13,7 @@
         <div style="width: 100%; height: 50px; text-align: center;">
           <div style="display: inline-block; padding: 5px">
             <div class="time-period-radio">
-<!--              <span>检验时段：</span>-->
+              <!--              <span>检验时段：</span>-->
               <el-radio-group v-model="month" @change="changeTimePeriod">
                 <el-select v-model="year" @change="changeYear">
                   <el-option
@@ -68,7 +68,7 @@
                 <option value="4">格点</option>
                 <option value="2">骨干站</option>
                 <option value="3">自动站</option>
-<!--                <option value="1110" disabled>自选站</option>-->
+                <!--                <option value="1110" disabled>自选站</option>-->
               </select>
 
               <select name="sel3" id="sel3" style="width: 110px; font-size: 13px;" @change="changeSel3">
@@ -89,12 +89,12 @@
 </template>
 
 <script>
-  import Highcharts from "highcharts";
-  import HighchartsNoData from "highcharts/modules/no-data-to-display";
-  import {skill, quality, keyValue} from "../../common/vars";
+  import {keyValue, quality, skill} from "../../../common/vars";
   import moment from "momnet";
-  import {modelScore} from "../../network/zhongduan";
-  import {initRadios, initYears, toFix} from "../../common/utils";
+  import {modelScore} from "../../../network/zhongduan";
+  import HighchartsNoData from "highcharts/modules/no-data-to-display";
+  import Highcharts from "highcharts";
+  import {initRadios, initYears} from "../../../common/utils";
 
   export default {
     name: "ModelExamination",
@@ -199,18 +199,20 @@
         let categories = this.data.categories
         let data = this.data.data
         let series = []
-        for (const fac of this.checkedFacs) {
-          let seriesItem = {}
-          seriesItem.name = this.facValue[fac]
-          seriesItem.data = []
-          for (const username of categories) {
-            for (const obj of data) {
-              if (username == obj.username) {
-                seriesItem.data.push(obj[fac] > 100 ? NaN : obj[fac])
+        if (data.length > 0) {
+          for (const fac of this.checkedFacs) {
+            let seriesItem = {}
+            seriesItem.name = this.facValue[fac]
+            seriesItem.data = []
+            for (const username of categories) {
+              for (const obj of data) {
+                if (username == obj.username) {
+                  seriesItem.data.push(obj[fac] > 100 ? NaN : obj[fac])
+                }
               }
             }
+            series.push(seriesItem)
           }
-          series.push(seriesItem)
         }
         let options = {
           chart: {
@@ -266,7 +268,6 @@
         this.radios = initRadios(this.year)
         this.years = initYears(7)
         this.getModelScore()
-        this.initEcharts()
       })
     }
   }
@@ -274,10 +275,10 @@
 
 <style lang="less">
   .model-body {
-    left: 0;
-    padding: 20px;
-    background-color: #ededf0 !important;
-    border-top-left-radius: 0 !important;
+    float: left;
+    width: calc(100% - 226px);
+    height: calc(100% - 26px);
+    border: 13px solid #ececec;
   }
 
   .wrapper {
@@ -344,34 +345,34 @@
     vertical-align: top;
     padding-left: 20px;
     text-align: left;
-    .el-checkbox {
-      color: #303133;
-    }
-    .el-checkbox__inner {
-      width: 11px;
-      height: 11px;
-    }
-    .el-checkbox__input.is-checked .el-checkbox__inner {
-      background-color: transparent;
-      border-color: #DCDFE6;
-    }
-    .el-checkbox__input.is-focus .el-checkbox__inner {
-      border-color: #DCDFE6;
-    }
-    .el-checkbox__inner::after {
-      border: 2px solid #03b452;
-      border-left: 0;
-      border-top: 0;
-      left: 2px;
-      top: -1px;
-    }
-    .el-checkbox__label {
-      font-size: 12px;
-      padding-left: 3px;
-    }
-    .el-checkbox__input.is-checked+.el-checkbox__label {
-      color: #303133;
-    }
+  .el-checkbox {
+    color: #303133;
+  }
+  .el-checkbox__inner {
+    width: 11px;
+    height: 11px;
+  }
+  .el-checkbox__input.is-checked .el-checkbox__inner {
+    background-color: transparent;
+    border-color: #DCDFE6;
+  }
+  .el-checkbox__input.is-focus .el-checkbox__inner {
+    border-color: #DCDFE6;
+  }
+  .el-checkbox__inner::after {
+    border: 2px solid #03b452;
+    border-left: 0;
+    border-top: 0;
+    left: 2px;
+    top: -1px;
+  }
+  .el-checkbox__label {
+    font-size: 12px;
+    padding-left: 3px;
+  }
+  .el-checkbox__input.is-checked+.el-checkbox__label {
+    color: #303133;
+  }
   }
 
   #chosbox label {
@@ -394,7 +395,7 @@
     padding: 5px 14px 5px 5px;
     -moz-appearance: none;
     -webkit-appearance: none;
-    background: url("../../assets/img/select.png") no-repeat scroll right center transparent;
+    background: url("../../../assets/img/select.png") no-repeat scroll right center transparent;
   }
 
   select::-ms-expand {
@@ -417,44 +418,42 @@
   }
 
   .time-period-radio {
-    .el-select {
-      vertical-align: middle;
-    }
-    .el-input__inner {
-      width: 65px;
-      height: 25px;
-      line-height: 25px;
-      font-size: 12px;
-      background-color: #F8F8F8;
-      border-radius: 0;
-      padding: 0 0 0 6px;
-
-    }
-    .el-input__suffix {
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-    }
-    .el-select .el-input .el-select__caret {
-      font-size: 12px;
-      color: #49AFCD;
-    }
-    .el-input__icon {
-      width: 20px;
-      line-height: 25px;
-    }
-    .el-icon-arrow-up:before {
-      content: "\e78f";
-    }
-    .el-radio-button__inner {
-      width: 65px;
-      height: 25px;
-      line-height: 25px;
-      font-size: 12px;
-      background: #F8F8F8;
-      padding: 0;
-    }
+  .el-select {
+    vertical-align: middle;
   }
+  .el-input__inner {
+    width: 65px;
+    height: 25px;
+    line-height: 25px;
+    font-size: 12px;
+    background-color: #F8F8F8;
+    border-radius: 0;
+    padding: 0 0 0 6px;
 
-
+  }
+  .el-input__suffix {
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .el-select .el-input .el-select__caret {
+    font-size: 12px;
+    color: #49AFCD;
+  }
+  .el-input__icon {
+    width: 20px;
+    line-height: 25px;
+  }
+  .el-icon-arrow-up:before {
+    content: "\e78f";
+  }
+  .el-radio-button__inner {
+    width: 65px;
+    height: 25px;
+    line-height: 25px;
+    font-size: 12px;
+    background: #F8F8F8;
+    padding: 0;
+  }
+  }
 </style>
