@@ -8,6 +8,7 @@
 <script>
   import MenuList from "../../components/menu/MenuList";
   import HeavyExamine from "./convection/HeavyExamine";
+  import ThunderExamine from "./convection/ThunderExamine";
   import ThunderstormExamine from "./convection/ThunderstormExamine";
   import HailExamine from "./convection/HailExamine";
   import ForecasterExamine from "./convection/ForecasterExamine";
@@ -16,6 +17,7 @@
     components: {
       "side-bar": MenuList,
       HeavyExamine,
+      ThunderExamine,
       ThunderstormExamine,
       HailExamine,
       ForecasterExamine
@@ -37,7 +39,7 @@
         if (activeName === 'heavy') {
           this.conName = 'heavy-examine'
         } else if (activeName === 'smg') {
-          this.conName = 'thunderstorm-examine'
+          this.conName = 'thunder-examine'
         } else if (activeName === 'tw') {
           this.conName = 'thunderstorm-examine'
         } else if (activeName === 'hail') {

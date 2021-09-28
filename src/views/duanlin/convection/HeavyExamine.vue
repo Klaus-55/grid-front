@@ -186,7 +186,7 @@
         this.mainTitle = mainTitle
         // 起报时间：2020-10-12至2020-10-13逐时 08(北京时)
         ftime = ftime === 'zh' ? '综合' : (ftime + '(北京时)')
-        this.subtitle = '起报时间：' + start + '至' + end + '逐时 ' + ftime
+        this.subtitle = '起报时间：' + start + '至' + end + '逐6时 ' + ftime
       },
       getHeavyRainScore() {
         let loading = this.openLoading('.rain-examine-bottom');

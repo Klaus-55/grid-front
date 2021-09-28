@@ -56,10 +56,10 @@
   import moment from "momnet";
   import Highcharts from "highcharts";
   import HighchartsNoData from "highcharts/modules/no-data-to-display";
-  import {thunderstormScore} from "../../../network/duanlin";
+  import {thunderScore} from "../../../network/duanlin";
 
   export default {
-    name: "ThunderstormExamine",
+    name: "ThunderExamine",
     components: {
       DatePicker,
     },
@@ -159,10 +159,10 @@
       changeDate(startDate, endDate) {
         this.start = moment(startDate).format("YYYY-MM-DD");
         this.end = moment(endDate).format("YYYY-MM-DD");
-        this.getThunderstormScore()
+        this.getThunderScore()
       },
       changeFtime() {
-        this.getThunderstormScore()
+        this.getThunderScore()
       },
       changeFacname() {
         this.updateTitle()
@@ -174,8 +174,8 @@
       },
       updateTitle() {
         let {start, end, ftime, facname} = this
-        // 湖南省雷暴大风预报质量
-        let mainTitle = '湖南省雷暴大风'
+        // 湖南省雷暴预报质量
+        let mainTitle = '湖南省雷暴'
         if (facname === 'ts') {
           mainTitle += '预报质量'
         } else if (facname === 'po') {
@@ -188,9 +188,9 @@
         ftime = ftime === 'zh' ? '综合' : (ftime + '(北京时)')
         this.subtitle = '起报时间：' + start + '至' + end + '逐6时 ' + ftime
       },
-      getThunderstormScore() {
+      getThunderScore() {
         let loading = this.openLoading('.rain-examine-bottom');
-        thunderstormScore(this.start, this.end, this.ftime).then(res => {
+        thunderScore(this.start, this.end, this.ftime).then(res => {
           this.data = res.data
           this.updateTitle()
           this.initEcharts()
@@ -202,16 +202,19 @@
     },
     created() {
       this.$nextTick(() => {
-        this.getThunderstormScore()
+        this.getThunderScore()
       });
-    },
+    }
   };
 </script>
 
 <style lang="less">
   .rain-examine-middle {
-    .thunderstorm-examine {
-      width: 32rem;
+    .heavy-examine {
+      width: 15% !important;
+      .heavy-examine-group {
+        margin-left: 0.5rem !important;
+      }
     }
   }
 

@@ -401,7 +401,7 @@
           if (res.code === 1 && res["data"].length > 0) {
             this.renderGribValue(res['data'][0], this.rightMap);
           } else {
-            this.rightMap.collisionLayer.clearLayers();
+            this.rightMap.clearAll();
             this.$message.warning('查无该模式格点预报数据');
           }
         }).catch(err => {
@@ -501,11 +501,7 @@
             console.timeEnd('newtext');
           }
           if (firstDraw) {
-            map.collisionLayer.clearLayers();
-            if (map.colorOverlay) {
-              map.removeLayer(map.colorOverlay);
-            }
-
+            map.clearAll()
             _this.renderLegend(map, legendContent);
           }
           firstDraw = false;
@@ -539,20 +535,14 @@
             if (this.liveData) {
               originalData = this.subtractGribData(this.liveData, originalData);
             } else {
-              map.collisionLayer.clearLayers();
-              if (map.colorOverlay) {
-                map.removeLayer(map.colorOverlay);
-              }
+              map.clearAll()
               return;
             }
           }
         } else {
           // resolveResult(undefined, wfMap)
           if (!this.liveData) {
-            map.collisionLayer.clearLayers();
-            if (map.colorOverlay) {
-              map.removeLayer(map.colorOverlay);
-            }
+            map.clearAll()
             return;
           }
         }
@@ -806,6 +796,13 @@
         let map = L.map(mapId, options)
         map.collisionLayer = L.layerGroup.collision({margin: 2})
         map.collisionLayer.addTo(map)
+        map.clearAll = function () {
+          this.collisionLayer.clearLayers();
+          if (this.colorOverlay) {
+            this.removeLayer(this.colorOverlay);
+          }
+          // this.map.off('popupopen');
+        }
         this.hunanLayer = L.geoJSON(data, {
           style: myStyle
         })
@@ -1526,7 +1523,7 @@
         }
       },
       renderObtValue(map, data, type) {
-        map.collisionLayer.clearLayers()
+        map.clearAll()
         if (!data) return
         let obtFacname = this.getLiveObtFacname();
         let legendContent = {}
