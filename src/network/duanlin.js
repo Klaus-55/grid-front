@@ -19,6 +19,29 @@ export function temScore(start, end, ftime, wfinterval, product) {
   })
 }
 
+// 分页查询值班信息
+// /attendanceList
+export function attendanceList({current, size}) {
+  let url = '/duanlin/attendanceList'
+  return request({
+    url: url,
+    params: {
+      current: current,
+      size: size
+    }
+  })
+}
+
+
+//登陆验证
+// /login
+export function login(username, password) {
+  let url = '/duanlin/login?username=' + username + '&password=' + password
+  return request({
+    url
+  })
+}
+
 //强降水检验
 // /heavyRainScore/{start}/{end}/{ftime}
 export function heavyRainScore(start, end, ftime) {

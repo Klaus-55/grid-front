@@ -119,6 +119,7 @@
         map: {},
         hunanLayer: {},
         layerGroup: [],
+        title: '',
         isInitCity: true
       };
     },
@@ -286,6 +287,7 @@
       },
       getCityWarning() {
         let title = '湖南省' + this.titleTime + this.warningType + this.facTitle
+        if (this.title !== '') title = '湖南省' + this.title + this.warningType + this.facTitle
         cityWarning(this.start, this.end, this.warningType, this.factory, this.index).then(res => {
           this.data = res.data
           initCityEcharts(this.data, title)
@@ -305,6 +307,7 @@
         this.start = moment(startTime).format("YYYY-MM-DD")
         this.end = moment(endTime).format("YYYY-MM-DD")
         this.updateHunanLayer()
+        this.title = this.start + '~' + this.end
         this.getCityWarning()
       },
       changeType() {
@@ -330,6 +333,7 @@
         this.getCityWarning()
       },
       changeTimePeriod() {
+        this.title = ''
         this.updateInfo('month')
         this.updateHunanLayer()
         this.getCityWarning()

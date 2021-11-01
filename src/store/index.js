@@ -39,7 +39,8 @@ const store = new Vuex.Store({
     modes: [],
     modelViews: [],
     colors: [],
-    selectedModes: []
+    selectedModes: [],
+    userName: ''
   },
   actions,
   mutations,

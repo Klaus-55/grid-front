@@ -57,6 +57,15 @@ export function dailyForecast(start, end, fTime) {
   })
 }
 
+//城镇预报评分
+// /zhongduan/townForecastScore/{start}/{end}/{obtType}
+export function townForecastScore(start, end, obtType) {
+  let url = '/zhongduan/townForecastScore/' + start + '/' + end + '/' + obtType
+  return request({
+    url: url
+  })
+}
+
 //模式检验评分
 // /zhongduan/modelScore/{year}/{month}/{feHour}/{type}/{rtc}/{item}
 export function modelScore(year, month, feHour, type, rtc, item) {
@@ -67,9 +76,23 @@ export function modelScore(year, month, feHour, type, rtc, item) {
 }
 
 //降水检验
-// /zhongduan/rainScore/{start}/{end}/{fTime}/{type}
-export function rainScore(start, end, fTime, type) {
-  let url = '/zhongduan/rainScore/' + start + '/' + end + '/' + fTime + '/' + type
+// /zhongduan/rainScore/{start}/{end}/{fTime}/{type}/{wfhours}
+export function rainScore(start, end, fTime, type, wfhours) {
+  let url = '/zhongduan/rainScore/' + start + '/' + end + '/' + fTime + '/' + type + '/' + wfhours
+  return request({
+    url: url
+  })
+}
+
+//温度检验
+// /zhongduan/tempScore/{start}/{end}/{fTime}/{type}/{wfhours}/{facname}
+export function tempScore(start, end, fTime, type, wfhours, facname) {
+  if (facname.indexOf('maxt') !== -1) {
+    facname = 'TMAX'
+  } else if (facname.indexOf('mint') !== -1) {
+    facname = 'TMIN'
+  }
+  let url = '/zhongduan/tempScore/' + start + '/' + end + '/' + fTime + '/' + type + '/' + wfhours + '/' + facname
   return request({
     url: url
   })

@@ -1,4 +1,3 @@
-
 import Highcharts from "highcharts";
 import store from "../store";
 import HighchartsNoData from "highcharts/modules/no-data-to-display";

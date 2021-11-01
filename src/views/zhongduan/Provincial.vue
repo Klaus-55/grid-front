@@ -14,7 +14,7 @@
   import RainstormPublic from "./provincial/RainstormPublic";
   import RainstormDetail from "./provincial/RainstormDetail";
   import DailyForecast from "./provincial/DailyForecast";
-  import DailyComparision from "./provincial/DailyComparision";
+  // import DailyComparision from "./provincial/DailyComparision";
   import QualityReport from "./provincial/QualityReport";
   export default {
     name: "Provincial",
@@ -27,7 +27,7 @@
       RainstormPublic,
       RainstormDetail,
       DailyForecast,
-      DailyComparision,
+      // DailyComparision,
       QualityReport
     },
     data() {
@@ -40,7 +40,7 @@
           {img: require('assets/img/rainstorm.png'), text: '暴雨公众预报', index: 'rainstormPublic'},
           {img: require('assets/img/rsd.png'), text: '暴雨公众预报详情', index: 'rainstormDetail'},
           {img: require('assets/img/df.png'), text: '每日预报评分', index: 'dailyForecast'},
-          {img: require('assets/img/dlfc.png'), text: '每日实况预报对比', index: 'dailyComparision'},
+          // {img: require('assets/img/dlfc.png'), text: '每日实况预报对比', index: 'dailyComparision'},
           {img: require('assets/img/report.png'), text: '预报质量报表', index: 'qualityReport'},
         ],
         conName: 'warning-message'
@@ -62,9 +62,11 @@
           this.conName = 'rainstorm-detail'
         } else if (activeName === 'dailyForecast') {  //每日预报评分
           this.conName = 'daily-forecast'
-        } else if (activeName === 'dailyComparision') { //每日实况预报对比
-          this.conName = 'daily-comparision'
-        } else if (activeName === 'qualityReport') {  //预报质量报表
+        }
+        // else if (activeName === 'dailyComparision') { //每日实况预报对比
+        //   this.conName = 'daily-comparision'
+        // }
+        else if (activeName === 'qualityReport') {  //预报质量报表
           this.conName = 'quality-report'
         }
       }

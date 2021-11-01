@@ -20,6 +20,10 @@ export const warningDetailVar = `
 export const skill = ['zhjq', 'qyjq', 'genjq', 'baoyujq', 'maxtjq', 'mintjq']
 export const quality = ["qyzql","qyts","genzql","stormzql", "ljo1zql","ljo2zql",
   "ljo3zql","ljo4zql", "zhjs","tmaxozql","tmaxtzql","tminozql","tmintzql"]
+export const townQuality = ['qyzql', 'qyts', 'genzql', 'stormzql', 'tmaxozql',
+  'tmaxtzql', 'tminozql', 'tmintzql', 'fj1zql', 'fj2zql',
+  'fj3zql', 'fj4zql', 'fj5zql', 'fj6zql', 'ljo1zql', 'ljo2zql',
+  'ljo3zql', 'ljo4zql', 'ljo5zql', 'ljo6zql']
 export const keyValue = {
   zhjq: "综合技巧",
   qyjq: "晴雨（雪）预报技巧",
@@ -31,10 +35,18 @@ export const keyValue = {
   qyts: "晴雨（雪）TS",
   genzql: "一般性降水准确率",
   stormzql: "暴雨（雪）以上准确率",
+  fj1zql: "分级降水（小雨）",
+  fj2zql: "分级降水（中雨）",
+  fj3zql: "分级降水（大雨）",
+  fj4zql: "分级降水（暴雨）",
+  fj5zql: "分级降水（大暴雨）",
+  fj6zql: "分级降水（特大暴雨）",
   ljo1zql: "累加降水量≥0.0mm",
   ljo2zql: "累加降水量≥10mm",
   ljo3zql: "累加降水量≥25mm",
   ljo4zql: "累加降水量≥50mm",
+  ljo5zql: "累加降水量≥100mm",
+  ljo6zql: "累加降水量≥250mm",
   zhjs: "综合降水",
   tmaxozql: "最高气温误差≤1℃准确率",
   tmaxtzql: "最高气温误差≤2℃准确率",

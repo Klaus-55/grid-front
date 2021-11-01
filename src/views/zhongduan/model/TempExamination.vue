@@ -124,7 +124,7 @@
   import moment from "momnet";
   import HighchartsNoData from "highcharts/modules/no-data-to-display";
   import Highcharts from "highcharts";
-  import {rainScore} from "../../../network/zhongduan";
+  import {tempScore} from "../../../network/zhongduan";
 
   export default {
     name: "RainExamination",
@@ -143,12 +143,10 @@
         ftime: "zh",
         wfinterval: "24",
         product: "BBBUSI",
-        facname: "pc_jq",
+        facname: "maxtsst",
         factories: [
-          {label: 'pc_jq', name: '晴雨(雪)预报技巧'},
-          {label: 'gen_jq', name: '一般性降水技巧'},
-          {label: 'storm_jq', name: '暴雨以上技巧'},
-          {label: 'heavy_jq', name: '强降水技巧'},
+          {label: 'maxtsst', name: '最高温平均绝对误差技巧'},
+          {label: 'mintsst', name: '最低温平均绝对误差技巧'}
         ],
         switchStatus: true,
         activeText: '0~72小时',
@@ -172,53 +170,40 @@
       changeDate(startDate, endDate) {
         this.start = moment(startDate).format("YYYY-MM-DD");
         this.end = moment(endDate).format("YYYY-MM-DD");
-        this.getRainScore()
+        this.getTempScore()
       },
       changItems(val) {
         if (val === 'skillScore') {
-          this.facname = 'pc_jq'
+          this.facname = 'maxtsst'
           this.factories = [
-            {label: 'pc_jq', name: '晴雨(雪)预报技巧'},
-            {label: 'gen_jq', name: '一般性降水技巧'},
-            {label: 'storm_jq', name: '暴雨以上技巧'},
-            {label: 'heavy_jq', name: '强降水技巧'},
+            {label: 'maxtsst', name: '最高温平均绝对误差技巧'},
+            {label: 'mintsst', name: '最低温平均绝对误差技巧'}
           ]
         } else {
-          this.facname = 'pc'
+          this.facname = 'maxtok2'
           this.factories = [
-            {label: 'pc', name: '晴雨(雪)准确率'},
-            {label: 'ybx_pc', name: '一般性降水准确率'},
-            {label: 'by_pc', name: '暴雨以上准确率'},
-            {label: 'qjs_pc', name: '强降水准确率'},
-            // {label: 'tminozql', name: '最高气温误差≤2℃准确率'},
-            // {label: 'tmintzql', name: '最低气温误差≤2℃准确率'},
-            {label: 'fj1_pc', name: '小雨'},
-            {label: 'fj2_pc', name: '中雨'},
-            {label: 'fj3_pc', name: '大雨'},
-            {label: 'fj4_pc', name: '暴雨'},
-            {label: 'fj5_pc', name: '大暴雨'},
-            {label: 'fj6_pc', name: '特大暴雨'},
-            {label: 'lj1_pc', name: '≥0.1mm'},
-            {label: 'lj2_pc', name: '≥3.0mm'},
-            {label: 'lj3_pc', name: '≥10.0mm'},
-            {label: 'lj4_pc', name: '≥20.0mm'},
-            {label: 'lj5_pc', name: '≥50.0mm'},
-            {label: 'lj6_pc', name: '≥70.0mm'},
-            {label: 'zhjs', name: '综合降水'},
+            {label: 'maxtok2', name: '最高温小于2度准确率'},
+            {label: 'maxtok1', name: '最高温小于1度准确率'},
+            {label: 'mintok2', name: '最低温小于2度准确率'},
+            {label: 'mintok1', name: '最低温小于1度准确率'},
+            {label: 'maxtmae', name: '最高温平均绝对误差'},
+            {label: 'maxtrmse', name: '最高温均方根误差'},
+            {label: 'mintmae', name: '最低温平均绝对误差'},
+            {label: 'mintrmse', name: '最低温均方根误差'},
           ]
         }
         this.updateTitle()
-        this.initEcharts()
+        this.getTempScore()
       },
       changeFtime() {
-        this.getRainScore()
+        this.getTempScore()
       },
       changeProduct() {
-        this.getRainScore()
+        this.getTempScore()
       },
       changeFacname() {
         this.updateTitle()
-        this.initEcharts()
+        this.getTempScore()
       },
       changeWfhours(wfhours) {
         this.fhour = []
@@ -232,7 +217,7 @@
         }
         this.fhour.push(...fhourArr)
         this.ftimeView.push(...fhourArr)
-        this.getRainScore()
+        this.getTempScore()
       },
       switchChange(val) {
         if (val) {
@@ -456,11 +441,11 @@
         ftime === 'zh' ? ftime = '综合' : ftime += '时'
         this.subtitle = '起报时间：' + this.start + '至' + this.end + '逐24时 ' + ftime
       },
-      getRainScore() {
+      getTempScore() {
         this.updateTitle()
         let start = moment(this.start).format('YYYYMMDD')
         let end = moment(this.end).format('YYYYMMDD')
-        rainScore(start, end, this.ftime, this.product, this.wfhours).then(res => {
+        tempScore(start, end, this.ftime, this.product, this.wfhours, this.facname).then(res => {
           this.data = res.data
           this.initModels()
           this.initEcharts()
@@ -471,7 +456,7 @@
     },
     created() {
       this.$nextTick(() => {
-        this.getRainScore()
+        this.getTempScore()
       })
     }
   }
