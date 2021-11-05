@@ -58,6 +58,7 @@
                 :data="tableData"
                 height="100%"
                 border
+                v-el-table-infinite-scroll="load"
                 stripe
                 style="width: 100%"
                 :header-cell-style="{ 'text-align': 'center' }"
@@ -119,11 +120,16 @@
   import DatePicker from "../../../components/content/DatePicker2";
   import moment from "momnet";
   import {provincialDetail} from "../../../network/duanlin";
+  import elTableInfiniteScroll from 'el-table-infinite-scroll';
+
 
   export default {
     name: "ProvincialDetail",
     components: {
       DatePicker,
+    },
+    directives: {
+      'el-table-infinite-scroll': elTableInfiniteScroll
     },
     data() {
       return {
@@ -156,7 +162,14 @@
         rss: ["all", "正确", "空报", "漏报"],
         tableTitle: ["预警信号", "实况预警信号", "评定结果"],
         tableData: [],
+        pageSize: 0,
+        pageNumber: 30,
       };
+    },
+    computed: {
+      loading() {
+        return this.tableData.length !== (this.pageSize + 1) * this.pageNumber
+      }
     },
     methods: {
       changeDate(startTime, endTime) {
@@ -178,9 +191,17 @@
       },
       getProvincialDetail() {
         let loading = this.openLoading('#table');
-        provincialDetail(this.start, this.end, this.warningType, this.level, this.rs).then(res => {
+        this.pageSize = 0
+        provincialDetail(this.start, this.end, this.warningType, this.level, this.rs, this.pageSize, this.pageNumber).then(res => {
           this.tableData = res.data
           loading.close()
+        })
+      },
+      load() {
+        if (this.loading) return
+        this.pageSize++
+        provincialDetail(this.start, this.end, this.warningType, this.level, this.rs, this.pageSize, this.pageNumber).then(res => {
+          this.tableData = this.tableData.concat(res.data)
         })
       }
     },

@@ -66,6 +66,15 @@ export function townForecastScore(start, end, obtType) {
   })
 }
 
+//城镇预报员评分
+// /zhongduan/townForecasterScore/{start}/{end}/{obtType}
+export function townForecasterScore(start, end, obtType, wfsrc) {
+  let url = '/zhongduan/townForecasterScore/' + start + '/' + end + '/' + obtType + '/' + wfsrc
+  return request({
+    url: url
+  })
+}
+
 //模式检验评分
 // /zhongduan/modelScore/{year}/{month}/{feHour}/{type}/{rtc}/{item}
 export function modelScore(year, month, feHour, type, rtc, item) {

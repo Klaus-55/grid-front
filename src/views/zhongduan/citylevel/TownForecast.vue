@@ -49,6 +49,7 @@
         <h2>{{titleTime}}乡镇天气预报质量评分报表</h2>
         <div id="container" style="width: 100%; height:calc(100% - 84px)"></div>
       </div>
+      <component :is="dialog.name" :ref="dialog.name" v-model="dialog.visible" v-bind="dialog.args"/>
     </div>
   </div>
 </template>
@@ -57,14 +58,17 @@
   import moment from "momnet";
   import Highcharts from "highcharts";
   import DatePicker from "../../../components/content/DatePicker2";
+  import TownDialog from "./TownDialog";
+  import dialogMix from "../../../common/mixins/dialog"
   import {keyValue, skill, townQuality} from "../../../common/vars";
-  import {initRadios, initYears, toFix} from "../../../common/utils";
+  import {initRadios, initYears} from "../../../common/utils";
   import {townForecastScore} from "../../../network/zhongduan";
 
   export default {
     name: "TownForecast",
     components: {
-      DatePicker
+      DatePicker,
+      TownDialog
     },
     data() {
       return {
@@ -103,6 +107,7 @@
         ]
       }
     },
+    mixins: [dialogMix],
     methods: {
       changeDate(startTime, endTime) {
         this.start = moment(startTime).format("YYYY-MM-DD")
@@ -197,8 +202,11 @@
           let seriesData = []
           for (let j = 0; j < townType.length; j++) {
             let res = data.find(obj => obj['model'] === townType[j])
-            if (!res) continue
-            seriesData.push(this.numToFixed(res[currentFacs[i]]))
+            if (!res) {
+              seriesData.push(NaN)
+            } else {
+              seriesData.push(this.numToFixed(res[currentFacs[i]]))
+            }
           }
           seriesItem.data = seriesData
           series.push(seriesItem)
@@ -268,14 +276,18 @@
           },
           series: rs.series
         }
-        Highcharts.chart('container', options, function(chart) {
-          console.log(chart.xAxis[0])
-          // 方法2：给坐标轴标签 DOM 添加点击事件， 并根据事件坐标计算出 x 下标值
-          // Highcharts.addEvent(chart.xAxis[0].labelGroup.element, 'click', e => {
-          //   e = c.pointer.normalize(e);
-          //   let index = Math.ceil(c.xAxis[0].toValue(e.chartX));
-          //   alert(index + '\t' + c.xAxis[0].categories[index])
-          // });
+        let _this = this
+        let chart = Highcharts.chart('container', options, function(c) {
+          // 给坐标轴标签 DOM 添加点击事件， 并根据事件坐标计算出 x 下标值
+          if (typeof c.xAxis[0].labelGroup == 'undefined') return
+          Highcharts.addEvent(c.xAxis[0].labelGroup.element, 'click', e => {
+            e = c.pointer.normalize(e);
+            let index = Math.round(c.xAxis[0].toValue(e.chartX));
+            _this.$$dialogOpen('TownDialog', {
+              attrs: _this,
+              city: c.xAxis[0].categories[index]
+            })
+          });
         })
       }
     },
@@ -294,7 +306,7 @@
   .town-forecast-middle {
     box-sizing: border-box;
     width: 100%;
-    height: 180px;
+    height: 200px;
     background-color: @bgColor;
     padding: 15px;
     margin-bottom: 20px;
@@ -407,4 +419,5 @@
       text-align: center;
     }
   }
+
 </style>

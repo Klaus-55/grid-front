@@ -23,7 +23,7 @@ export const quality = ["qyzql","qyts","genzql","stormzql", "ljo1zql","ljo2zql",
 export const townQuality = ['qyzql', 'qyts', 'genzql', 'stormzql', 'tmaxozql',
   'tmaxtzql', 'tminozql', 'tmintzql', 'fj1zql', 'fj2zql',
   'fj3zql', 'fj4zql', 'fj5zql', 'fj6zql', 'ljo1zql', 'ljo2zql',
-  'ljo3zql', 'ljo4zql', 'ljo5zql', 'ljo6zql']
+  'ljo3zql', 'ljo4zql', 'ljo5zql', 'ljo6zql', 'zhjs']
 export const keyValue = {
   zhjq: "综合技巧",
   qyjq: "晴雨（雪）预报技巧",
