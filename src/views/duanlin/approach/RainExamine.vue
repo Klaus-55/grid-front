@@ -327,6 +327,9 @@
             text: "",
           },
           lang: {
+            downloadPNG: "下载PNG文件",
+            downloadJPEG: "下载JPEG图片",
+            downloadSVG: "下载SVG文件",
             noData: '暂无数据'
           },
           noData: {
@@ -334,6 +337,13 @@
               fontWeight: 'bold',
               fontSize: '15px',
               color: '#303030'
+            }
+          },
+          exporting: {
+            buttons: {
+              contextButton: {
+                menuItems: ['downloadPNG', 'downloadJPEG', 'downloadSVG']
+              }
             }
           },
           xAxis: {

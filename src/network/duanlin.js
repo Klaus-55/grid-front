@@ -87,8 +87,8 @@ export function provincialWarning(start, end, warningType, factory) {
 }
 
 //省级预警评定详情
-export function provincialDetail(start, end, warningType, level, rs, pageSize, pageNumber) {
-  let url = '/duanlin/provincialDetail/' + start + '/' + end + "/" + warningType + '/' + level + "/" + rs + "/" + pageSize + "/" + pageNumber
+export function provincialDetail(start, end, warningType, level, rs) {
+  let url = '/duanlin/provincialDetail/' + start + '/' + end + "/" + warningType + '/' + level + "/" + rs
   return request({
     url
   })

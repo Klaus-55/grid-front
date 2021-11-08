@@ -25,7 +25,7 @@
       </div>
 
       <div class="warning-message-bottom">
-        <h2>{{titleTime}}预警消息预报质量</h2>
+<!--        <h2>{{titleTime}}预警消息预报质量</h2>-->
         <div id="container" style="width: 100%; height:calc(100% - 84px)"></div>
       </div>
 
@@ -55,7 +55,12 @@
         data: {},
         radios: [],
         start: moment(Date.now()).startOf('month').format('YYYY-MM-DD'),
-        end: moment(Date.now()).format('YYYY-MM-DD')
+        end: moment(Date.now()).format('YYYY-MM-DD'),
+      }
+    },
+    computed: {
+      title() {
+        return this.titleTime + '预警消息预报质量'
       }
     },
     methods: {
@@ -108,7 +113,7 @@
           } else {
             this.data = res.data
           }
-          initMsEcharts(this.data)
+          initMsEcharts(this.data, this.title)
           this.$nextTick(() => {
             loading.close()
           })
@@ -186,14 +191,10 @@
     }
   }
   .warning-message-bottom {
+    box-sizing: border-box;
     width: 100%;
     height: calc(100% - 150px);
     background-color: @bgColor;
-    h2 {
-      font-size: 1.3em;
-      padding-top: 30px;
-      padding-bottom: 30px;
-      text-align: center;
-    }
+    padding-top: 50px;
   }
 </style>

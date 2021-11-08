@@ -27,7 +27,7 @@
       </div>
 
       <div class="rain-progress-bottom">
-        <h2>{{titleTime}}降水过程预报质量</h2>
+<!--        <h2>{{titleTime}}降水过程预报质量</h2>-->
         <div id="container" style="width: 100%; height:calc(100% - 84px)"></div>
       </div>
     </div>
@@ -56,6 +56,11 @@
         start: moment(Date.now()).startOf('month').format('YYYY-MM-DD'),
         end: moment(Date.now()).format('YYYY-MM-DD'),
         data: {}
+      }
+    },
+    computed: {
+      title() {
+        return this.titleTime + '降水过程预报质量'
       }
     },
     methods: {
@@ -103,7 +108,7 @@
         let loading = this.openLoading('#container');
         rainProgress(this.start, this.end).then(res => {
           this.data = res.data
-          initMsEcharts(this.data)
+          initMsEcharts(this.data, this.title)
           this.$nextTick(() => {
             loading.close()
           })
@@ -174,14 +179,16 @@
     }
   }
   .rain-progress-bottom {
+    box-sizing: border-box;
     width: 100%;
     height: calc(100% - 150px);
     background-color: @bgColor;
-    h2 {
-      font-size: 1.3em;
-      padding-top: 30px;
-      padding-bottom: 30px;
-      text-align: center;
-    }
+    padding-top: 50px;
+    /*h2 {*/
+    /*  font-size: 1.3em;*/
+    /*  padding-top: 30px;*/
+    /*  padding-bottom: 30px;*/
+    /*  text-align: center;*/
+    /*}*/
   }
 </style>

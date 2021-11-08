@@ -3,6 +3,7 @@
     <div class="content">
       <div class="head">
         <date-picker @changeDate="changeDate" :start="start" :end="end"/>
+        <el-button size="mini" type="primary" @click="exportExcel" style="margin-left: 30px">导出</el-button>
 <!--        <el-button type="text" @click="open">评定方法</el-button>-->
 <!--        <el-button type="primary" size="mini" @click="" style="float: right; margin-right: 80px">预警详细信息</el-button>-->
       </div>
@@ -100,6 +101,7 @@
   import moment from "momnet";
   import {warningDetail} from "../../../network/zhongduan";
   import {warningDetailVar} from "../../../common/vars";
+  import {exportExcelCom} from "../../../common/Base";
 
   export default {
     name: "WarningDetail",
@@ -130,6 +132,11 @@
       },
       changeFdate() {
         this.getWarningDetail()
+      },
+      exportExcel() {
+        let id = '#table'
+        let title = this.start + '至' + this.end + '日' + '预警消息评定详情.xlsx'
+        return exportExcelCom(document, id, title)
       },
       getWarningDetail() {
         let loading = this.openLoading('#table');

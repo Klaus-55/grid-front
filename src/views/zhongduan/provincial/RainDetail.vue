@@ -3,6 +3,7 @@
     <div class="content">
       <div class="head">
         <date-picker @changeDate="changeDate" :start="start" :end="end"/>
+        <el-button size="mini" type="primary" @click="exportExcel" style="margin-left: 30px">导出</el-button>
       </div>
       <hr>
       <div class="rain-detail-content">
@@ -57,6 +58,7 @@
   import DatePicker from "../../../components/content/DatePicker2";
   import moment from "momnet";
   import {rainDetail} from "../../../network/zhongduan";
+  import {exportExcelCom} from "../../../common/Base";
 
   export default {
     name: "RainDetail",
@@ -75,6 +77,11 @@
         this.start = moment(startTime).format("YYYY-MM-DD")
         this.end = moment(endTime).format("YYYY-MM-DD")
         this.getRainDetail()
+      },
+      exportExcel() {
+        let id = '#table'
+        let title = this.start + '至' + this.end + '日' + '降水过程评定详情.xlsx'
+        return exportExcelCom(document, id, title)
       },
       getRainDetail() {
         let loading = this.openLoading('#table');

@@ -13,6 +13,7 @@
           >
           </el-option>
         </el-select>
+        <el-button size="mini" type="primary" @click="exportExcel" style="margin-left: 30px" v-show="showType === '表格'">导出</el-button>
       </div>
       <hr>
 
@@ -74,8 +75,8 @@
 
       <div class="rain-examine-bottom">
         <div class="highcharts-title">
-          <div class="maintitle">{{mainTitle}}</div>
-          <div class="subtitle">{{subtitle}}</div>
+<!--          <div class="maintitle">{{mainTitle}}</div>-->
+<!--          <div class="subtitle">{{subtitle}}</div>-->
           <div class="highcharts-content">
             <el-checkbox-group v-model="models" @change="changeModes">
               <el-checkbox v-for="item in modelOptions" :label="item.label" :key="item.label">{{item.value}}
@@ -91,6 +92,7 @@
                     style="width: 100%; height: calc(100% - 50px)"
                     v-show="showType === '图表'"></div>
             <el-table
+                    id="table"
                     v-show="showType === '表格'"
                     :data="tableData"
                     border
@@ -125,6 +127,7 @@
   import HighchartsNoData from "highcharts/modules/no-data-to-display";
   import Highcharts from "highcharts";
   import {rainScore} from "../../../network/zhongduan";
+  import {exportExcelCom} from "../../../common/Base";
 
   export default {
     name: "RainExamination",
@@ -220,6 +223,11 @@
         this.updateTitle()
         this.initEcharts()
       },
+      exportExcel() {
+        let id = '#table'
+        let title = this.start + '至' + this.end + '日' + '降水检验.xlsx'
+        return exportExcelCom(document, id, title)
+      },
       changeWfhours(wfhours) {
         this.fhour = []
         this.ftimeView = []
@@ -280,9 +288,20 @@
           },
           colors: ["#5E8CEB", "#59BDBE", "#978EBA", "#EBC980"],
           title: {
-            text: "",
+            text: this.mainTitle,
+            margin: 5,
+            style: {
+              color: '#000',
+              font: 'bold 20px "Trebuchet MS", Verdana, sans-serif'
+            }
+          },
+          subtitle: {
+            text: this.subtitle
           },
           lang: {
+            downloadPNG: "下载PNG文件",
+            downloadJPEG: "下载JPEG图片",
+            downloadSVG: "下载SVG文件",
             noData: '暂无数据'
           },
           noData: {
@@ -290,6 +309,13 @@
               fontWeight: 'bold',
               fontSize: '15px',
               color: '#303030'
+            }
+          },
+          exporting: {
+            buttons: {
+              contextButton: {
+                menuItems: ['downloadPNG', 'downloadJPEG', 'downloadSVG']
+              }
             }
           },
           xAxis: {

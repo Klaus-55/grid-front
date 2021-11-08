@@ -31,7 +31,7 @@
         </el-menu>
       </div>
       <div class="rainstorm-public-bottom">
-        <h2>{{titleYear}}年暴雨分级预报质量</h2>
+<!--        <h2>{{titleYear}}年暴雨分级预报质量</h2>-->
         <div id="container" style="width: 100%; height:calc(100% - 84px)"></div>
       </div>
     </div>
@@ -61,6 +61,11 @@
         data: {}
       }
     },
+    computed: {
+      title() {
+        return this.titleYear + '年暴雨分级预报质量'
+      }
+    },
     methods: {
       changeDate() {
         this.titleYear = moment(this.year).year()
@@ -81,7 +86,7 @@
         let loading = this.openLoading('#container');
         rainstormPublic(this.titleYear, this.product, this.model).then(res => {
           this.data = res.data
-          initMsEcharts(this.data)
+          initMsEcharts(this.data, this.title)
           loading.close()
         })
       }
@@ -148,13 +153,9 @@
     }
   }
   .rainstorm-public-bottom {
+    box-sizing: border-box;
     height: calc(100% - 141px);
     background-color: @bgColor;
-    h2 {
-      font-size: 1.5em;
-      padding-top: 30px;
-      padding-bottom: 30px;
-      text-align: center;
-    }
+    padding-top: 50px;
   }
 </style>

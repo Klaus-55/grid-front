@@ -3,6 +3,7 @@
     <div class="content">
       <div class="head">
         <DatePicker @changeDate="changeDate" :start="start" :end="end"/>
+        <el-button size="mini" type="primary" @click="exportExcel" style="margin-left: 30px">导出</el-button>
 <!--        <span style="margin-left: 50px">发布单位：</span>-->
 <!--        <el-select v-model="department" class="unitSelect" @change="changeDepartment">-->
 <!--          <el-option-->
@@ -58,7 +59,6 @@
                 :data="tableData"
                 height="100%"
                 border
-                v-el-table-infinite-scroll="load"
                 stripe
                 style="width: 100%"
                 :header-cell-style="{ 'text-align': 'center' }"
@@ -120,16 +120,13 @@
   import DatePicker from "../../../components/content/DatePicker2";
   import moment from "momnet";
   import {provincialDetail} from "../../../network/duanlin";
-  import elTableInfiniteScroll from 'el-table-infinite-scroll';
+  import {exportExcelCom} from "../../../common/Base";
 
 
   export default {
     name: "ProvincialDetail",
     components: {
       DatePicker,
-    },
-    directives: {
-      'el-table-infinite-scroll': elTableInfiniteScroll
     },
     data() {
       return {
@@ -162,8 +159,6 @@
         rss: ["all", "正确", "空报", "漏报"],
         tableTitle: ["预警信号", "实况预警信号", "评定结果"],
         tableData: [],
-        pageSize: 0,
-        pageNumber: 30,
       };
     },
     computed: {
@@ -189,21 +184,18 @@
       changeRs() {
         this.getProvincialDetail()
       },
+      exportExcel() {
+        let id = '#table'
+        let title = this.start + '至' + this.end + '日' + '省级预警评定详情.xlsx'
+        return exportExcelCom(document, id, title)
+      },
       getProvincialDetail() {
         let loading = this.openLoading('#table');
-        this.pageSize = 0
-        provincialDetail(this.start, this.end, this.warningType, this.level, this.rs, this.pageSize, this.pageNumber).then(res => {
+        provincialDetail(this.start, this.end, this.warningType, this.level, this.rs).then(res => {
           this.tableData = res.data
           loading.close()
         })
       },
-      load() {
-        if (this.loading) return
-        this.pageSize++
-        provincialDetail(this.start, this.end, this.warningType, this.level, this.rs, this.pageSize, this.pageNumber).then(res => {
-          this.tableData = this.tableData.concat(res.data)
-        })
-      }
     },
     created() {
       this.$nextTick(() =>{

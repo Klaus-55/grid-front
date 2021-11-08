@@ -13,6 +13,7 @@
           >
           </el-option>
         </el-select>
+        <el-button size="mini" type="primary" @click="exportExcel" style="margin-left: 30px">导出</el-button>
       </div>
       <hr/>
       <div class="h-3rem rain-examine-middle">
@@ -40,6 +41,7 @@
       </div>
       <div class="rain-examine-bottom">
         <el-table
+                id="table"
                 :data="tableData"
                 height="100%"
                 border
@@ -65,6 +67,7 @@
   import DatePicker from "../../../components/content/DatePicker2";
   import moment from "momnet";
   import {cityEffDetail} from "../../../network/duanlin";
+  import {exportExcelCom} from "../../../common/Base";
 
   export default {
     name: "CityEffDetail",
@@ -118,6 +121,11 @@
       },
       changeRs() {
         this.getCityEffDetail()
+      },
+      exportExcel() {
+        let id = '#table'
+        let title = this.start + '至' + this.end + '日' + '预警有效性评定详情.xlsx'
+        return exportExcelCom(document, id, title)
       },
       getCityEffDetail() {
         let loading = this.openLoading('.rain-examine-bottom');

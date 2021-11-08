@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-          :title="title"
+          :title="dialogTitle"
           :visible.sync="isShow"
           width="70%"
           class="pub_dialog">
@@ -16,6 +16,7 @@
         >
         </el-option>
       </el-select>
+      <el-button size="mini" type="primary" @click="exportExcel" style="margin-left: 30px">导出数据表格</el-button>
     </div>
     <hr>
     <div class="town-forecast-middle">
@@ -50,9 +51,24 @@
       </div>
     </div>
     <div class="town-forecast-bottom">
-      <h2>{{titleTime}}乡镇天气预报员质量评分报表</h2>
-      <div id="dialogContainer" style="width: 100%; height:calc(100% - 84px)"></div>
+      <div id="dialogContainer" style="width: 100%; height:calc(100% - 44px)"></div>
     </div>
+    <hr>
+    <h3 style="margin-bottom: 10px">预报质量评分数据表格：</h3>
+    <el-table
+            id="table"
+            :data="tableData"
+            border
+            stripe
+            style="width: 100%"
+            :header-cell-style="{'text-align': 'center', backgroundColor: '#39A5F8', color: '#FFF', fontFamily: 'LatoBold', fontWeight: 'normal'}"
+            :cell-style="{'text-align': 'center'}">
+      <el-table-column
+              v-for="item in tableHeader"
+              :prop="item"
+              :label="item">
+      </el-table-column>
+    </el-table>
   </el-dialog>
 </template>
 
@@ -63,6 +79,7 @@
   import {keyValue, skill, townQuality} from "../../../common/vars";
   import HighCharts from "highcharts";
   import {townForecasterScore} from "../../../network/zhongduan";
+  import {exportExcelCom} from "../../../common/Base";
 
   export default {
     name: "TownDialog",
@@ -83,7 +100,7 @@
     },
     data() {
       return {
-        title: this.city + '预报员成绩',
+        dialogTitle: this.city + '预报员成绩',
         start: '',
         end: '',
         obtType: '',
@@ -99,7 +116,9 @@
         facValue: {},
         titleTime: '',
         wfsrc: '',
-        data: []
+        data: [],
+        tableHeader: [],
+        tableData: [],
       }
     },
     computed: {
@@ -110,6 +129,9 @@
         set(v) {
           this.$emit('input', v)
         }
+      },
+      title() {
+        return this.titleTime + '乡镇天气预报员质量评分报表'
       }
     },
     watch: {
@@ -138,15 +160,50 @@
         this.towns = attrs.towns
         let town = attrs.towns.find(obj => obj.name === this.city);
         this.wfsrc = town.wfsrc
-        this.$nextTick(() => {
-          this.getTownForecasterScore()
-        })
+        this.getTownForecasterScore()
+      },
+      exportExcel() {
+        let id = '#table'
+        let title = this.start + '至' + this.end + '日' + '乡镇天气预报员质量评分.xlsx'
+        return exportExcelCom(document, id, title)
+      },
+      initTable() {
+        let tableHeader = []
+        let tableData = []
+        for (let i = 0; i < this.data.length; i++) {
+          if (i === 0) tableHeader.push('要素')
+          tableHeader.push(this.data[i]['forecaster'])
+        }
+        this.tableHeader = tableHeader
+        let facs = []
+        facs.push(...skill)
+        facs.push(...townQuality)
+        for (let fac of facs) {
+          let obj = {}
+          for (let th of tableHeader) {
+            if (th === '要素') {
+              obj[th] = keyValue[fac]
+              continue
+            }
+            let res = this.data.find(obj => obj.forecaster === th);
+            obj[th] = this.unmDigits(res[fac])
+          }
+          tableData.push(obj)
+        }
+        this.tableData = tableData
+      },
+      unmDigits(num) {
+        if (typeof num === undefined) return "-"
+        if (isNaN(num)) return "-"
+        if (num == null || num === -999) return "-"
+        return num.toFixed(2)
       },
       getTownForecasterScore() {
         let loading = this.openLoading('#dialogContainer');
         townForecasterScore(this.start, this.end, this.obtType, this.wfsrc).then(res => {
           this.data = res.data
           this.initEcharts()
+          this.initTable()
           loading.close()
         }).catch(err => {
           console.log(err)
@@ -196,10 +253,25 @@
           },
           colors: ['#5E8CEB', '#59BDBE', '#978EBA', '#EBC980'],
           title: {
-            text: ''
+            text: this.title,
+            margin: 5,
+            style: {
+              color: '#000',
+              font: 'bold 20px "Trebuchet MS", Verdana, sans-serif'
+            }
           },
           lang: {
+            downloadPNG: "下载PNG文件",
+            downloadJPEG: "下载JPEG图片",
+            downloadSVG: "下载SVG文件",
             noData: '暂无数据'
+          },
+          exporting: {
+            buttons: {
+              contextButton: {
+                menuItems: ['downloadPNG', 'downloadJPEG', 'downloadSVG']
+              }
+            }
           },
           noData: {
             style: {
@@ -209,9 +281,6 @@
             }
           },
           xAxis: {
-            // categories: [
-            //   '一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'
-            // ],
             categories: obj.categories,
             crosshair: true
           },
@@ -238,19 +307,6 @@
             }
           },
           series: obj.series
-          // series: [{
-          //   name: '东京',
-          //   data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
-          // }, {
-          //   name: '纽约',
-          //   data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]
-          // }, {
-          //   name: '伦敦',
-          //   data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6, 52.4, 65.2, 59.3, 51.2]
-          // }, {
-          //   name: '柏林',
-          //   data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6, 39.1, 46.8, 51.1]
-          // }]
         }
         HighCharts.chart('dialogContainer', options);
       },
@@ -337,7 +393,7 @@
       .el-dialog__body {
         position: absolute;
         left: 0;
-        top: 30px;
+        top: 55px;
         bottom: 0;
         right: 0;
         z-index: 1;
@@ -462,15 +518,9 @@
     }
 
     .town-forecast-bottom {
-      height: calc(100% - 270px);
+      box-sizing: border-box;
+      height: calc(100% - 290px);
       background-color: @bgColor;
-
-      h2 {
-        font-size: 1.5em;
-        padding-top: 30px;
-        padding-bottom: 30px;
-        text-align: center;
-      }
     }
   }
 </style>

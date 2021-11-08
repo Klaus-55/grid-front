@@ -2,6 +2,11 @@ import Highcharts from "highcharts";
 import store from "../store";
 import HighchartsNoData from "highcharts/modules/no-data-to-display";
 import HighchartsDrilldown from "highcharts/modules/drilldown";
+import loadExporting from "highcharts/modules/exporting";
+import FileSaver from "file-saver";
+import XLSX from "xlsx";
+
+loadExporting(Highcharts)
 
 export function initEcharts(data, ftime, jyys) {
   ftime.sort((a, b) => a - b)
@@ -50,7 +55,7 @@ export function initZhuri(data, ftime, jyys) {
 }
 
 //中短期预报质量图表初始化
-export function initMsEcharts(data) {
+export function initMsEcharts(data, title) {
   let options = {
     chart: {
       type: 'column',
@@ -61,9 +66,17 @@ export function initMsEcharts(data) {
     },
     colors: ['#5E8CEB', '#59BDBE', '#978EBA', '#EBC980'],
     title: {
-      text: ''
+      text: title,
+      margin: 5,
+      style: {
+        color: '#000',
+        font: 'bold 20px "Trebuchet MS", Verdana, sans-serif'
+      }
     },
     lang: {
+      downloadPNG: "下载PNG文件",
+      downloadJPEG: "下载JPEG图片",
+      downloadSVG: "下载SVG文件",
       noData: '暂无数据'
     },
     noData: {
@@ -101,7 +114,14 @@ export function initMsEcharts(data) {
         }
       }
     },
-    series: data.series
+    series: data.series,
+    exporting: {
+      buttons: {
+        contextButton: {
+          menuItems: ['downloadPNG', 'downloadJPEG', 'downloadSVG']
+        }
+      }
+    }
   }
   HighchartsNoData(Highcharts)
   Highcharts.chart('container', options)
@@ -126,6 +146,9 @@ export function initSaEcharts(data) {
       "#83A8F2",
     ],
     lang: {
+      downloadPNG: "下载PNG文件",
+      downloadJPEG: "下载JPEG图片",
+      downloadSVG: "下载SVG文件",
       noData: '暂无数据'
     },
     noData: {
@@ -135,27 +158,17 @@ export function initSaEcharts(data) {
         color: '#303030'
       }
     },
+    exporting: {
+      buttons: {
+        contextButton: {
+          menuItems: ['downloadPNG', 'downloadJPEG', 'downloadSVG']
+        }
+      }
+    },
     title: {
       text: '',
     },
     xAxis: {
-      // categories: [
-      //   "湖南省气象台",
-      //   "长沙市气象台",
-      //   "株洲市气象台",
-      //   "湘潭市气象台",
-      //   "衡阳市气象台",
-      //   "邵阳市气象台",
-      //   "岳阳市气象台",
-      //   "常德市气象台",
-      //   "张家界市气象台",
-      //   "益阳市气象台",
-      //   "郴州市气象台",
-      //   "永州市气象台",
-      //   "怀化市气象台",
-      //   "娄底市气象台",
-      //   "湘西州气象台",
-      // ],
       categories: data.categories,
       crosshair: true,
     },
@@ -184,32 +197,6 @@ export function initSaEcharts(data) {
         },
       },
     },
-    // series: [
-    //   {
-    //     name: "不分级别",
-    //     data: [2.3, 2.3, 2.3, 2.3, 2.3, 2.3, 2.3, 2.3, 2.3, 2.3, 2.3, 2.3, 2.3, 2.3, 2.3],
-    //   },
-    //   {
-    //     name: "所有级别",
-    //     data: [3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1],
-    //   },
-    //   {
-    //     name: "红色",
-    //     data: [1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8],
-    //   },
-    //   {
-    //     name: "橙色",
-    //     data: [2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1],
-    //   },
-    //   {
-    //     name: "黄色",
-    //     data: [2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5],
-    //   },
-    //   {
-    //     name: "蓝色",
-    //     data: [2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4],
-    //   },
-    // ],
     series: data.series
   };
   HighchartsNoData(Highcharts)
@@ -224,8 +211,25 @@ export function initCityEcharts(data, title) {
       backgroundColor: "#F8F8F8",
     },
     lang: {
+      downloadPNG: "下载PNG文件",
+      downloadJPEG: "下载JPEG图片",
+      downloadSVG: "下载SVG文件",
       drillUpText: '<< 返回上一级',
       noData: '暂无数据'
+    },
+    noData: {
+      style: {
+        fontWeight: 'bold',
+        fontSize: '15px',
+        color: '#303030'
+      }
+    },
+    exporting: {
+      buttons: {
+        contextButton: {
+          menuItems: ['downloadPNG', 'downloadJPEG', 'downloadSVG']
+        }
+      }
     },
     credits: {
       enabled: false,
@@ -345,6 +349,26 @@ function renderChart(id, categories, series) {
     title: {
       text: ''
     },
+    lang: {
+      downloadPNG: "下载PNG文件",
+      downloadJPEG: "下载JPEG图片",
+      downloadSVG: "下载SVG文件",
+      noData: '暂无数据'
+    },
+    noData: {
+      style: {
+        fontWeight: 'bold',
+        fontSize: '15px',
+        color: '#303030'
+      }
+    },
+    exporting: {
+      buttons: {
+        contextButton: {
+          menuItems: ['downloadPNG', 'downloadJPEG', 'downloadSVG']
+        }
+      }
+    },
     credits: {
       enabled: false
     },
@@ -387,5 +411,37 @@ function renderChart(id, categories, series) {
     series
   }
   Highcharts.chart(id, option)
+}
+
+export function exportExcelCom(document, id, title) {
+  /* 从表生成工作簿对象 */
+  let fix = document.querySelector('.el-table__fixed');
+  let wb;
+  if (fix) {
+    wb = XLSX.utils.table_to_book(document.querySelector(id).removeChild(fix));
+    document.querySelector(id).appendChild(fix);
+  } else {
+    wb = XLSX.utils.table_to_book(document.querySelector(id));
+  }
+  /* 获取二进制字符串作为输出 */
+  let wbout = XLSX.write(wb, {
+    bookType: "xlsx",
+    bookSST: true,
+    type: "array"
+  });
+  try {
+    FileSaver.saveAs(
+      //Blob 对象表示一个不可变、原始数据的类文件对象。
+      //Blob 表示的不一定是JavaScript原生格式的数据。
+      //File 接口基于Blob，继承了 blob 的功能并将其扩展使其支持用户系统上的文件。
+      //返回一个新创建的 Blob 对象，其内容由参数中给定的数组串联组成。
+      new Blob([wbout], { type: "application/octet-stream" }),
+      //设置导出文件名称
+      title
+    );
+  } catch (e) {
+    if (typeof console !== "undefined") console.log(e, wbout);
+  }
+  return wbout;
 }
 

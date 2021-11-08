@@ -46,8 +46,8 @@
         </div>
       </div>
       <div class="town-forecast-bottom">
-        <h2>{{titleTime}}乡镇天气预报质量评分报表</h2>
-        <div id="container" style="width: 100%; height:calc(100% - 84px)"></div>
+<!--        <h2>{{titleTime}}乡镇天气预报质量评分报表</h2>-->
+        <div id="container" style="width: 100%; height:calc(100% - 44px)"></div>
       </div>
       <component :is="dialog.name" :ref="dialog.name" v-model="dialog.visible" v-bind="dialog.args"/>
     </div>
@@ -108,6 +108,11 @@
       }
     },
     mixins: [dialogMix],
+    computed: {
+      title() {
+        return this.titleTime + '乡镇天气预报质量评分报表'
+      }
+    },
     methods: {
       changeDate(startTime, endTime) {
         this.start = moment(startTime).format("YYYY-MM-DD")
@@ -232,10 +237,25 @@
           },
           colors: ['#5E8CEB', '#59BDBE', '#978EBA', '#EBC980'],
           title: {
-            text: ''
+            text: this.title,
+            margin: 5,
+            style: {
+              color: '#000',
+              font: 'bold 20px "Trebuchet MS", Verdana, sans-serif'
+            }
           },
           lang: {
+            downloadPNG: "下载PNG文件",
+            downloadJPEG: "下载JPEG图片",
+            downloadSVG: "下载SVG文件",
             noData: '暂无数据'
+          },
+          exporting: {
+            buttons: {
+              contextButton: {
+                menuItems: ['downloadPNG', 'downloadJPEG', 'downloadSVG']
+              }
+            }
           },
           noData: {
             style: {
@@ -410,14 +430,10 @@
 
   }
   .town-forecast-bottom {
+    box-sizing: border-box;
     height: calc(100% - 270px);
     background-color: @bgColor;
-    h2 {
-      font-size: 1.5em;
-      padding-top: 30px;
-      padding-bottom: 30px;
-      text-align: center;
-    }
+    padding-top: 50px;
   }
 
 </style>
