@@ -335,6 +335,98 @@ export function initCityEcharts(data, title) {
   Highcharts.chart("bottom-highcharts", options);
 }
 
+//市级预警图表初始化
+export function initCityEcharts2({data, factory, title}) {
+  let rd = data['area']
+  let series = []
+  let areas = ["综合", "长沙市","株洲市","湘潭市","衡阳市","邵阳市","岳阳市",
+    "常德市","张家界市","益阳市","郴州市","永州市","怀化市","娄底市","湘西州"]
+  let levels = ["红色", "橙色", "黄色", "蓝色"]
+  for (let level of levels) {
+    let seriesItem = {}
+    let seriesData = []
+    seriesItem.name = level
+    for (let area of areas) {
+      let obj = rd.find(obj => obj['area'] === area && obj['level'] === level);
+      if (typeof obj === 'undefined') {
+        seriesData.push(NaN)
+      } else {
+        seriesData.push(obj[factory])
+      }
+    }
+    seriesItem.data = seriesData
+    series.push(seriesItem)
+  }
+  let options = {
+    chart: {
+      type: "column",
+      backgroundColor: "#F8F8F8",
+    },
+    lang: {
+      downloadPNG: "下载PNG文件",
+      downloadJPEG: "下载JPEG图片",
+      downloadSVG: "下载SVG文件",
+      noData: '暂无数据'
+    },
+    noData: {
+      style: {
+        fontWeight: 'bold',
+        fontSize: '15px',
+        color: '#303030'
+      }
+    },
+    exporting: {
+      buttons: {
+        contextButton: {
+          menuItems: ['downloadPNG', 'downloadJPEG', 'downloadSVG']
+        }
+      }
+    },
+    credits: {
+      enabled: false,
+    },
+    colors: ["#EA7B7B",
+              "#F6A467",
+              "#F9CE73",
+              "#83A8F2",],
+    title: {
+      text: title,
+    },
+    legend: {
+      enabled: true
+    },
+    xAxis: {
+      categories: areas,
+    },
+    yAxis: {
+      title: {
+        text: "",
+      },
+    },
+    tooltip: {
+      // head + 每个 point + footer 拼接成完整的 table
+      headerFormat:
+        '<span style="font-size:10px">{point.key}</span><table>',
+      pointFormat:
+        '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+        '<td style="padding:0"><b>{point.y:.2f}</b></td></tr>',
+      footerFormat: "</table>",
+      shared: true,
+      useHTML: true,
+    },
+    plotOptions: {
+      column: {
+        borderWidth: 0,
+        dataLabels: {
+          enabled: true,
+        },
+      },
+    },
+    series: series
+  };
+  Highcharts.chart("bottom-highcharts", options);
+}
+
 function renderChart(id, categories, series) {
   let option = {
     chart: {

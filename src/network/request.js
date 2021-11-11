@@ -3,7 +3,7 @@ import axios from "axios";
 export function request(config) {
   let baseURL
   if (process.env.NODE_ENV === 'development') {
-    baseURL = 'http://localhost:9000/grid-server/api'
+    baseURL = 'http://10.111.102.28:9000/grid-server/api'
   } else {
     baseURL = 'http://10.111.100.216:9000/grid-server/api'
   }

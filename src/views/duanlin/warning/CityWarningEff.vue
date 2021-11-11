@@ -16,15 +16,6 @@
                       :key="item">{{item}}</el-radio-button>
             </el-radio-group>
           </el-menu-item>
-          <el-menu-item>
-            <span>检验方法：</span>
-            <el-radio-group v-model="method" @change="changeMethods">
-              <el-radio-button
-                      v-for="item in methods"
-                      :label="item.label"
-                      :key="item.label">{{item.value}}</el-radio-button>
-            </el-radio-group>
-          </el-menu-item>
           <el-menu-item v-show="index === 'cw'">
             <span>检验要素：</span>
             <el-radio-group v-model="factory" @change="changeFactory">
@@ -87,8 +78,8 @@
   import * as L from "leaflet"
   import moment from "momnet";
   import {initRadios, initYears} from "../../../common/utils";
-  import {initCityEcharts, initCityEcharts2} from "../../../common/Base";
-  import {cityWarning3} from "../../../network/duanlin";
+  import {initCityEcharts} from "../../../common/Base";
+  import {cityWarning, districtWarning} from "../../../network/duanlin";
   require('proj4')
   require('proj4leaflet')
   require('../../../assets/plugs/map/tileLayer.baidu')
@@ -106,27 +97,11 @@
     data() {
       return {
         warningType: "暴雨",
-        warningTypes: [ "暴雨",
-          "雷雨大风",
-          "雷电",
-          "冰雹",
-          "暴雪",
-          "大风",
-          "大雾",
-          "霾",
-          "综合"],
+        warningTypes: [],
         factory: "ts",
-        method: 'all',
-        methods: [
-          { label: "all", value: "所有级别检验" },
-          { label: "fj", value: "分级检验" },
-          { label: "bfj", value: "不分级检验" },
-        ],
         factories: [
           { label: "ts", value: "预报准确率" },
-          { label: "t1", value: "t1" },
-          { label: "t2", value: "t2" },
-          { label: "t3", value: "t3" },
+          { label: "leadtime", value: "预警提前量" },
           { label: "zh", value: "综合成绩" },
         ],
         year: moment().year(),
@@ -142,9 +117,9 @@
         facTitle: '预报质量',
         data: {},
         map: {},
-        area: '长沙市',
         hunanLayer: {},
         layerGroup: [],
+        title: '',
         isInitCity: true
       };
     },
@@ -175,6 +150,7 @@
           [24.5, 114.4]
         ]
         _this.map.fitBounds(bounds)
+        _this.updateHunanLayer()
       },
       updateHunanLayer() {
         let _this = this
@@ -231,7 +207,6 @@
               _this.hunanLayer.setStyle({fillColor: '#C6DBF5'})
               layer.setStyle({fillColor: '#78D7FF'})
               _this.updatePopup(e.target.feature)
-              _this.updateTable()
             }
           }
 
@@ -246,81 +221,44 @@
         }
 
       },
-      changeMethods() {
-        this.getCityWarning()
-      },
-      getContent(area) {
-        let {data, factories, factory, titleTime, warningType, method} = this
-        let res = data['area'].find(obj => obj.area === area);
-        let fac = factories.find(obj => obj.label === factory);
-        let content = "<span>" + titleTime + "</span><br>" +
-          "<span style='font-weight: 700;color: #0591DB'>" + warningType + "</span><br>"
-        if (method === 'all' || method === 'bfj' || factory === 'zh') {
-          if (method === 'fj') res = data['zh']['area'].find(obj => obj.area === area);
-          content += "<span>" + fac.value + "：" + (typeof res == "undefined" ? '/' : res[factory]) + "</span><br>"
-          // if (this.factory !== "leadtime") {
-          //   content += "<span>漏报率：" + this.mapData['po'] + "</span><br>" +
-          //     "<span>空报率：" + this.mapData['far'] + "</span>"
-          // }
-        } else {
-          let levels = ["红色", "橙色", "黄色", "蓝色"]
-          for (let level of levels) {
-            let rsData = data['area'].find(obj => obj.area === area && obj.level === level);
-            let res
-            typeof rsData === "undefined" ? res = '/' : res = rsData[factory]
-            content += "<span>" + level + fac.value + "：" + res + "</span><br>"
-          }
-        }
-        return content
-      },
-      updatePopup(feature) {
+      async updatePopup(feature) {
         let area = feature.properties.name;
-        this.area = area
-        let content = this.getContent(area);
+        await this.getDistrictWarning(area)
+        let content = "<span>" + this.titleTime + "</span><br>" +
+          "<span style='font-weight: 700;color: #0591DB'>" + this.warningType + "</span><br>"
+        if (this.index === 'cw') {
+          content += "<span>" + (this.factory === "leadtime" ? "提前量：" : "准确率：") + this.mapData[this.factory] + "</span><br>"
+          if (this.factory !== "leadtime") {
+            content += "<span>漏报率：" + this.mapData['po'] + "</span><br>" +
+              "<span>空报率：" + this.mapData['far'] + "</span>"
+          }
+        } else {
+          content += "<span>预报得分：" + (this.mapData['score'] == null ? '/' : this.mapData['score'] + '') + "</span>"
+        }
         let centroid = feature.properties.centroid;
         L.popup()
           .setLatLng([centroid[1], centroid[0]])
           .setContent(content)
           .openOn(this.map)
       },
-      updateTable() {
-        let {data, factories, factory, area, method} = this
-        let fac = factories.find(obj => obj.label === factory)
+      updateTableHeader() {
         let tableHeader = []
-        let tableData = []
-        let desArr = data['district'].filter(obj => obj.area === area)
-        if (method === 'fj' && factory !== 'zh') {
+        if (this.index === 'cwe') {
           tableHeader.push({prop: 'district', label: '地区'})
-          let levels = ["红色", "橙色", "黄色", "蓝色"]
-          for (let level of levels) {
-            tableHeader.push({prop: level, label: level})
-          }
-          let districts = []
-          for (let obj of desArr) {
-            if (districts.indexOf(obj['district']) === -1) districts.push(obj['district'])
-          }
-          for (let district of districts) {
-            let item = {}
-            item['district'] = district
-            for (let level of levels) {
-              let res = desArr.find(obj => obj.district === district && obj.level === level);
-              typeof res == "undefined" ? item[level] = '/' : item[level] = res[factory]
-            }
-            tableData.push(item)
-          }
+          tableHeader.push({prop: 'score', label: '预报得分'})
         } else {
-          if (method === 'fj') desArr = data['zh']['district'].filter(obj => obj.area === area)
-          tableHeader.push({prop: 'district', label: '地区'})
-          tableHeader.push({prop: factory, label: fac.value})
-          for (let obj of desArr) {
-            let item = {}
-            item['district'] = obj['district']
-            item[factory] = obj[factory]
-            tableData.push(item)
+          if (this.factory === 'ts') {
+            tableHeader.push({prop: 'district', label: '地区'})
+            tableHeader.push({prop: this.factory, label: '预报准确率'})
+          } else if (this.factory === 'leadtime') {
+            tableHeader.push({prop: 'district', label: '地区'})
+            tableHeader.push({prop: this.factory, label: '预警提前量'})
+          } else {
+            tableHeader.push({prop: 'district', label: '地区'})
+            tableHeader.push({prop: this.factory, label: '综合成绩'})
           }
         }
         this.tableHeader = tableHeader
-        this.tableData = tableData
       },
       updateInfo(type) {
         if (type === 'date') {
@@ -348,94 +286,92 @@
         }
       },
       getCityWarning() {
-        cityWarning3(this.start, this.end, this.warningType, this.method).then(res => {
+        let title = '湖南省' + this.titleTime + this.warningType + this.facTitle
+        if (this.title !== '') title = '湖南省' + this.title + this.warningType + this.facTitle
+        cityWarning(this.start, this.end, this.warningType, this.factory, this.index).then(res => {
           this.data = res.data
-          console.log(res.data)
-          this.renderChart()
-          this.updateHunanLayer()
-          this.updateTable()
+          initCityEcharts(this.data, title)
         }).catch(err => {
           console.log(err)
         })
       },
-      renderChart() {
-        let {data, factory, title, method} = this
-        if (method === 'fj' && factory !== 'zh') {
-          initCityEcharts2({data, factory, title})
-          return
-        }
-        if (method === 'fj' && factory === 'zh') {
-          data = data['zh']
-        }
-        let areasArr = data['area']
-        if (areasArr.length === 1) areasArr = []
-        let forecasters = data['forecaster']
-        let chartData = {}
-        let seriesData = []
-        let series = []
-        let areas = ["综合", "长沙市","株洲市","湘潭市","衡阳市","邵阳市","岳阳市",
-          "常德市","张家界市","益阳市","郴州市","永州市","怀化市","娄底市","湘西州"]
-        for (let area of areas) {
-          let res = areasArr.find(obj => obj.area === area);
-          if (typeof res === "undefined") continue
-          let item = {}
-          item.name = res['area']
-          item.y = res[factory]
-          item.drilldown = res['area']
-          seriesData.push(item)
-          let seriesItem = {}
-          seriesItem.id = area
-          let data = []
-          let areaForecasters = forecasters.filter(obj => obj.area === area);
-          for (let f of areaForecasters) {
-            let dataItem = {}
-            dataItem.name = f['forecaster']
-            dataItem.y = f[factory]
-            data.push(dataItem)
-          }
-          data.sort((a, b) => b.y - a.y)
-          seriesItem.data = data
-          series.push(seriesItem)
-        }
-        chartData.data = seriesData
-        chartData.series = series
-        initCityEcharts(chartData, title)
+      async getDistrictWarning(area) {
+        await districtWarning(this.start, this.end, this.warningType, this.factory, area, this.index).then(res => {
+          this.tableData = res.data.tableData
+          this.mapData = res.data.mapData
+        }).catch(err => {
+          console.log(err)
+        })
       },
       changeDate(startTime, endTime) {
         this.start = moment(startTime).format("YYYY-MM-DD")
         this.end = moment(endTime).format("YYYY-MM-DD")
-        this.updateInfo('date')
+        this.updateHunanLayer()
+        this.title = this.start + '~' + this.end
         this.getCityWarning()
       },
       changeType() {
+        this.updateHunanLayer()
         this.getCityWarning()
       },
-      changeFactory() {
-        this.renderChart()
+      changeFactory(val) {
+        if (val === 'ts') {
+          this.facTitle = '预报质量'
+        } else if (val === 'leadtime') {
+          this.facTitle = '提前量'
+        } else {
+          this.facTitle = '综合成绩'
+        }
+        this.updateTableHeader()
         this.updateHunanLayer()
-        this.updateTable()
+        this.getCityWarning()
       },
       changeYear(year) {
         this.radios = initRadios(year)
         this.updateInfo('month')
+        this.updateHunanLayer()
         this.getCityWarning()
       },
       changeTimePeriod() {
+        this.title = ''
         this.updateInfo('month')
+        this.updateHunanLayer()
         this.getCityWarning()
       },
+      initWarningType() {
+        if (this.index === 'cw') {
+          this.warningTypes = [
+            "暴雨",
+            "雷雨大风",
+            "雷电",
+            "冰雹",
+            "暴雪",
+            "大风",
+            "大雾",
+            "霾",
+            "综合"
+          ]
+        } else {
+          this.warningTypes  = ["暴雨", "雷雨大风"]
+        }
+      }
     },
-    computed: {
-      title() {
-        let fac = this.factories.find(obj => obj.label === this.factory)
-        return '湖南省' + this.titleTime + this.warningType + fac.value
+    watch: {
+      index() {
+        this.warningType = '暴雨'
+        this.initWarningType()
+        this.updateHunanLayer()
+        this.updateTableHeader()
+        this.getCityWarning()
       }
     },
     created() {
       this.$nextTick(() => {
         this.radios = initRadios(this.year)
         this.years = initYears(7)
+        this.initWarningType()
         this.initMap()
+        this.updateTableHeader()
         this.getCityWarning()
       });
     },

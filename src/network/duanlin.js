@@ -107,6 +107,14 @@ export function cityWarning(start, end, warningType, factory, index) {
   })
 }
 
+//市级预警预报质量
+export function cityWarning3(start, end, warningType, method) {
+  let url = '/duanlin/cityWarning3/' + start + '/' + end + "/" + warningType + "/" + method
+  return request({
+    url
+  })
+}
+
 //区县预警预报质量
 // /duanlin/districtWarning/{start}/{end}/{warningType}/{factory}/{area}
 export function districtWarning(start, end, warningType, factory, area, index) {
@@ -116,6 +124,15 @@ export function districtWarning(start, end, warningType, factory, area, index) {
   } else {
     url = '/duanlin/districtWarningEff/' + start + '/' + end + "/" + warningType + "/" + area
   }
+  return request({
+    url
+  })
+}
+
+//区县预警预报质量
+// /duanlin/districtWarning2/{start}/{end}/{warningType}/{area}
+export function districtWarning2(start, end, warningType, area) {
+  let url = '/duanlin/districtWarning2/' + start + '/' + end + "/" + warningType + "/" + area
   return request({
     url
   })

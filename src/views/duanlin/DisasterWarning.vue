@@ -11,7 +11,9 @@
   import ProvincialDetail from "./warning/ProvincialDetail";
   import CityWarning from "./warning/CityWarning";
   import CityDetail from "./warning/CityDetail";
+  import CityWarningEff from "./warning/CityWarningEff";
   import CityEffDetail from "./warning/CityEffDetail";
+
   export default {
     name: "DisasterWarning",
     components: {
@@ -20,6 +22,7 @@
       ProvincialDetail,
       CityWarning,
       CityDetail,
+      CityWarningEff,
       CityEffDetail
     },
     data() {
@@ -52,7 +55,7 @@
           this.conName = 'city-detail'
         } else if (activeName === 'cwe') {
           this.index = 'cwe'
-          this.conName = 'city-warning'
+          this.conName = 'city-warning-eff'
         } else if (activeName === 'cwed') {
           this.index = 'cwed'
           this.conName = 'city-eff-detail'
