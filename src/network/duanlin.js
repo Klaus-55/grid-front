@@ -79,8 +79,8 @@ export function hailScore(start, end, ftime) {
 }
 
 //省级预警预报质量
-export function provincialWarning(start, end, warningType, factory) {
-  let url = '/duanlin/provincialWarning/' + start + '/' + end + '/' + warningType + "/" + factory
+export function provincialWarning(start, end, warningType) {
+  let url = '/duanlin/provincialWarning/' + start + '/' + end + '/' + warningType
   return request({
     url
   })
