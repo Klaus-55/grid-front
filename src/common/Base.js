@@ -505,6 +505,92 @@ function renderChart(id, categories, series) {
   Highcharts.chart(id, option)
 }
 
+//省级预报竞赛图表初始化
+export function initProChart(data) {
+  let options = {
+    chart: {
+      type: 'column',
+      backgroundColor: '#F8F8F8',
+    },
+    credits: {
+      enabled: false
+    },
+    colors: ['#5E8CEB', '#59BDBE', '#978EBA', '#EBC980'],
+    title: {
+      text: '',
+      margin: 5,
+      style: {
+        color: '#000',
+        font: 'bold 20px "Trebuchet MS", Verdana, sans-serif'
+      }
+    },
+    lang: {
+      downloadPNG: "下载PNG文件",
+      downloadJPEG: "下载JPEG图片",
+      downloadSVG: "下载SVG文件",
+      noData: '暂无数据'
+    },
+    noData: {
+      style: {
+        fontWeight: 'bold',
+        fontSize: '15px',
+        color: '#303030'
+      }
+    },
+    xAxis: {
+      categories: ['湖南省','预报员1','预报员2','预报员3'],
+      // categories: data.categories,
+      crosshair: true
+    },
+    yAxis: {
+      // min: 0,
+      title: {
+        text: ''
+      }
+    },
+    tooltip: {
+      // head + 每个 point + footer 拼接成完整的 table
+      headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+      pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+        '<td style="padding:0"><b>{point.y:.1f}</b></td></tr>',
+      footerFormat: '</table>',
+      shared: true,
+      useHTML: true
+    },
+    plotOptions: {
+      column: {
+        borderWidth: 0,
+        dataLabels: {
+          enabled: true
+        }
+      }
+    },
+    // series: data.series,
+    series: [{
+      name: '综合',
+      data: [49.9, 71.5, 25.4, 56.2]
+    }, {
+      name: '预警消息',
+      data: [83.6, 78.8, 98.5, 93.4]
+    }, {
+      name: '天气公报',
+      data: [48.9, 38.8, 39.3, 41.4]
+    }, {
+      name: '降水过程',
+      data: [42.4, 33.2, 34.5, 39.7]
+    }],
+    exporting: {
+      buttons: {
+        contextButton: {
+          menuItems: ['downloadPNG', 'downloadJPEG', 'downloadSVG']
+        }
+      }
+    }
+  }
+  HighchartsNoData(Highcharts)
+  Highcharts.chart('container', options)
+}
+
 export function exportExcelCom(document, id, title) {
   /* 从表生成工作簿对象 */
   let fix = document.querySelector('.el-table__fixed');
