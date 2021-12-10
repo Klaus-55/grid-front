@@ -60,7 +60,7 @@
       </div>
       <div class="town-forecast-bottom">
 <!--        <h2>{{titleTime}}乡镇天气预报质量评分报表</h2>-->
-        <div id="container" style="width: 100%; height:calc(100% - 44px)"></div>
+        <div id="town-forecast-chart" style="width: 100%; height:calc(100% - 44px)"></div>
       </div>
       <component :is="dialog.name" :ref="dialog.name" v-model="dialog.visible" v-bind="dialog.args"/>
     </div>
@@ -93,12 +93,12 @@
         years: [],
         year: moment().year(),
         month: moment().month() + 1,
-        product: 'skillScore',
+        product: 'quality',
         type: 'zh',
         titleTime: moment().month() + 1 + '月',
         checkedFacs: ['zhjq', 'qyjq', 'genjq', 'baoyujq', 'zhjsjq', 'maxtjq', 'mintjq', 'qyzql', 'genzql', 'stormzql', 'tmaxtzql', 'tmintzql'],
-        currentFacs: ['zhjq', 'qyjq', 'genjq', 'baoyujq', 'zhjsjq', 'maxtjq', 'mintjq'],
-        facs: skill,
+        currentFacs: ['qyzql', 'genzql', 'stormzql', 'tmaxtzql', 'tmintzql'],
+        facs: townQuality,
         facValue: keyValue,
         radios: [],
         data: [],
@@ -124,7 +124,7 @@
     mixins: [dialogMix],
     computed: {
       title() {
-        return this.titleTime + '乡镇天气预报质量评分报表'
+        return '各地级市' + this.titleTime + '网格预报质量评分'
       }
     },
     methods: {
@@ -194,7 +194,7 @@
         this.currentFacs = currentFacs
       },
       getTownForecast() {
-        let loading = this.openLoading('.town-forecast-bottom');
+        let loading = this.openLoading('#town-forecast-chart');
         let {start, end, period, obtType} = this
         start = moment(start).format('YYYYMMDD')
         end = moment(end).format('YYYYMMDD')
@@ -315,7 +315,7 @@
           series: rs.series
         }
         let _this = this
-        let chart = Highcharts.chart('container', options, function(c) {
+        let chart = Highcharts.chart('town-forecast-chart', options, function(c) {
           // 给坐标轴标签 DOM 添加点击事件， 并根据事件坐标计算出 x 下标值
           if (typeof c.xAxis[0].labelGroup == 'undefined') return
           Highcharts.addEvent(c.xAxis[0].labelGroup.element, 'click', e => {

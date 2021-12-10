@@ -158,7 +158,7 @@
   import Tense from "../../components/tense/Tense";
   import * as Basic from "../../common/Base"
   import moment from "momnet"
-  import {getRainHttp} from "../../network/keguan";
+  import {getAllModels, getRainHttp} from "../../network/keguan";
   import * as Utils from "../../common/utils"
   import * as types from "../../store/mutation-types"
   import FlMonitor from "./FlMonitor";
@@ -417,7 +417,12 @@
       this.initFtime()
       this.$store.state.modelViews = []
       this.$nextTick(() =>{
-        this.getRainData()
+        getAllModels().then(res => {
+          this.$store.commit({type: types.initUnits, units: res.data})
+          this.getRainData()
+        }).catch(err => {
+          console.log(err)
+        })
       })
     }
   }

@@ -104,7 +104,7 @@
         start: '',
         end: '',
         obtType: '',
-        obtTypes: ['S99', 'S322', 'S421', 'S1912', 'S3000'],
+        obtTypes: ['S99', 'S322', 'S421', 'S1912'],
         month: '',
         year: '',
         years: [],
@@ -164,7 +164,7 @@
       },
       exportExcel() {
         let id = '#table'
-        let title = this.start + '至' + this.end + '日' + '乡镇天气预报员质量评分.xlsx'
+        let title = this.start + '至' + this.end + '日' + '网格预报员质量评分.xlsx'
         return exportExcelCom(document, id, title)
       },
       initTable() {

@@ -1,9 +1,13 @@
 import {
   updateModes,
   changeModes,
+  initUnits,
 } from "./mutation-types";
 import * as Utils from "../common/utils"
 export default {
+  [initUnits](state, payload) {
+    state.units = payload.units
+  },
   [updateModes](state, payload) {
     let temp = [];
     state.modelViews.forEach(res => {

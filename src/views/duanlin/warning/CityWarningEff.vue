@@ -16,18 +16,6 @@
                       :key="item">{{item}}</el-radio-button>
             </el-radio-group>
           </el-menu-item>
-          <el-menu-item>
-            <span>检验要素：</span>
-            <el-radio-group v-model="factory" @change="changeFactory">
-              <el-radio-button
-                      v-for="item in factories"
-                      :label="item.label"
-                      :key="item.label"
-              >{{ item.value }}
-              </el-radio-button
-              >
-            </el-radio-group>
-          </el-menu-item>
         </el-menu>
         <div class="time-period-radio">
           <span>检验时段：</span>
@@ -93,12 +81,6 @@
       return {
         warningType: "暴雨",
         warningTypes: ["暴雨", "雷雨大风"],
-        factory: "ts",
-        factories: [
-          { label: "ts", value: "预报准确率" },
-          { label: "leadtime", value: "预警提前量" },
-          { label: "zh", value: "综合成绩" },
-        ],
         year: moment().year(),
         years: [],
         month: moment().month() + 1,
@@ -285,18 +267,6 @@
         this.getWarningEff()
       },
       changeType() {
-        this.updateHunanLayer()
-        this.getWarningEff()
-      },
-      changeFactory(val) {
-        if (val === 'ts') {
-          this.facTitle = '有效性评分'
-        } else if (val === 'leadtime') {
-          this.facTitle = '提前量'
-        } else {
-          this.facTitle = '综合成绩'
-        }
-        this.updateTableHeader()
         this.updateHunanLayer()
         this.getWarningEff()
       },

@@ -2,6 +2,14 @@ import {request} from "./request";
 import moment from "momnet";
 import el from "element-ui/src/locale/lang/el";
 
+//获取模式数据
+export function getAllModels() {
+  let url = '/keguan/getAllModels'
+  return request({
+    url: url
+  })
+}
+
 //降水请求接口
 export function getRainHttp(start, end, ybsc, jysd, jysx, jycp, isZhuri) {
   let path = window.location.pathname
