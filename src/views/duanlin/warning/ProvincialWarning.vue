@@ -26,6 +26,15 @@
             </el-radio-group>
           </el-menu-item>
           <el-menu-item>
+            <span>检验方法：</span>
+            <el-radio-group v-model="method" @change="changeMethods">
+              <el-radio-button
+                      v-for="item in methods"
+                      :label="item.label"
+                      :key="item.label">{{item.value}}</el-radio-button>
+            </el-radio-group>
+          </el-menu-item>
+          <el-menu-item>
             <span>检验要素：</span>
             <el-radio-group v-model="factory" @change="changeFactory">
               <el-radio-button
@@ -111,16 +120,23 @@
     },
     data() {
       return {
-        warningType: "暴雨",
+        warningType: "综合",
         typeItems: [
+          { label: "综合", value: "综合" },
           { label: "暴雨", value: "暴雨" },
           { label: "雷雨大风", value: "雷雨大风" },
           { label: "雷电", value: "雷电" },
           { label: "冰雹", value: "冰雹" },
-          { label: "综合", value: "综合" },
         ],
-        factory: "ts",
+        method: 'fj',
+        methods: [
+          { label: "fj", value: "分级检验" },
+          { label: "all", value: "所有级别检验" },
+          { label: "bfj", value: "不分级检验" },
+        ],
+        factory: "zh",
         factories: [
+          { label: "zh", value: "综合成绩" },
           { label: "ts", value: "预报准确率" },
           { label: "far", value: "空报率" },
           { label: "po", value: "漏报率" },
@@ -128,7 +144,6 @@
           { label: "t1", value: "t1" },
           { label: "t2", value: "t2" },
           { label: "t3", value: "t3" },
-          { label: "zh", value: "综合成绩" },
         ],
         year: moment().year(),
         years: [],
@@ -163,6 +178,9 @@
         this.initChart()
       },
       changeType() {
+        this.getProvincialWarning()
+      },
+      changeMethods() {
         this.getProvincialWarning()
       },
       changeTimePeriod() {
@@ -208,7 +226,7 @@
         let target = '#container'
         if (this.showType === '表格') target = '#table'
         let loading = this.openLoading(target);
-        provincialWarning(this.start, this.end, this.warningType).then(res => {
+        provincialWarning(this.start, this.end, this.warningType, this.method).then(res => {
           this.data = res.data
           this.initChart()
           loading.close()
@@ -222,19 +240,36 @@
       initChart() {
         let rsData = {}
         let categories = []
-        let {data, factory} = this
+        let {data, factory, method} = this
         let chartData = data['rs']
-        let levels = ["不分级别", "所有级别", "红色", "橙色", "黄色", "蓝色"]
+        let levels = ["红色", "橙色", "黄色", "蓝色"]
+        let colors = [
+          "#EA7B7B",
+          "#F6A467",
+          "#F9CE73",
+          "#83A8F2",
+        ]
+        if (method === 'all') {
+          levels = ['所有级别']
+          colors = ['#8FCACB']
+        }
+        if (method === 'bfj') {
+          levels = ['不分级别']
+          colors = ['#8FCACB']
+        }
         if (factory === 'zh') {
           chartData = []
           data['zh'].map(item => chartData.push(Object.assign({}, item, {level: '综合成绩'})))
           levels = ["综合成绩"]
+          colors = ['#8FCACB']
         }
         if (this.showType === '表格') {
           this.initTable(chartData)
           return
         }
         if (chartData.length === 0 || chartData.length === 1) levels = []
+        categories.push('湖南省')
+        console.log(chartData)
         for (let cd of chartData) {
           let forecaster = cd['forecaster']
           if (categories.indexOf(forecaster) === -1) categories.push(forecaster)
@@ -255,6 +290,7 @@
         }
         rsData.categories = categories
         rsData.series = series
+        rsData.colors = colors
         initSaEcharts(rsData)
       },
       initTable(chartData) {
@@ -265,16 +301,20 @@
           this.tableData = tableData
           return
         }
-        let {factory} = this
+        let {factory, method} = this
         tableHeader = [
-          {prop: 'forecaster', label: '预报员'},
-          {prop: 'bfj', label: '不分级别'},
-          {prop: 'all', label: '所有级别'},
-          {prop: 'red', label: '红色'},
-          {prop: 'orange', label: '橙色'},
-          {prop: 'yellow', label: '黄色'},
-          {prop: 'blue', label: '蓝色'}
+          {prop: 'forecaster', label: '预报员'}
         ]
+        if (method === 'all') {
+          tableHeader.push({prop: 'all', label: '所有级别'})
+        } else if (method === 'bfj') {
+          tableHeader.push({prop: 'bfj', label: '不分级别'})
+        } else {
+          tableHeader.push({prop: 'red', label: '红色'})
+          tableHeader.push({prop: 'orange', label: '橙色'})
+          tableHeader.push({prop: 'yellow', label: '黄色'})
+          tableHeader.push({prop: 'blue', label: '蓝色'})
+        }
         if (factory === 'zh') {
           tableHeader = [
             {prop: 'forecaster', label: '预报员'},

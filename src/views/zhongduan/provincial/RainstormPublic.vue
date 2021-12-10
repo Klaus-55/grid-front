@@ -32,7 +32,7 @@
       </div>
       <div class="rainstorm-public-bottom">
 <!--        <h2>{{titleYear}}年暴雨分级预报质量</h2>-->
-        <div id="container" style="width: 100%; height:calc(100% - 84px)"></div>
+        <div id="rain-public-chart" style="width: 100%; height:calc(100% - 84px)"></div>
       </div>
     </div>
   </div>
@@ -83,10 +83,10 @@
         this.getRainstormPublic()
       },
       getRainstormPublic() {
-        let loading = this.openLoading('#container');
+        let loading = this.openLoading('#rain-public-chart');
         rainstormPublic(this.titleYear, this.product, this.model).then(res => {
           this.data = res.data
-          initMsEcharts(this.data, this.title)
+          initMsEcharts(this.data, this.title, 'rain-public-chart')
           loading.close()
         })
       }

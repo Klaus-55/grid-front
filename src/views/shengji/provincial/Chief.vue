@@ -38,6 +38,7 @@
   import moment from "momnet";
   import {initRadios, initYears} from "../../../common/utils";
   import {initProChart} from "../../../common/Base";
+  import {getChiefScore} from "../../../network/shengji";
 
   export default {
     name: "Chief",
@@ -53,7 +54,14 @@
         month: moment().month() + 1,
         radios: [],
         titleTime: moment().year() + '年' + (moment().month() + 1) + '月',
-        data: {}
+        data: {},
+        objArr: ['zh', 'warning', 'public', 'rain'],
+        obj: {
+          zh: '综合',
+          warning: '预警消息',
+          public: '天气公报',
+          rain: '降水过程',
+        }
       }
     },
     methods: {
@@ -61,13 +69,16 @@
         this.start = moment(startTime).format("YYYY-MM-DD")
         this.end = moment(endTime).format("YYYY-MM-DD")
         this.updateInfo('date')
+        this.getChiefScore()
       },
       changeTimePeriod() {
         this.updateInfo('month')
+        this.getChiefScore()
       },
       changeYear(year) {
         this.radios = initRadios(year)
         this.updateInfo('month')
+        this.getChiefScore()
       },
       updateInfo(type) {
         if (type === 'date') {
@@ -94,6 +105,49 @@
           }
         }
       },
+      getChiefScore() {
+        let loading = this.openLoading('#container');
+        let start = moment(this.start).format('YYYYMMDD')
+        let end = moment(this.end).format('YYYYMMDD')
+        getChiefScore(start, end).then(res => {
+          console.log(res.data)
+          this.data = res.data
+          loading.close()
+          this.initChart()
+        }).catch(err => {
+          console.log(err)
+        })
+      },
+      initChart() {
+        let chartData = {}
+        let {data, objArr, obj} = this
+        let forecasters = []
+        let series = []
+        data.map(item => forecasters.push(item['forecaster']))
+        for (let item of objArr) {
+          let seriesItem = {}
+          seriesItem.name = obj[item]
+          let seriesData = []
+          for (let forecaster of forecasters) {
+            let rs = data.find(item => item['forecaster'] === forecaster);
+            seriesData.push(this.numToFixed(rs[item]))
+          }
+          seriesItem.data = seriesData
+          series.push(seriesItem)
+        }
+        chartData['categories'] = forecasters
+        chartData['series'] = series
+        initProChart(chartData)
+      },
+      numToFixed(num) {
+        if (!isNaN(num) && num != null && num !== -999.0) {
+          return Number(num.toFixed(1))
+        } else if (num === -999.0) {
+          return NaN
+        } else {
+          return num
+        }
+      },
     },
     computed: {
       title() {
@@ -104,7 +158,7 @@
       this.$nextTick(() => {
         this.radios = initRadios(this.year)
         this.years = initYears(7)
-        initProChart(this.data)
+        this.getChiefScore()
       })
     }
   }

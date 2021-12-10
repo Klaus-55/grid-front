@@ -20,7 +20,7 @@
       return {
         items: [
           {img: require('assets/img/tf.png'), text: '城镇预报评分', index: 'townForecast'},
-          {img: require('assets/img/tfd.png'), text: '城镇预报评定详情', index: 'townDetail'}
+          // {img: require('assets/img/tfd.png'), text: '城镇预报评定详情', index: 'townDetail'}
         ],
         conName: 'town-forecast'
       }

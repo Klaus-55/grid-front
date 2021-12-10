@@ -3,6 +3,19 @@
     <div class="content">
       <div class="head">
         <date-picker @changeDate="changeDate" :start="start" :end="end"/>
+
+        <div class="head-time-period">
+          <span>检验时段：</span>
+          <el-radio-group v-model="period" @change="changePeriod">
+            <el-radio-button label="24">24小时</el-radio-button>
+            <el-radio-button label="48">48小时</el-radio-button>
+            <el-radio-button label="72">72小时</el-radio-button>
+            <el-radio-button label="96">96小时</el-radio-button>
+            <el-radio-button label="120">120小时</el-radio-button>
+            <el-radio-button label="h72">0-72小时</el-radio-button>
+            <el-radio-button label="h120">0-120小时</el-radio-button>
+          </el-radio-group>
+        </div>
         <span style="margin-left: 50px">站点类型：</span>
         <el-select v-model="obtType" placeholder="" @change="changeObtTypes">
           <el-option
@@ -74,16 +87,17 @@
       return {
         start: moment(Date.now()).startOf('month').format('YYYY-MM-DD'),
         end: moment(Date.now()).format('YYYY-MM-DD'),
-        obtType: 'S99',
-        obtTypes: ['S99', 'S322', 'S421', 'S1912', 'S3000'],
+        period: '24',
+        obtType: 'S1912',
+        obtTypes: ['S99', 'S322', 'S421', 'S1912'],
         years: [],
         year: moment().year(),
         month: moment().month() + 1,
         product: 'skillScore',
         type: 'zh',
         titleTime: moment().month() + 1 + '月',
-        checkedFacs: ['zhjq', 'qyjq', 'genjq', 'baoyujq', 'maxtjq', 'mintjq', 'qyzql', 'genzql', 'stormzql', 'tmaxtzql', 'tmintzql'],
-        currentFacs: ['zhjq', 'qyjq', 'genjq', 'baoyujq', 'maxtjq', 'mintjq'],
+        checkedFacs: ['zhjq', 'qyjq', 'genjq', 'baoyujq', 'zhjsjq', 'maxtjq', 'mintjq', 'qyzql', 'genzql', 'stormzql', 'tmaxtzql', 'tmintzql'],
+        currentFacs: ['zhjq', 'qyjq', 'genjq', 'baoyujq', 'zhjsjq', 'maxtjq', 'mintjq'],
         facs: skill,
         facValue: keyValue,
         radios: [],
@@ -118,6 +132,9 @@
         this.start = moment(startTime).format("YYYY-MM-DD")
         this.end = moment(endTime).format("YYYY-MM-DD")
         this.updateInfo('date')
+        this.getTownForecast()
+      },
+      changePeriod() {
         this.getTownForecast()
       },
       changeObtTypes() {
@@ -178,21 +195,20 @@
       },
       getTownForecast() {
         let loading = this.openLoading('.town-forecast-bottom');
-        let {start, end, obtType} = this
+        let {start, end, period, obtType} = this
         start = moment(start).format('YYYYMMDD')
         end = moment(end).format('YYYYMMDD')
-        townForecastScore(start, end, obtType).then(res => {
+        townForecastScore(start, end, period, obtType).then(res => {
           this.data = res.data
           this.initEcharts()
           loading.close()
         })
       },
       resolveEchartData() {
-        let {currentFacs, towns, product, data} = this
-        if (data.length === 0) return {categories: [], series: []}
+        let {currentFacs, towns, data} = this
+        if (data.length === 0 || data.length === 1) return {categories: [], series: []}
         let townType = []
         for (const town of towns) {
-          if (town.wfsrc === 'BECS' && product === 'skillScore') continue
           townType.push(town.wfsrc)
         }
         let categories = []
@@ -219,8 +235,10 @@
         return {categories, series}
       },
       numToFixed(num) {
-        if (!isNaN(num) && num != null) {
+        if (!isNaN(num) && num != null && num !== -999.0) {
           return Number(num.toFixed(1))
+        } else if (num === -999.0) {
+          return NaN
         } else {
           return num
         }

@@ -28,7 +28,7 @@
 
       <div class="rain-progress-bottom">
 <!--        <h2>{{titleTime}}降水过程预报质量</h2>-->
-        <div id="container" style="width: 100%; height:calc(100% - 84px)"></div>
+        <div id="rp-chart" style="width: 100%; height:calc(100% - 84px)"></div>
       </div>
     </div>
   </div>
@@ -105,10 +105,10 @@
         this.getRainProgress()
       },
       getRainProgress() {
-        let loading = this.openLoading('#container');
+        let loading = this.openLoading('#rp-chart');
         rainProgress(this.start, this.end).then(res => {
           this.data = res.data
-          initMsEcharts(this.data, this.title)
+          initMsEcharts(this.data, this.title, 'rp-chart')
           this.$nextTick(() => {
             loading.close()
           })

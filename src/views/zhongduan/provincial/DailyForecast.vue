@@ -16,15 +16,26 @@
           </el-radio-group>
         </div>
 
+        <span style="margin-left: 50px">站点类型：</span>
+        <el-select v-model="obtType" placeholder="" @change="changeObtTypes">
+          <el-option
+                  v-for="item in obtTypes"
+                  :key="item"
+                  :label="item"
+                  :value="item"
+          >
+          </el-option>
+        </el-select>
+
         <el-button size="mini" type="primary" @click="exportExcel" style="margin-left: 30px">导出</el-button>
       </div>
       <hr>
-      <div class="daily-forecast-middle" v-show="false">
-        <span>评分类型：</span>
-        <el-checkbox-group v-model="scoreType" @change="changeType">
-          <el-checkbox v-for="(value, index) in types" :label="index" :key="index">{{value}}</el-checkbox>
-        </el-checkbox-group>
-      </div >
+<!--      <div class="daily-forecast-middle" v-show="false">-->
+<!--        <span>评分类型：</span>-->
+<!--        <el-checkbox-group v-model="scoreType" @change="changeType">-->
+<!--          <el-checkbox v-for="(value, index) in types" :label="index" :key="index">{{value}}</el-checkbox>-->
+<!--        </el-checkbox-group>-->
+<!--      </div >-->
       <div class="daily-forecast-bottom">
         <el-table
                 id="table"
@@ -33,46 +44,54 @@
                 border
                 stripe
                 style="width: 100%"
-                :header-cell-style="{'text-align': 'center'}"
+                :header-cell-style="{'text-align': 'center', 'backgroundColor': '#F5F7FA'}"
                 :cell-style="{'text-align': 'center'}">
           <el-table-column
                   fixed
                   prop="forecaster"
                   label="预报员">
           </el-table-column>
-          <el-table-column label="S99">
-            <el-table-column label="晴雨" prop="qy_S99"></el-table-column>
-            <el-table-column label="一般性降水" prop="ybx_S99"></el-table-column>
-            <el-table-column label="暴雨及以上" prop="by_S99"></el-table-column>
-            <el-table-column label="综合降水" prop="zh_S99"></el-table-column>
-            <el-table-column label="最高温" prop="maxt_S99"></el-table-column>
-            <el-table-column label="最低温" prop="mint_S99"></el-table-column>
-          </el-table-column>
-          <el-table-column label="S322">
-            <el-table-column label="晴雨" prop="qy_S322"></el-table-column>
-            <el-table-column label="一般性降水" prop="ybx_S322"></el-table-column>
-            <el-table-column label="暴雨及以上" prop="by_S322"></el-table-column>
-            <el-table-column label="综合降水" prop="zh_S322"></el-table-column>
-            <el-table-column label="最高温" prop="maxt_S322"></el-table-column>
-            <el-table-column label="最低温" prop="mint_S322"></el-table-column>
-          </el-table-column>
-          <el-table-column label="S421">
-            <el-table-column label="晴雨" prop="qy_S421"></el-table-column>
-            <el-table-column label="一般性降水" prop="ybx_S421"></el-table-column>
-            <el-table-column label="暴雨及以上" prop="by_S421"></el-table-column>
-            <el-table-column label="综合降水" prop="zh_S421"></el-table-column>
-            <el-table-column label="最高温" prop="maxt_S421"></el-table-column>
-            <el-table-column label="最低温" prop="mint_S421"></el-table-column>
-          </el-table-column>
-          <el-table-column label="S1912">
-            <el-table-column label="晴雨" prop="qy_S1912"></el-table-column>
-            <el-table-column label="一般性降水" prop="ybx_S1912"></el-table-column>
-            <el-table-column label="暴雨及以上" prop="by_S1912"></el-table-column>
-            <el-table-column label="综合降水" prop="zh_S1912"></el-table-column>
-            <el-table-column label="最高温" prop="maxt_S1912"></el-table-column>
-            <el-table-column label="最低温" prop="mint_S1912"></el-table-column>
-          </el-table-column>
+          <el-table-column label="晴雨" prop="qy"></el-table-column>
+          <el-table-column label="一般性降水" prop="ybx"></el-table-column>
+          <el-table-column label="暴雨及以上" prop="by"></el-table-column>
+          <el-table-column label="综合降水" prop="zhjs"></el-table-column>
+          <el-table-column label="最高温" prop="maxt"></el-table-column>
+          <el-table-column label="最低温" prop="mint"></el-table-column>
           <el-table-column label="班次" prop="bc"></el-table-column>
+          <el-table-column label="综合" prop="zh"></el-table-column>
+<!--          <el-table-column label="S99">-->
+<!--            <el-table-column label="晴雨" prop="qy_S99"></el-table-column>-->
+<!--            <el-table-column label="一般性降水" prop="ybx_S99"></el-table-column>-->
+<!--            <el-table-column label="暴雨及以上" prop="by_S99"></el-table-column>-->
+<!--            <el-table-column label="综合降水" prop="zh_S99"></el-table-column>-->
+<!--            <el-table-column label="最高温" prop="maxt_S99"></el-table-column>-->
+<!--            <el-table-column label="最低温" prop="mint_S99"></el-table-column>-->
+<!--          </el-table-column>-->
+<!--          <el-table-column label="S322">-->
+<!--            <el-table-column label="晴雨" prop="qy_S322"></el-table-column>-->
+<!--            <el-table-column label="一般性降水" prop="ybx_S322"></el-table-column>-->
+<!--            <el-table-column label="暴雨及以上" prop="by_S322"></el-table-column>-->
+<!--            <el-table-column label="综合降水" prop="zh_S322"></el-table-column>-->
+<!--            <el-table-column label="最高温" prop="maxt_S322"></el-table-column>-->
+<!--            <el-table-column label="最低温" prop="mint_S322"></el-table-column>-->
+<!--          </el-table-column>-->
+<!--          <el-table-column label="S421">-->
+<!--            <el-table-column label="晴雨" prop="qy_S421"></el-table-column>-->
+<!--            <el-table-column label="一般性降水" prop="ybx_S421"></el-table-column>-->
+<!--            <el-table-column label="暴雨及以上" prop="by_S421"></el-table-column>-->
+<!--            <el-table-column label="综合降水" prop="zh_S421"></el-table-column>-->
+<!--            <el-table-column label="最高温" prop="maxt_S421"></el-table-column>-->
+<!--            <el-table-column label="最低温" prop="mint_S421"></el-table-column>-->
+<!--          </el-table-column>-->
+<!--          <el-table-column label="S1912">-->
+<!--            <el-table-column label="晴雨" prop="qy_S1912"></el-table-column>-->
+<!--            <el-table-column label="一般性降水" prop="ybx_S1912"></el-table-column>-->
+<!--            <el-table-column label="暴雨及以上" prop="by_S1912"></el-table-column>-->
+<!--            <el-table-column label="综合降水" prop="zh_S1912"></el-table-column>-->
+<!--            <el-table-column label="最高温" prop="maxt_S1912"></el-table-column>-->
+<!--            <el-table-column label="最低温" prop="mint_S1912"></el-table-column>-->
+<!--          </el-table-column>-->
+<!--          <el-table-column label="班次" prop="bc"></el-table-column>-->
         </el-table>
       </div>
     </div>
@@ -97,6 +116,8 @@
         end: moment(moment(Date.now())).format('YYYYMMDD'),
         period: '24',
         scoreType: ['qy', 'ybx', 'by', 'maxt_pc', 'mint_pc'],
+        obtType: 'S1912',
+        obtTypes: ['S99', 'S322', 'S421', 'S1912'],
         types: {
           qy: '晴雨准确率',
           ybx: '一般性降水准确率',
@@ -116,12 +137,15 @@
       changePeriod() {
         this.getDailyForecast()
       },
+      changeObtTypes(val) {
+        this.getDailyForecast()
+      },
       changeType(type) {
         alert(type)
       },
       getDailyForecast() {
         let loading = this.openLoading('#table');
-        dailyForecast(this.start, this.end, this.period).then(res => {
+        dailyForecast(this.start, this.end, this.period, this.obtType).then(res => {
           this.tableData = res.data
           loading.close()
         }).catch(err => {

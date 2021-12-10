@@ -34,7 +34,10 @@ const store = new Vuex.Store({
       {unit: 'RAT_FORECAST_DL', unitName: 'RAT_FORECAST_DL', color: '#4BF8FF'},
       {unit: 'RAT_TL', unitName: 'RAT_TL', color: '#FF0000'},
       {unit: 'SMG_Nowcast', unitName: 'SMG_Nowcast', color: '#15F6BA'},
-      {unit: 'SMG_FORECAST_DL', unitName: 'SMG_FORECAST_DL', color: '#C7FFB4'}
+      {unit: 'SMG_FORECAST_DL', unitName: 'SMG_FORECAST_DL', color: '#C7FFB4'},
+      {unit: '4daefb68_008_h1', unitName: '4daefb68_008_h1', color: '#C7FFB4'},
+      {unit: 'CompCpFT', unitName: 'CompCpFT', color: '#FFBFB7'},
+      {unit: '4daefb68_006_h1', unitName: '4daefb68_006_h1', color: '#4BF8FF'},
     ],
     modes: [],
     modelViews: [],

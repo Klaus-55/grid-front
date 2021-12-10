@@ -55,7 +55,7 @@ export function initZhuri(data, ftime, jyys) {
 }
 
 //中短期预报质量图表初始化
-export function initMsEcharts(data, title) {
+export function initMsEcharts(data, title, container) {
   let options = {
     chart: {
       type: 'column',
@@ -124,7 +124,7 @@ export function initMsEcharts(data, title) {
     }
   }
   HighchartsNoData(Highcharts)
-  Highcharts.chart('container', options)
+  Highcharts.chart(container, options)
 }
 
 //短临预报质量图表初始化
@@ -137,14 +137,7 @@ export function initSaEcharts(data) {
     credits: {
       enabled: false,
     },
-    colors: [
-      "#8FCACB",
-      "#C1BAD8",
-      "#EA7B7B",
-      "#F6A467",
-      "#F9CE73",
-      "#83A8F2",
-    ],
+    colors: data.colors,
     lang: {
       downloadPNG: "下载PNG文件",
       downloadJPEG: "下载JPEG图片",
@@ -339,7 +332,7 @@ export function initCityEcharts(data, title) {
 export function initCityEcharts2({data, factory, title}) {
   let rd = data['area']
   let series = []
-  let areas = ["综合", "长沙市","株洲市","湘潭市","衡阳市","邵阳市","岳阳市",
+  let areas = ["湖南省", "长沙市","株洲市","湘潭市","衡阳市","邵阳市","岳阳市",
     "常德市","张家界市","益阳市","郴州市","永州市","怀化市","娄底市","湘西州"]
   let levels = ["红色", "橙色", "黄色", "蓝色"]
   for (let level of levels) {
@@ -538,8 +531,8 @@ export function initProChart(data) {
       }
     },
     xAxis: {
-      categories: ['湖南省','预报员1','预报员2','预报员3'],
-      // categories: data.categories,
+      // categories: ['湖南省','预报员1','预报员2','预报员3'],
+      categories: data.categories,
       crosshair: true
     },
     yAxis: {
@@ -565,20 +558,20 @@ export function initProChart(data) {
         }
       }
     },
-    // series: data.series,
-    series: [{
-      name: '综合',
-      data: [49.9, 71.5, 25.4, 56.2]
-    }, {
-      name: '预警消息',
-      data: [83.6, 78.8, 98.5, 93.4]
-    }, {
-      name: '天气公报',
-      data: [48.9, 38.8, 39.3, 41.4]
-    }, {
-      name: '降水过程',
-      data: [42.4, 33.2, 34.5, 39.7]
-    }],
+    series: data.series,
+    // series: [{
+    //   name: '综合',
+    //   data: [49.9, 71.5, 25.4, 56.2]
+    // }, {
+    //   name: '预警消息',
+    //   data: [83.6, 78.8, 98.5, 93.4]
+    // }, {
+    //   name: '天气公报',
+    //   data: [48.9, 38.8, 39.3, 41.4]
+    // }, {
+    //   name: '降水过程',
+    //   data: [42.4, 33.2, 34.5, 39.7]
+    // }],
     exporting: {
       buttons: {
         contextButton: {

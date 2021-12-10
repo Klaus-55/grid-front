@@ -16,7 +16,7 @@
                       :key="item">{{item}}</el-radio-button>
             </el-radio-group>
           </el-menu-item>
-          <el-menu-item v-show="index === 'cw'">
+          <el-menu-item>
             <span>检验要素：</span>
             <el-radio-group v-model="factory" @change="changeFactory">
               <el-radio-button
@@ -79,25 +79,20 @@
   import moment from "momnet";
   import {initRadios, initYears} from "../../../common/utils";
   import {initCityEcharts} from "../../../common/Base";
-  import {cityWarning, districtWarning} from "../../../network/duanlin";
+  import {cityWarningEff, districtWarningEff} from "../../../network/duanlin";
   require('proj4')
   require('proj4leaflet')
   require('../../../assets/plugs/map/tileLayer.baidu')
 
   export default {
-    name: "CityWarning",
+    name: "CityWarningEff",
     components: {
       DatePicker,
-    },
-    props: {
-      index: {
-        type: String
-      }
     },
     data() {
       return {
         warningType: "暴雨",
-        warningTypes: [],
+        warningTypes: ["暴雨", "雷雨大风"],
         factory: "ts",
         factories: [
           { label: "ts", value: "预报准确率" },
@@ -114,7 +109,7 @@
         tableData: [],
         mapData: {},
         titleTime: moment().year() + '年' + (moment().month() + 1) + '月',
-        facTitle: '预报质量',
+        facTitle: '有效性评分',
         data: {},
         map: {},
         hunanLayer: {},
@@ -145,12 +140,12 @@
           center: [27.4, 111.5],
         }
         _this.map = L.map('map', options);
-        let bounds = [
-          [30.25, 108.6],
-          [24.5, 114.4]
-        ]
-        _this.map.fitBounds(bounds)
         _this.updateHunanLayer()
+      },
+      fitBounds(map) {
+        let hnbounds = L.latLngBounds(new L.LatLng(30.25, 108.65), new L.LatLng(24.5, 114.4));
+        map.invalidateSize();
+        map.fitBounds(hnbounds);
       },
       updateHunanLayer() {
         let _this = this
@@ -219,22 +214,14 @@
         if (_this.isInitCity) {
           _this.isInitCity = false
         }
-
+        this.fitBounds(this.map)
       },
       async updatePopup(feature) {
         let area = feature.properties.name;
-        await this.getDistrictWarning(area)
+        await this.districtWarningEff(area)
         let content = "<span>" + this.titleTime + "</span><br>" +
           "<span style='font-weight: 700;color: #0591DB'>" + this.warningType + "</span><br>"
-        if (this.index === 'cw') {
-          content += "<span>" + (this.factory === "leadtime" ? "提前量：" : "准确率：") + this.mapData[this.factory] + "</span><br>"
-          if (this.factory !== "leadtime") {
-            content += "<span>漏报率：" + this.mapData['po'] + "</span><br>" +
-              "<span>空报率：" + this.mapData['far'] + "</span>"
-          }
-        } else {
-          content += "<span>预报得分：" + (this.mapData['score'] == null ? '/' : this.mapData['score'] + '') + "</span>"
-        }
+        content += "<span>预报得分：" + (this.mapData['score'] == null ? '/' : this.mapData['score'] + '') + "</span>"
         let centroid = feature.properties.centroid;
         L.popup()
           .setLatLng([centroid[1], centroid[0]])
@@ -243,21 +230,8 @@
       },
       updateTableHeader() {
         let tableHeader = []
-        if (this.index === 'cwe') {
-          tableHeader.push({prop: 'district', label: '地区'})
-          tableHeader.push({prop: 'score', label: '预报得分'})
-        } else {
-          if (this.factory === 'ts') {
-            tableHeader.push({prop: 'district', label: '地区'})
-            tableHeader.push({prop: this.factory, label: '预报准确率'})
-          } else if (this.factory === 'leadtime') {
-            tableHeader.push({prop: 'district', label: '地区'})
-            tableHeader.push({prop: this.factory, label: '预警提前量'})
-          } else {
-            tableHeader.push({prop: 'district', label: '地区'})
-            tableHeader.push({prop: this.factory, label: '综合成绩'})
-          }
-        }
+        tableHeader.push({prop: 'district', label: '地区'})
+        tableHeader.push({prop: 'score', label: '预报得分'})
         this.tableHeader = tableHeader
       },
       updateInfo(type) {
@@ -285,18 +259,18 @@
           }
         }
       },
-      getCityWarning() {
-        let title = '湖南省' + this.titleTime + this.warningType + this.facTitle
-        if (this.title !== '') title = '湖南省' + this.title + this.warningType + this.facTitle
-        cityWarning(this.start, this.end, this.warningType, this.factory, this.index).then(res => {
+      getWarningEff() {
+        let title = '湖南省' + this.titleTime + this.warningType + '预警信号' + this.facTitle
+        if (this.title !== '') title = '湖南省' + this.title + this.warningType + '预警信号' + this.facTitle
+        cityWarningEff(this.start, this.end, this.warningType).then(res => {
           this.data = res.data
           initCityEcharts(this.data, title)
         }).catch(err => {
           console.log(err)
         })
       },
-      async getDistrictWarning(area) {
-        await districtWarning(this.start, this.end, this.warningType, this.factory, area, this.index).then(res => {
+      async districtWarningEff(area) {
+        await districtWarningEff(this.start, this.end, this.warningType, this.factory, area).then(res => {
           this.tableData = res.data.tableData
           this.mapData = res.data.mapData
         }).catch(err => {
@@ -308,15 +282,15 @@
         this.end = moment(endTime).format("YYYY-MM-DD")
         this.updateHunanLayer()
         this.title = this.start + '~' + this.end
-        this.getCityWarning()
+        this.getWarningEff()
       },
       changeType() {
         this.updateHunanLayer()
-        this.getCityWarning()
+        this.getWarningEff()
       },
       changeFactory(val) {
         if (val === 'ts') {
-          this.facTitle = '预报质量'
+          this.facTitle = '有效性评分'
         } else if (val === 'leadtime') {
           this.facTitle = '提前量'
         } else {
@@ -324,55 +298,28 @@
         }
         this.updateTableHeader()
         this.updateHunanLayer()
-        this.getCityWarning()
+        this.getWarningEff()
       },
       changeYear(year) {
         this.radios = initRadios(year)
         this.updateInfo('month')
         this.updateHunanLayer()
-        this.getCityWarning()
+        this.getWarningEff()
       },
       changeTimePeriod() {
         this.title = ''
         this.updateInfo('month')
         this.updateHunanLayer()
-        this.getCityWarning()
+        this.getWarningEff()
       },
-      initWarningType() {
-        if (this.index === 'cw') {
-          this.warningTypes = [
-            "暴雨",
-            "雷雨大风",
-            "雷电",
-            "冰雹",
-            "暴雪",
-            "大风",
-            "大雾",
-            "霾",
-            "综合"
-          ]
-        } else {
-          this.warningTypes  = ["暴雨", "雷雨大风"]
-        }
-      }
-    },
-    watch: {
-      index() {
-        this.warningType = '暴雨'
-        this.initWarningType()
-        this.updateHunanLayer()
-        this.updateTableHeader()
-        this.getCityWarning()
-      }
     },
     created() {
       this.$nextTick(() => {
         this.radios = initRadios(this.year)
         this.years = initYears(7)
-        this.initWarningType()
         this.initMap()
         this.updateTableHeader()
-        this.getCityWarning()
+        this.getWarningEff()
       });
     },
   };

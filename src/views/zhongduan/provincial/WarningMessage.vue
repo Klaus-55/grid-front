@@ -26,7 +26,7 @@
 
       <div class="warning-message-bottom">
 <!--        <h2>{{titleTime}}预警消息预报质量</h2>-->
-        <div id="container" style="width: 100%; height:calc(100% - 84px)"></div>
+        <div id="wm-chart" style="width: 100%; height:calc(100% - 84px)"></div>
       </div>
 
     </div>
@@ -105,7 +105,7 @@
         }
       },
       getWarningMessage() {
-        let loading = this.openLoading('#container');
+        let loading = this.openLoading('#wm-chart');
         warningMessage(this.start, this.end).then(res => {
           if (res.data.categories.length === 0) {
             res.data.series = []
@@ -113,10 +113,8 @@
           } else {
             this.data = res.data
           }
-          initMsEcharts(this.data, this.title)
-          this.$nextTick(() => {
-            loading.close()
-          })
+          initMsEcharts(this.data, this.title, 'wm-chart')
+          loading.close()
         }).catch(err => {
           console.log(err)
         })

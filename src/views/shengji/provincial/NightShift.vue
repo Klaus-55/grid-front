@@ -38,6 +38,7 @@
   import moment from "momnet";
   import {initRadios, initYears} from "../../../common/utils";
   import {initProChart} from "../../../common/Base";
+  import {getNightShiftScore} from "../../../network/shengji";
 
   export default {
     name: "NightShift",
@@ -53,7 +54,13 @@
         month: moment().month() + 1,
         radios: [],
         titleTime: moment().year() + '年' + (moment().month() + 1) + '月',
-        data: {}
+        data: {},
+        objArr: ['zh', 'zhjq', 'zhzl'],
+        obj: {
+          zh: '综合',
+          zhjq: '综合技巧',
+          zhzl: '综合质量',
+        }
       }
     },
     methods: {
@@ -61,13 +68,58 @@
         this.start = moment(startTime).format("YYYY-MM-DD")
         this.end = moment(endTime).format("YYYY-MM-DD")
         this.updateInfo('date')
+        this.getNightShiftScore()
       },
       changeTimePeriod() {
         this.updateInfo('month')
+        this.getNightShiftScore()
       },
       changeYear(year) {
         this.radios = initRadios(year)
         this.updateInfo('month')
+        this.getNightShiftScore()
+      },
+      getNightShiftScore() {
+        let loading = this.openLoading('#container');
+        let start = moment(this.start).format('YYYYMMDD')
+        let end = moment(this.end).format('YYYYMMDD')
+        getNightShiftScore(start, end).then(res => {
+          this.data = res.data
+          this.initChart()
+          loading.close()
+        }).catch(err => {
+          console.log(err)
+        })
+      },
+      initChart() {
+        let chartData = {}
+        let {data, objArr, obj} = this
+        let forecasters = []
+        let series = []
+        data.map(item => forecasters.push(item['forecaster']))
+        for (let item of objArr) {
+          let seriesItem = {}
+          seriesItem.name = obj[item]
+          let seriesData = []
+          for (let forecaster of forecasters) {
+            let rs = data.find(item => item['forecaster'] === forecaster);
+            seriesData.push(this.numToFixed(rs[item]))
+          }
+          seriesItem.data = seriesData
+          series.push(seriesItem)
+        }
+        chartData['categories'] = forecasters
+        chartData['series'] = series
+        initProChart(chartData)
+      },
+      numToFixed(num) {
+        if (!isNaN(num) && num != null && num !== -999.0) {
+          return Number(num.toFixed(1))
+        } else if (num === -999.0) {
+          return NaN
+        } else {
+          return num
+        }
       },
       updateInfo(type) {
         if (type === 'date') {
@@ -105,6 +157,7 @@
         this.radios = initRadios(this.year)
         this.years = initYears(7)
         initProChart(this.data)
+        this.getNightShiftScore()
       })
     }
   }

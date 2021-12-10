@@ -88,7 +88,7 @@
   import moment from "momnet";
   import {initRadios, initYears} from "../../../common/utils";
   import {initCityEcharts, initCityEcharts2} from "../../../common/Base";
-  import {cityWarning3} from "../../../network/duanlin";
+  import {cityWarning} from "../../../network/duanlin";
   require('proj4')
   require('proj4leaflet')
   require('../../../assets/plugs/map/tileLayer.baidu')
@@ -105,29 +105,30 @@
     },
     data() {
       return {
-        warningType: "暴雨",
-        warningTypes: [ "暴雨",
+        warningType: "综合",
+        warningTypes: [
+          "综合",
+          "暴雨",
           "雷雨大风",
           "雷电",
           "冰雹",
           "暴雪",
           "大风",
           "大雾",
-          "霾",
-          "综合"],
-        factory: "ts",
-        method: 'all',
+          "霾"],
+        method: 'fj',
         methods: [
-          { label: "all", value: "所有级别检验" },
           { label: "fj", value: "分级检验" },
+          { label: "all", value: "所有级别检验" },
           { label: "bfj", value: "不分级检验" },
         ],
+        factory: "zh",
         factories: [
+          { label: "zh", value: "综合成绩" },
           { label: "ts", value: "预报准确率" },
           { label: "t1", value: "t1" },
           { label: "t2", value: "t2" },
           { label: "t3", value: "t3" },
-          { label: "zh", value: "综合成绩" },
         ],
         year: moment().year(),
         years: [],
@@ -170,11 +171,11 @@
           center: [27.4, 111.5],
         }
         _this.map = L.map('map', options);
-        let bounds = [
-          [30.25, 108.6],
-          [24.5, 114.4]
-        ]
-        _this.map.fitBounds(bounds)
+      },
+      fitBounds(map) {
+        let hnbounds = L.latLngBounds(new L.LatLng(30.25, 108.65), new L.LatLng(24.5, 114.4));
+        map.invalidateSize();
+        map.fitBounds(hnbounds);
       },
       updateHunanLayer() {
         let _this = this
@@ -244,7 +245,7 @@
         if (_this.isInitCity) {
           _this.isInitCity = false
         }
-
+        this.fitBounds(this.map)
       },
       changeMethods() {
         this.getCityWarning()
@@ -348,9 +349,8 @@
         }
       },
       getCityWarning() {
-        cityWarning3(this.start, this.end, this.warningType, this.method).then(res => {
+        cityWarning(this.start, this.end, this.warningType, this.method).then(res => {
           this.data = res.data
-          console.log(res.data)
           this.renderChart()
           this.updateHunanLayer()
           this.updateTable()
@@ -373,7 +373,7 @@
         let chartData = {}
         let seriesData = []
         let series = []
-        let areas = ["综合", "长沙市","株洲市","湘潭市","衡阳市","邵阳市","岳阳市",
+        let areas = ["湖南省", "长沙市","株洲市","湘潭市","衡阳市","邵阳市","岳阳市",
           "常德市","张家界市","益阳市","郴州市","永州市","怀化市","娄底市","湘西州"]
         for (let area of areas) {
           let res = areasArr.find(obj => obj.area === area);

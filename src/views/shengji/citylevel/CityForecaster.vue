@@ -6,7 +6,7 @@
       </div>
       <hr>
 
-      <div class="chief-middle">
+      <div class="forecaster-middle">
         <div class="time-period-radio">
           <span>检验时段：</span>
           <el-radio-group v-model="month" @change="changeTimePeriod">
@@ -25,9 +25,31 @@
         </div>
       </div>
 
-      <div class="chief-bottom">
+      <div class="forecaster-bottom">
         <h2>{{title}}</h2>
-        <div id="container" style="width: 100%; height:calc(100% - 84px)"></div>
+        <el-radio-group v-model="showType" size="mini" @change="changeType">
+          <el-radio-button label="图表"></el-radio-button>
+          <el-radio-button label="表格"></el-radio-button>
+        </el-radio-group>
+        <div id="container" style="width: 100%; height:calc(100% - 84px)" v-show="showType === '图表'"></div>
+        <el-table
+                v-show="showType === '表格'"
+                :data="tableData"
+                border
+                class="table-fixed"
+                height="calc(100% - 140px)"
+                style="width: calc(100% - 50px); margin: 0 auto; transform: translateY(10px)"
+                :header-cell-style="{'text-align': 'center'}">
+          <el-table-column
+                  prop="forecaster"
+                  label="预报员"
+                  align="center"></el-table-column>
+          <el-table-column
+                  v-for="item in objArr"
+                  :prop="item"
+                  :label="obj[item]"
+                  align="center"></el-table-column>
+        </el-table>
       </div>
     </div>
   </div>
@@ -38,10 +60,10 @@
   import moment from "momnet";
   import {initRadios, initYears} from "../../../common/utils";
   import {initProChart} from "../../../common/Base";
-  import {getShortTermScore} from "../../../network/shengji";
+  import {getForecasterScore} from "../../../network/shengji";
 
   export default {
-    name: "ShortTerm",
+    name: "CityForecaster",
     components: {
       DatePicker
     },
@@ -55,12 +77,13 @@
         radios: [],
         titleTime: moment().year() + '年' + (moment().month() + 1) + '月',
         data: {},
-        objArr: ['zh', 'sg', 'sh', 'sr'],
+        tableData: [],
+        showType: "图表",
+        objArr: ['zh', 'zhjq', 'zhzl'],
         obj: {
           zh: '综合',
-          sg: '预警信号',
-          sh: '短时强降水',
-          sr: '短时临近降水',
+          zhjq: '综合技巧',
+          zhzl: '综合质量',
         }
       }
     },
@@ -69,25 +92,27 @@
         this.start = moment(startTime).format("YYYY-MM-DD")
         this.end = moment(endTime).format("YYYY-MM-DD")
         this.updateInfo('date')
-        this.getShortTermScore()
+        this.getForecasterScore()
       },
       changeTimePeriod() {
         this.updateInfo('month')
-        this.getShortTermScore()
+        this.getForecasterScore()
       },
       changeYear(year) {
         this.radios = initRadios(year)
         this.updateInfo('month')
-        this.getShortTermScore()
+        this.getForecasterScore()
       },
-      getShortTermScore() {
-        let loading = this.openLoading('#container');
-        getShortTermScore(this.start, this.end).then(res => {
+      changeType() {
+
+      },
+      getForecasterScore() {
+        let loading = this.openLoading('.forecaster-bottom');
+        getForecasterScore(this.start, this.end).then(res => {
           this.data = res.data
+          this.tableData = res.data
           this.initChart()
           loading.close()
-        }).catch(err => {
-          console.log(err)
         })
       },
       initChart() {
@@ -102,7 +127,7 @@
           let seriesData = []
           for (let forecaster of forecasters) {
             let rs = data.find(item => item['forecaster'] === forecaster);
-            seriesData.push(rs[item])
+            seriesData.push(this.numToFixed(rs[item]))
           }
           seriesItem.data = seriesData
           series.push(seriesItem)
@@ -110,6 +135,15 @@
         chartData['categories'] = forecasters
         chartData['series'] = series
         initProChart(chartData)
+      },
+      numToFixed(num) {
+        if (!isNaN(num) && num != null && num !== -999.0) {
+          return Number(num.toFixed(1))
+        } else if (num === -999.0) {
+          return NaN
+        } else {
+          return num
+        }
       },
       updateInfo(type) {
         if (type === 'date') {
@@ -139,19 +173,125 @@
     },
     computed: {
       title() {
-        return this.titleTime + '短临岗预报员评分'
+        return this.titleTime + '市级预报员评分'
       }
     },
     created() {
       this.$nextTick(() => {
         this.radios = initRadios(this.year)
         this.years = initYears(7)
-        this.getShortTermScore()
+        this.getForecasterScore()
       })
     }
   }
 </script>
 
-<style scoped>
+<style lang="less">
+  @import "../../../assets/less/common";
 
+  .forecaster-middle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 70px;
+    background-color: @bgColor;
+    margin-bottom: 20px;
+
+    .time-period-radio {
+      .el-select {
+        vertical-align: middle;
+      }
+      .el-input__inner {
+        width: 65px;
+        height: 25px;
+        line-height: 25px;
+        font-size: 12px;
+        background-color: @bgColor;
+        border-radius: 0;
+        padding: 0 0 0 6px;
+
+      }
+      .el-input__suffix {
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      .el-select .el-input .el-select__caret {
+        font-size: 12px;
+        color: @mainColor;
+      }
+      .el-input__icon {
+        width: 20px;
+        line-height: 25px;
+      }
+      .el-icon-arrow-up:before {
+        content: "\e78f";
+      }
+      .el-radio-button__inner {
+        width: 65px;
+        height: 25px;
+        line-height: 25px;
+        font-size: 12px;
+        background: @bgColor;
+        padding: 0;
+      }
+      .el-radio-button__orig-radio:checked + .el-radio-button__inner {
+        background-color: @mainColor
+      }
+    }
+  }
+  .forecaster-bottom {
+    box-sizing: border-box;
+    width: 100%;
+    height: calc(100% - 150px);
+    background-color: @bgColor;
+    padding-top: 10px;
+    h2 {
+      font-size: 1.3em;
+      padding-top: 30px;
+      text-align: center;
+    }
+
+    .el-radio-group {
+      margin-left: 0 !important;
+      float: right;
+      margin-right: 10px;
+      margin-top: 10px;
+      background-color: #dfdfdf;
+      border-radius: 12px;
+    }
+
+    .el-radio-button__inner {
+      background-color: transparent;
+      border: none;
+    }
+
+    .el-radio-button--mini .el-radio-button__inner {
+      padding: 5px 13px;
+    }
+
+    .el-radio-button:first-child .el-radio-button__inner {
+      border-radius: 12px 0 0 12px;
+      border-left: none;
+    }
+
+    .el-radio-button:last-child .el-radio-button__inner {
+      border-radius: 0 12px 12px 0;
+    }
+
+    .el-radio-button__orig-radio:checked + .el-radio-button__inner {
+      box-shadow: none;
+      background-color: #49afcd;
+      border-radius: 12px 12px 12px 12px;
+    }
+
+    .el-radio-button__orig-radio:checked + .el-radio-button__inner:hover {
+      color: #fff;
+    }
+
+    .el-radio-button__inner:hover {
+      color: #49afcd;
+    }
+  }
 </style>

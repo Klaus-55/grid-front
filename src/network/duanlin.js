@@ -79,60 +79,24 @@ export function hailScore(start, end, ftime) {
 }
 
 //省级预警预报质量
-export function provincialWarning(start, end, warningType) {
-  let url = '/duanlin/provincialWarning/' + start + '/' + end + '/' + warningType
+export function provincialWarning(start, end, warningType, method) {
+  let url = '/duanlin/provincialWarning/' + start + '/' + end + '/' + warningType + '/' + method
   return request({
     url
   })
 }
 
 //省级预警评定详情
-export function provincialDetail(start, end, warningType, level, rs) {
-  let url = '/duanlin/provincialDetail/' + start + '/' + end + "/" + warningType + '/' + level + "/" + rs
+export function provincialDetail(start, end, warningType, level, rs, type) {
+  let url = '/duanlin/provincialDetail/' + start + '/' + end + "/" + warningType + '/' + level + "/" + rs  + "/" + type
   return request({
     url
   })
 }
 
 //市级预警预报质量
-export function cityWarning(start, end, warningType, factory, index) {
-  let url
-  if (index === 'cw') {
-    url = '/duanlin/cityWarning/' + start + '/' + end + "/" + warningType + "/" + factory
-  } else {
-    url = '/duanlin/cityWarningEff/' + start + '/' + end + "/" + warningType
-  }
-  return request({
-    url
-  })
-}
-
-//市级预警预报质量
-export function cityWarning3(start, end, warningType, method) {
-  let url = '/duanlin/cityWarning3/' + start + '/' + end + "/" + warningType + "/" + method
-  return request({
-    url
-  })
-}
-
-//区县预警预报质量
-// /duanlin/districtWarning/{start}/{end}/{warningType}/{factory}/{area}
-export function districtWarning(start, end, warningType, factory, area, index) {
-  let url
-  if (index === 'cw') {
-    url = '/duanlin/districtWarning/' + start + '/' + end + "/" + warningType + "/" + factory + "/" + area
-  } else {
-    url = '/duanlin/districtWarningEff/' + start + '/' + end + "/" + warningType + "/" + area
-  }
-  return request({
-    url
-  })
-}
-
-//区县预警预报质量
-// /duanlin/districtWarning2/{start}/{end}/{warningType}/{area}
-export function districtWarning2(start, end, warningType, area) {
-  let url = '/duanlin/districtWarning2/' + start + '/' + end + "/" + warningType + "/" + area
+export function cityWarning(start, end, warningType, method) {
+  let url = '/duanlin/cityWarning/' + start + '/' + end + "/" + warningType + "/" + method
   return request({
     url
   })
@@ -141,6 +105,23 @@ export function districtWarning2(start, end, warningType, area) {
 //市级预警评定详情
 export function cityDetail(start, end, department, warningType, level, rs) {
   let url = '/duanlin/cityDetail/' + start + '/' + end + '/' + department + "/" + warningType + '/' + level + "/" + rs
+  return request({
+    url
+  })
+}
+
+//预警有效性评定
+export function cityWarningEff(start, end, warningType) {
+  let url = '/duanlin/cityWarningEff/' + start + '/' + end + "/" + warningType
+  return request({
+    url
+  })
+}
+
+//区县预警有效性
+// /duanlin/districtWarningEff/{start}/{end}/{warningType}/{factory}/{area}
+export function districtWarningEff(start, end, warningType, factory, area) {
+  let url = '/duanlin/districtWarningEff/' + start + '/' + end + "/" + warningType + "/" + area
   return request({
     url
   })

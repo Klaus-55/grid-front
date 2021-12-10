@@ -16,6 +16,7 @@
   import DailyForecast from "./provincial/DailyForecast";
   // import DailyComparision from "./provincial/DailyComparision";
   import QualityReport from "./provincial/QualityReport";
+  import WeatherPublic from "./provincial/WeatherPublic";
   export default {
     name: "Provincial",
     components: {
@@ -28,7 +29,8 @@
       RainstormDetail,
       DailyForecast,
       // DailyComparision,
-      QualityReport
+      QualityReport,
+      WeatherPublic
     },
     data() {
       return {
@@ -41,7 +43,8 @@
           {img: require('assets/img/rsd.png'), text: '暴雨公众预报详情', index: 'rainstormDetail'},
           {img: require('assets/img/df.png'), text: '每日预报评分', index: 'dailyForecast'},
           // {img: require('assets/img/dlfc.png'), text: '每日实况预报对比', index: 'dailyComparision'},
-          {img: require('assets/img/report.png'), text: '预报质量报表', index: 'qualityReport'},
+          // {img: require('assets/img/report.png'), text: '预报质量报表', index: 'qualityReport'},
+          {img: require('assets/img/report.png'), text: '首席天气公报', index: 'weatherPublic'},
         ],
         conName: 'warning-message'
       }
@@ -68,6 +71,8 @@
         // }
         else if (activeName === 'qualityReport') {  //预报质量报表
           this.conName = 'quality-report'
+        } else if (activeName === 'weatherPublic') {  //预报质量报表
+          this.conName = 'weather-public'
         }
       }
     }

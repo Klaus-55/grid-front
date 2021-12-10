@@ -51,6 +51,15 @@
               >
             </el-radio-group>
           </el-menu-item>
+          <el-menu-item v-show="warningType === '暴雨'">
+            <span>检验类型：</span>
+            <el-radio-group v-model="type" @change="changeType">
+              <el-radio-button
+                      v-for="item in types"
+                      :label="item.label"
+                      :key="item">{{item.value}}</el-radio-button>
+            </el-radio-group>
+          </el-menu-item>
         </el-menu>
       </div>
       <div class="table-style rain-examine-bottom">
@@ -157,14 +166,14 @@
         levels: ["all", "蓝色", "黄色", "橙色", "红色"],
         rs: "all",
         rss: ["all", "正确", "空报", "漏报"],
+        type: "1",
+        types: [
+          {label: "1", value: "预报员"},
+          {label: "0", value: "湖南省"},
+        ],
         tableTitle: ["预警信号", "实况预警信号", "评定结果"],
         tableData: [],
       };
-    },
-    computed: {
-      loading() {
-        return this.tableData.length !== (this.pageSize + 1) * this.pageNumber
-      }
     },
     methods: {
       changeDate(startTime, endTime) {
@@ -184,6 +193,9 @@
       changeRs() {
         this.getProvincialDetail()
       },
+      changeType(val) {
+        this.getProvincialDetail()
+      },
       exportExcel() {
         let id = '#table'
         let title = this.start + '至' + this.end + '日' + '省级预警评定详情.xlsx'
@@ -191,7 +203,7 @@
       },
       getProvincialDetail() {
         let loading = this.openLoading('#table');
-        provincialDetail(this.start, this.end, this.warningType, this.level, this.rs).then(res => {
+        provincialDetail(this.start, this.end, this.warningType, this.level, this.rs, this.type).then(res => {
           this.tableData = res.data
           loading.close()
         })

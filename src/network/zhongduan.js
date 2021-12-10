@@ -49,18 +49,27 @@ export function rainstormDetail(start, end) {
 }
 
 //每日预报员评分
-// /zhongduan/dailyForecast/{start}/{end}/{fTime}
-export function dailyForecast(start, end, fTime) {
-  let url = '/zhongduan/dailyForecast/' + start + '/' + end + '/' + fTime
+// /zhongduan/dailyForecast/{start}/{end}/{fTime}/{obtType}
+export function dailyForecast(start, end, fTime, obtType) {
+  let url = '/zhongduan/dailyForecast/' + start + '/' + end + '/' + fTime + '/' + obtType
+  return request({
+    url: url
+  })
+}
+
+//每日预报员评分
+// /zhongduan/weatherPublic/{start}/{end}
+export function weatherPublic(start, end) {
+  let url = '/zhongduan/weatherPublic/' + start + '/' + end
   return request({
     url: url
   })
 }
 
 //城镇预报评分
-// /zhongduan/townForecastScore/{start}/{end}/{obtType}
-export function townForecastScore(start, end, obtType) {
-  let url = '/zhongduan/townForecastScore/' + start + '/' + end + '/' + obtType
+// /zhongduan/townForecastScore/{start}/{end}/{period}/{obtType}
+export function townForecastScore(start, end, period, obtType) {
+  let url = '/zhongduan/townForecastScore/' + start + '/' + end + '/' + period + '/' + obtType
   return request({
     url: url
   })

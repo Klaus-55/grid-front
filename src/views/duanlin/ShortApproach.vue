@@ -27,8 +27,8 @@
         items: [
           {img: require('assets/img/rain.png'), text: '降水检验', index: 'rain'},
           {img: require('assets/img/tem.png'), text: '温度检验', index: 'temp'},
-          {img: require('assets/img/ybsk.png'), text: '预报员评分检验', index: 'forecast'},
-          {img: require('assets/img/ybsk.png'), text: '值班登记', index: 'attendance'},
+          // {img: require('assets/img/ybsk.png'), text: '预报员评分检验', index: 'forecast'},
+          // {img: require('assets/img/ybsk.png'), text: '值班登记', index: 'attendance'},
         ]
       }
     },

@@ -17,11 +17,14 @@ export const warningDetailVar = `
 实况时间对应预报生效日，例如预报日期（漏报值班日期）2016-03-03，对应实况时间则为2016-03-04
 某些情况比较特殊，如暴雨预警对应发布后的24小时，10点前发布的高温对应当日实况。`
 
-export const skill = ['zhjq', 'qyjq', 'genjq', 'baoyujq', 'maxtjq', 'mintjq']
+export const skill = ['zhjq', 'qyjq', 'genjq', 'baoyujq', 'zhjsjq', 'maxtjq', 'mintjq']
 export const quality = ["qyzql","qyts","genzql","stormzql", "ljo1zql","ljo2zql",
   "ljo3zql","ljo4zql", "zhjs","tmaxozql","tmaxtzql","tminozql","tmintzql"]
 export const townQuality = ['qyzql', 'qyts', 'genzql', 'stormzql', 'tmaxozql',
   'tmaxtzql', 'tminozql', 'tmintzql', 'fj1zql', 'fj2zql',
+  'fj3zql', 'fj4zql', 'fj5zql', 'fj6zql', 'ljo1zql', 'ljo2zql',
+  'ljo3zql', 'ljo4zql', 'ljo5zql', 'ljo6zql', 'zhjs']
+export const weatherFac = ['qyzql', 'qyts', 'genzql', 'stormzql', 'fj1zql', 'fj2zql',
   'fj3zql', 'fj4zql', 'fj5zql', 'fj6zql', 'ljo1zql', 'ljo2zql',
   'ljo3zql', 'ljo4zql', 'ljo5zql', 'ljo6zql', 'zhjs']
 export const keyValue = {
@@ -29,6 +32,7 @@ export const keyValue = {
   qyjq: "晴雨（雪）预报技巧",
   genjq: "一般性降水技巧",
   baoyujq: "暴雨以上技巧",
+  zhjsjq: "综合降水技巧",
   maxtjq: "最高温度预报技巧",
   mintjq: "最低温度预报技巧",
   qyzql: "晴雨（雪）准确率",

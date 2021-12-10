@@ -30,7 +30,7 @@
           {img: require('assets/img/smg.png'), text: '雷暴检验', index: 'smg'},
           {img: require('assets/img/tw.png'), text: '雷暴大风检验', index: 'tw'},
           {img: require('assets/img/hail.png'), text: '冰雹检验', index: 'hail'},
-          {img: require('assets/img/ybsk.png'), text: '预报员评分检验', index: 'forecaster'}
+          // {img: require('assets/img/ybsk.png'), text: '预报员评分检验', index: 'forecaster'}
         ]
       }
     },
