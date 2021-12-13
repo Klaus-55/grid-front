@@ -202,11 +202,11 @@
             {label: 'fj5_pc', name: '大暴雨'},
             {label: 'fj6_pc', name: '特大暴雨'},
             {label: 'lj1_pc', name: '≥0.1mm'},
-            {label: 'lj2_pc', name: '≥3.0mm'},
-            {label: 'lj3_pc', name: '≥10.0mm'},
-            {label: 'lj4_pc', name: '≥20.0mm'},
-            {label: 'lj5_pc', name: '≥50.0mm'},
-            {label: 'lj6_pc', name: '≥70.0mm'},
+            {label: 'lj2_pc', name: '≥10.0mm'},
+            {label: 'lj3_pc', name: '≥25.0mm'},
+            {label: 'lj4_pc', name: '≥50.0mm'},
+            {label: 'lj5_pc', name: '≥100.0mm'},
+            {label: 'lj6_pc', name: '≥250.0mm'},
             {label: 'zhjs', name: '综合降水'},
           ]
         }

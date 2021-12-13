@@ -49,9 +49,9 @@ export function rainstormDetail(start, end) {
 }
 
 //每日预报员评分
-// /zhongduan/dailyForecast/{start}/{end}/{fTime}/{obtType}
-export function dailyForecast(start, end, fTime, obtType) {
-  let url = '/zhongduan/dailyForecast/' + start + '/' + end + '/' + fTime + '/' + obtType
+// /zhongduan/dailyForecast/{start}/{end}/{fTime}/{rainType}/{tempType}
+export function dailyForecast(start, end, fTime, rainType, tempType) {
+  let url = '/zhongduan/dailyForecast/' + start + '/' + end + '/' + fTime + '/' + rainType + '/' + tempType
   return request({
     url: url
   })
@@ -76,9 +76,9 @@ export function townForecastScore(start, end, period, obtType) {
 }
 
 //城镇预报员评分
-// /zhongduan/townForecasterScore/{start}/{end}/{obtType}
-export function townForecasterScore(start, end, obtType, wfsrc) {
-  let url = '/zhongduan/townForecasterScore/' + start + '/' + end + '/' + obtType + '/' + wfsrc
+// /zhongduan/townForecasterScore/{start}/{end}/{period}/{obtType}/{wfsrc}
+export function townForecasterScore(start, end, period, obtType, wfsrc) {
+  let url = '/zhongduan/townForecasterScore/' + start + '/' + end + '/' + period + '/' + obtType + '/' + wfsrc
   return request({
     url: url
   })

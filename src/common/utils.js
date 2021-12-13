@@ -22,18 +22,21 @@ export function initRadios(year) {
   for (let mon = 1; mon <= 12; mon++) {
     let obj = {}
     obj['label'] = mon + ''
-    obj['disabled'] = moment().year() <= year && mon > moment().month() + 1
+    // obj['disabled'] = moment().year() <= year && mon > moment().month() + 1
+    obj['disabled'] = false
     obj['name'] = getCapitalNumber(mon) + '月'
     radios.push(obj)
     if (mon % 3 === 0) {
       let obj = {}
       obj['label'] = 'q' + (mon / 3)
-      obj['disabled'] = moment().year() <= year && (mon / 3) >= moment().quarter()
+      // obj['disabled'] = moment().year() <= year && (mon / 3) >= moment().quarter()
+      obj['disabled'] = false
       obj['name'] = getCapitalNumber(mon / 3) + '季度'
       radios.push(obj)
     }
   }
-  radios.push({label: 'year', disabled: moment().year() <= year, name: '全年'})
+  // radios.push({label: 'year', disabled: moment().year() <= year, name: '全年'})
+  radios.push({label: 'year', disabled: false, name: '全年'})
   return radios
 }
 

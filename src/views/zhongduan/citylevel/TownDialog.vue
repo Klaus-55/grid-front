@@ -6,15 +6,21 @@
           class="pub_dialog">
     <div class="head">
       <date-picker @changeDate="changeDate" :start="start" :end="end"/>
+      <span style="margin-left: 50px">检验时段：</span>
+      <el-select v-model="period" placeholder="" @change="changePeriod">
+        <el-option
+                v-for="item in periods"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"/>
+      </el-select>
       <span style="margin-left: 50px">站点类型：</span>
       <el-select v-model="obtType" placeholder="" @change="changeObtTypes">
         <el-option
                 v-for="item in obtTypes"
                 :key="item"
                 :label="item"
-                :value="item"
-        >
-        </el-option>
+                :value="item"/>
       </el-select>
       <el-button size="mini" type="primary" @click="exportExcel" style="margin-left: 30px">导出数据表格</el-button>
     </div>
@@ -51,7 +57,7 @@
       </div>
     </div>
     <div class="town-forecast-bottom">
-      <div id="dialogContainer" style="width: 100%; height:calc(100% - 44px)"></div>
+      <div id="dialogContainer" style="width: 100%; height:100%"></div>
     </div>
     <hr>
     <h3 style="margin-bottom: 10px">预报质量评分数据表格：</h3>
@@ -103,6 +109,16 @@
         dialogTitle: this.city + '预报员成绩',
         start: '',
         end: '',
+        period: '',
+        periods: [
+          {value: '24', label: '24小时'},
+          {value: '48', label: '48小时'},
+          {value: '72', label: '72小时'},
+          {value: '96', label: '96小时'},
+          {value: '120', label: '120小时'},
+          {value: 'h72', label: '0-72小时'},
+          {value: 'h120', label: '0-120小时'},
+        ],
         obtType: '',
         obtTypes: ['S99', 'S322', 'S421', 'S1912'],
         month: '',
@@ -145,6 +161,7 @@
         let attrs = this.attrs
         this.start = attrs.start
         this.end = attrs.end
+        this.period = attrs.period
         this.obtType = attrs.obtType
         this.month = attrs.month
         this.year = attrs.year
@@ -200,7 +217,7 @@
       },
       getTownForecasterScore() {
         let loading = this.openLoading('#dialogContainer');
-        townForecasterScore(this.start, this.end, this.obtType, this.wfsrc).then(res => {
+        townForecasterScore(this.start, this.end, this.period, this.obtType, this.wfsrc).then(res => {
           this.data = res.data
           this.initEcharts()
           this.initTable()
@@ -235,8 +252,10 @@
         return {categories, series}
       },
       numToFixed(num) {
-        if (!isNaN(num) && num != null) {
+        if (!isNaN(num) && num != null && num !== -999.0) {
           return Number(num.toFixed(1))
+        } else if (num === -999.0) {
+          return NaN
         } else {
           return num
         }
@@ -309,6 +328,9 @@
           series: obj.series
         }
         HighCharts.chart('dialogContainer', options);
+      },
+      changePeriod() {
+        this.getTownForecasterScore()
       },
       changeObtTypes() {
         this.getTownForecasterScore()
@@ -404,7 +426,7 @@
     .town-forecast-middle {
       box-sizing: border-box;
       width: 100%;
-      height: 230px;
+      height: 240px;
       background-color: @bgColor;
       padding: 15px;
       margin-bottom: 20px;
@@ -519,7 +541,7 @@
 
     .town-forecast-bottom {
       box-sizing: border-box;
-      height: calc(100% - 290px);
+      height: calc(100% - 260px);
       background-color: @bgColor;
     }
   }

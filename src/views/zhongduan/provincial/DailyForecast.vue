@@ -30,12 +30,23 @@
         <el-button size="mini" type="primary" @click="exportExcel" style="margin-left: 30px">导出</el-button>
       </div>
       <hr>
-<!--      <div class="daily-forecast-middle" v-show="false">-->
-<!--        <span>评分类型：</span>-->
-<!--        <el-checkbox-group v-model="scoreType" @change="changeType">-->
-<!--          <el-checkbox v-for="(value, index) in types" :label="index" :key="index">{{value}}</el-checkbox>-->
-<!--        </el-checkbox-group>-->
-<!--      </div >-->
+      <div class="daily-forecast-middle">
+        <div class="time-period-radio">
+          <span>检验时段：</span>
+          <el-radio-group v-model="month" @change="changeTimePeriod">
+            <el-select v-model="year" @change="changeYear">
+              <el-option
+                      v-for="item in years"
+                      :key="item"
+                      :label="item + '年'"
+                      :value="item"></el-option>
+            </el-select>
+            <el-radio-button v-for="item in radios"
+                             :label="item.label"
+                             :disabled="item.disabled">{{item.name}}</el-radio-button>
+          </el-radio-group>
+        </div>
+      </div>
       <div class="daily-forecast-bottom">
         <el-table
                 id="table"
@@ -54,44 +65,13 @@
           <el-table-column label="晴雨" prop="qy"></el-table-column>
           <el-table-column label="一般性降水" prop="ybx"></el-table-column>
           <el-table-column label="暴雨及以上" prop="by"></el-table-column>
+          <el-table-column label="暴雨分级" prop="byfj"></el-table-column>
           <el-table-column label="综合降水" prop="zhjs"></el-table-column>
           <el-table-column label="最高温" prop="maxt"></el-table-column>
           <el-table-column label="最低温" prop="mint"></el-table-column>
           <el-table-column label="班次" prop="bc"></el-table-column>
-          <el-table-column label="综合" prop="zh"></el-table-column>
-<!--          <el-table-column label="S99">-->
-<!--            <el-table-column label="晴雨" prop="qy_S99"></el-table-column>-->
-<!--            <el-table-column label="一般性降水" prop="ybx_S99"></el-table-column>-->
-<!--            <el-table-column label="暴雨及以上" prop="by_S99"></el-table-column>-->
-<!--            <el-table-column label="综合降水" prop="zh_S99"></el-table-column>-->
-<!--            <el-table-column label="最高温" prop="maxt_S99"></el-table-column>-->
-<!--            <el-table-column label="最低温" prop="mint_S99"></el-table-column>-->
-<!--          </el-table-column>-->
-<!--          <el-table-column label="S322">-->
-<!--            <el-table-column label="晴雨" prop="qy_S322"></el-table-column>-->
-<!--            <el-table-column label="一般性降水" prop="ybx_S322"></el-table-column>-->
-<!--            <el-table-column label="暴雨及以上" prop="by_S322"></el-table-column>-->
-<!--            <el-table-column label="综合降水" prop="zh_S322"></el-table-column>-->
-<!--            <el-table-column label="最高温" prop="maxt_S322"></el-table-column>-->
-<!--            <el-table-column label="最低温" prop="mint_S322"></el-table-column>-->
-<!--          </el-table-column>-->
-<!--          <el-table-column label="S421">-->
-<!--            <el-table-column label="晴雨" prop="qy_S421"></el-table-column>-->
-<!--            <el-table-column label="一般性降水" prop="ybx_S421"></el-table-column>-->
-<!--            <el-table-column label="暴雨及以上" prop="by_S421"></el-table-column>-->
-<!--            <el-table-column label="综合降水" prop="zh_S421"></el-table-column>-->
-<!--            <el-table-column label="最高温" prop="maxt_S421"></el-table-column>-->
-<!--            <el-table-column label="最低温" prop="mint_S421"></el-table-column>-->
-<!--          </el-table-column>-->
-<!--          <el-table-column label="S1912">-->
-<!--            <el-table-column label="晴雨" prop="qy_S1912"></el-table-column>-->
-<!--            <el-table-column label="一般性降水" prop="ybx_S1912"></el-table-column>-->
-<!--            <el-table-column label="暴雨及以上" prop="by_S1912"></el-table-column>-->
-<!--            <el-table-column label="综合降水" prop="zh_S1912"></el-table-column>-->
-<!--            <el-table-column label="最高温" prop="maxt_S1912"></el-table-column>-->
-<!--            <el-table-column label="最低温" prop="mint_S1912"></el-table-column>-->
-<!--          </el-table-column>-->
-<!--          <el-table-column label="班次" prop="bc"></el-table-column>-->
+          <el-table-column label="实际成绩" prop="act_zh"></el-table-column>
+          <el-table-column label="百分制成绩" prop="per_zh"></el-table-column>
         </el-table>
       </div>
     </div>
@@ -104,6 +84,7 @@
   import {dailyForecast} from "../../../network/zhongduan";
   import FileSaver from "file-saver";
   import XLSX from "xlsx";
+  import {initRadios, initYears} from "../../../common/utils";
 
   export default {
     name: "DailyForecast",
@@ -112,12 +93,18 @@
     },
     data() {
       return {
-        start: moment(moment(Date.now()).add(-5,'days')).format('YYYYMMDD'),
-        end: moment(moment(Date.now())).format('YYYYMMDD'),
+        start: moment(Date.now()).startOf('month').format('YYYY-MM-DD'),
+        end: moment(Date.now()).format('YYYY-MM-DD'),
         period: '24',
         scoreType: ['qy', 'ybx', 'by', 'maxt_pc', 'mint_pc'],
         obtType: 'S1912',
         obtTypes: ['S99', 'S322', 'S421', 'S1912'],
+        rainType: 'S1912',
+        tempType: 'S421',
+        years: [],
+        year: moment().year(),
+        month: moment().month() + 1,
+        radios: [],
         types: {
           qy: '晴雨准确率',
           ybx: '一般性降水准确率',
@@ -125,32 +112,56 @@
           maxt_pc: '最高温准确率',
           mint_pc: '最低温准确率'
         },
-        tableData: []
+        tableData: [],
+        titleTime: moment().year() + '年' + (moment().month() + 1) + '月'
       }
     },
     methods: {
       changeDate(startTime, endTime) {
         this.start = moment(startTime).format("YYYYMMDD")
         this.end = moment(endTime).format("YYYYMMDD")
+        this.rainType = this.obtType
+        this.tempType = this.obtType
+        this.updateInfo('date')
         this.getDailyForecast()
       },
       changePeriod() {
         this.getDailyForecast()
       },
       changeObtTypes(val) {
+        this.rainType = val
+        this.tempType = val
         this.getDailyForecast()
       },
-      changeType(type) {
-        alert(type)
+      changeTimePeriod() {
+        this.updateInfo('month')
+        this.initObtType()
+        this.getDailyForecast()
+      },
+      changeYear(year) {
+        this.radios = initRadios(year)
+        this.updateInfo('month')
+        this.initObtType()
+        this.getDailyForecast()
       },
       getDailyForecast() {
         let loading = this.openLoading('#table');
-        dailyForecast(this.start, this.end, this.period, this.obtType).then(res => {
+        dailyForecast(this.start, this.end, this.period, this.rainType, this.tempType).then(res => {
           this.tableData = res.data
           loading.close()
         }).catch(err => {
           console.log(err)
         })
+      },
+      initObtType() {
+        let month = this.month
+        if (month == 12 || month == 1 || month == 2 || month == 'q1') {
+          this.rainType = 'S99'
+          this.tempType = 'S421'
+        } else {
+          this.rainType = 'S1912'
+          this.tempType = 'S421'
+        }
       },
       exportExcel() {
         let id = '#table'
@@ -158,7 +169,7 @@
         if (period.indexOf('h') !== -1) {
           period = period.replace('h', '0-')
         }
-        let title = this.start + '-' + this.end + '日' + period + '时评分结果.xlsx'
+        let title = this.titleTime + ' ' + period + '时评分结果.xlsx'
         /* 从表生成工作簿对象 */
         let fix = document.querySelector('.el-table__fixed');
         let wb;
@@ -188,10 +199,35 @@
           if (typeof console !== "undefined") console.log(e, wbout);
         }
         return wbout;
-      }
+      },
+      updateInfo(type) {
+        if (type === 'date') {
+          let startStr = moment(this.start).format('YYYY年M月D日');
+          let endStr = moment(this.end).format('YYYY年M月D日');
+          this.titleTime = startStr + '~' + endStr
+        } else {
+          if (this.month == 'year') {
+            this.titleTime = this.year + '年全年'
+            this.start = moment().year(this.year).month(0).startOf('month').subtract(1, 'months').format('YYYYMMDD')
+            this.end = moment().year(this.year).month(11).endOf('month').subtract(1, 'months').format('YYYYMMDD')
+          } else if ((this.month + '').indexOf('q') !== -1) {
+            this.titleTime = this.year + '年第' + this.month.charAt(this.month.length - 1) + '季度'
+            let q = parseInt(this.month.charAt(this.month.length - 1));
+            this.start = moment().year(this.year).month(q * 3 - 3).startOf('month').subtract(1, 'months').format('YYYYMMDD')
+            this.end = moment().year(this.year).month(q * 3 - 1).endOf('month').subtract(1, 'months').format('YYYYMMDD')
+          } else {
+            this.titleTime = this.year + '年' + this.month + '月'
+            this.start = moment().year(this.year).month(this.month - 1).startOf('month').format('YYYYMMDD')
+            this.end = moment().year(this.year).month(this.month - 1).endOf('month').format('YYYYMMDD')
+          }
+        }
+      },
     },
     created() {
       this.$nextTick(() => {
+        this.radios = initRadios(this.year)
+        this.years = initYears(7)
+        this.initObtType()
         this.getDailyForecast()
       })
     }
@@ -214,58 +250,55 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 60px;
-    font-size: 12px;
+    width: 100%;
+    height: 70px;
     background-color: @bgColor;
     margin-bottom: 20px;
 
-    .el-checkbox-group {
-      display: inline-block;
-      width: calc(100% - 200px);
-      box-sizing: border-box;
-      padding-left: 10px;
-    }
+    .time-period-radio {
+      .el-select {
+        vertical-align: middle;
+      }
+      .el-input__inner {
+        width: 65px;
+        height: 25px;
+        line-height: 25px;
+        font-size: 12px;
+        background-color: @bgColor;
+        border-radius: 0;
+        padding: 0 0 0 6px;
 
-    .el-checkbox {
-      color: #303133;
-      margin-right: 40px;
-    }
-
-    .el-checkbox__inner {
-      width: 11px;
-      height: 11px;
-    }
-
-    .el-checkbox__input.is-checked .el-checkbox__inner {
-      background-color: transparent;
-      border-color: #DCDFE6;
-    }
-
-    .el-checkbox__input.is-focus .el-checkbox__inner {
-      border-color: #DCDFE6;
-    }
-
-    .el-checkbox__inner::after {
-      border: 2px solid #03b452;
-      border-left: 0;
-      border-top: 0;
-      left: 2px;
-      top: -1px;
-    }
-
-    .el-checkbox__label {
-      font-size: 12px;
-      padding-left: 3px;
-    }
-
-    .el-checkbox__input.is-checked + .el-checkbox__label {
-      color: #303133;
+      }
+      .el-input__suffix {
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      .el-select .el-input .el-select__caret {
+        font-size: 12px;
+        color: @mainColor;
+      }
+      .el-input__icon {
+        width: 20px;
+        line-height: 25px;
+      }
+      .el-icon-arrow-up:before {
+        content: "\e78f";
+      }
+      .el-radio-button__inner {
+        width: 65px;
+        height: 25px;
+        line-height: 25px;
+        font-size: 12px;
+        background: @bgColor;
+        padding: 0;
+      }
     }
   }
 
   .daily-forecast-bottom {
     /*height: calc(100% - 131px);*/
-    height: calc(100% - 71px);
+    height: calc(100% - 141px);
     background-color: @bgColor;
   }
 </style>
