@@ -103,8 +103,8 @@ export function cityWarning(start, end, warningType, method) {
 }
 
 //市级预警评定详情
-export function cityDetail(start, end, department, warningType, level, rs) {
-  let url = '/duanlin/cityDetail/' + start + '/' + end + '/' + department + "/" + warningType + '/' + level + "/" + rs
+export function cityDetail(start, end, department, warningType, level, rs, type) {
+  let url = '/duanlin/cityDetail/' + start + '/' + end + '/' + department + "/" + warningType + '/' + level + "/" + rs + '/' + type
   return request({
     url
   })

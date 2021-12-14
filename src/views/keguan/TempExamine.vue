@@ -194,14 +194,14 @@
           {img: require('../../assets/img/ybsk.png'), text: '预报及实况监测', index: 'monitor'}
         ],
         isMask: false,
-        isJq: true,
+        isJq: false,
         mainTitle: '',
         subTitle: '',
         startDate: Date.now() - 24 * 60 * 60 * 1000 * 7,
         endDate: Date.now() - 24 * 60 * 60 * 1000,
         // startDate: '2021-03-01',
         // endDate: '2021-03-15',
-        jyx: 'jqpf',
+        jyx: 'fxzl',
         pickerOptions: {
           disabledDate(time) {
             return time.getTime() > Date.now()
@@ -214,7 +214,7 @@
         ybsc: 'zh',
         jysx: 1,
         jycp: 'BBBUSI',
-        jyys: 'sst',
+        jyys: 'ok2',
         isShow: true,
         switchStatus: true,
         ftime: [

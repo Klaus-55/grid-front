@@ -47,6 +47,7 @@
           </el-radio-group>
         </div>
       </div>
+<!--      <div>降水站点类型：{{rainType}};温度站点类型：{{tempType}}</div>-->
       <div class="daily-forecast-bottom">
         <el-table
                 id="table"
@@ -96,7 +97,6 @@
         start: moment(Date.now()).startOf('month').format('YYYY-MM-DD'),
         end: moment(Date.now()).format('YYYY-MM-DD'),
         period: '24',
-        scoreType: ['qy', 'ybx', 'by', 'maxt_pc', 'mint_pc'],
         obtType: 'S1912',
         obtTypes: ['S99', 'S322', 'S421', 'S1912'],
         rainType: 'S1912',

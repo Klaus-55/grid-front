@@ -57,7 +57,7 @@
               <el-radio-button
                       v-for="item in types"
                       :label="item.label"
-                      :key="item">{{item.value}}</el-radio-button>
+                      :key="item.label">{{item.value}}</el-radio-button>
             </el-radio-group>
           </el-menu-item>
         </el-menu>

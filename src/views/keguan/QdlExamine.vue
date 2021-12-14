@@ -173,7 +173,7 @@
         endDate: Date.now() - 24 * 60 * 60 * 1000,
         // startDate: '2020-04-02',
         // endDate: '2020-04-10',
-        jyx: 'jqpf',
+        jyx: 'fxzl',
         pickerOptions: {
           disabledDate(time) {
             return time.getTime() > Date.now()
@@ -187,7 +187,7 @@
         ybsc: 'zh',
         jysx: 1,
         jycp: 'BBBUSI',
-        jyys: 'spo',
+        jyys: 'pod',
         isShow: true,
         switchStatus: true,
         ftime: [
@@ -346,10 +346,10 @@
           if (this.isMonitor) this.isMonitor = !this.isMonitor
         }
         this.facname = facname
-        this.jyx = 'jqpf'
+        this.jyx = 'fxzl'
         this.ybsc = 'zh'
         this.jycp = 'BBBUSI'
-        this.jyys = 'spo'
+        this.jyys = 'pod'
         this.showType = '图表'
         if (facname === 'RAT') {
           placeName = {
