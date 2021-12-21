@@ -3,6 +3,7 @@
     <div class="content">
       <div class="head">
         <date-picker @changeDate="changeDate" :start="start" :end="end"/>
+        <el-button size="mini" type="primary" @click="getCityScore2" style="margin-left: 30px">2021临时成绩</el-button>
       </div>
       <hr>
 
@@ -84,7 +85,7 @@
   import moment from "momnet";
   import {initRadios, initYears} from "../../../common/utils";
   import {initProChart} from "../../../common/Base";
-  import {getCityScore} from "../../../network/shengji";
+  import {getCityScore, getCityScore2} from "../../../network/shengji";
 
   export default {
     name: "City",
@@ -144,6 +145,19 @@
         this.radios = initRadios(year)
         this.updateInfo('month')
         this.getCityScore()
+      },
+      getCityScore2() {
+        let loading = this.openLoading('.city-bottom');
+        getCityScore2().then(res => {
+          this.data = res.data
+          this.data.map(item => {
+            let town = this.towns.find(town => town.wfsrc === item['model']);
+            item.area = town.name
+          })
+          this.initChart()
+          this.tableData = this.data
+          loading.close()
+        })
       },
       getCityScore() {
         let loading = this.openLoading('.city-bottom');

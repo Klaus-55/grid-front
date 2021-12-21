@@ -8,6 +8,8 @@
                    type="primary"
                    @click="exportExcel"
                    style="margin-left: 30px">导出表格数据</el-button>
+
+        <el-button size="mini" type="primary" @click="getForecasterScore2" style="margin-left: 30px">2021临时成绩</el-button>
       </div>
       <hr>
 
@@ -32,7 +34,7 @@
 
       <div class="forecaster-bottom">
         <h2>{{title}}</h2>
-        <el-radio-group v-model="showType" size="mini" @change="changeType">
+        <el-radio-group v-model="showType" size="mini">
           <el-radio-button label="图表"></el-radio-button>
           <el-radio-button label="表格"></el-radio-button>
         </el-radio-group>
@@ -101,7 +103,7 @@
   import moment from "momnet";
   import {initRadios, initYears} from "../../../common/utils";
   import {exportExcelCom, initProChart} from "../../../common/Base";
-  import {getForecasterScore} from "../../../network/shengji";
+  import {getForecasterScore, getForecasterScore2} from "../../../network/shengji";
 
   export default {
     name: "CityForecaster",
@@ -146,8 +148,14 @@
         this.updateInfo('month')
         this.getForecasterScore()
       },
-      changeType() {
-
+      getForecasterScore2() {
+        let loading = this.openLoading('.forecaster-bottom');
+        getForecasterScore2().then(res => {
+          this.data = res.data
+          this.tableData = res.data
+          this.initChart()
+          loading.close()
+        })
       },
       getForecasterScore() {
         let loading = this.openLoading('.forecaster-bottom');

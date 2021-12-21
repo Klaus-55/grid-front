@@ -40,9 +40,25 @@ export function getCityScore(start, end) {
   })
 }
 
+//市级评分2
+export function getCityScore2() {
+  let url = '/provincial/getCityScore2'
+  return request({
+    url
+  })
+}
+
 //市级预报员评分
 export function getForecasterScore(start, end) {
   let url = '/provincial/getForecasterScore/' + start + '/' + end
+  return request({
+    url
+  })
+}
+
+//市级预报员评分2
+export function getForecasterScore2() {
+  let url = '/provincial/getForecasterScore2'
   return request({
     url
   })
