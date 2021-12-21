@@ -57,6 +57,15 @@ export function dailyForecast(start, end, fTime, rainType, tempType) {
   })
 }
 
+//每日预报员年度评分
+// /zhongduan/getScoreByYear/{start}/{end}/{fTime}
+export function getScoreByYear(start, end, fTime) {
+  let url = '/zhongduan/getScoreByYear/' + start + '/' + end + '/' + fTime
+  return request({
+    url: url
+  })
+}
+
 //每日预报员评分
 // /zhongduan/weatherPublic/{start}/{end}
 export function weatherPublic(start, end) {
@@ -94,9 +103,9 @@ export function modelScore(year, month, feHour, type, rtc, item) {
 }
 
 //降水检验
-// /zhongduan/rainScore/{start}/{end}/{fTime}/{type}/{wfhours}
-export function rainScore(start, end, fTime, type, wfhours) {
-  let url = '/zhongduan/rainScore/' + start + '/' + end + '/' + fTime + '/' + type + '/' + wfhours
+// /zhongduan/rainScore/{start}/{end}/{fTime}/{type}
+export function rainScore(start, end, fTime, type) {
+  let url = '/zhongduan/rainScore/' + start + '/' + end + '/' + fTime + '/' + type
   return request({
     url: url
   })

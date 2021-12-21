@@ -10,6 +10,7 @@
   // import ModelExamination from "./model/ModelExamination";
   import DailyComparision from "./provincial/DailyComparision";
   import RainExamination from "./model/RainExamination";
+  import RainExamination2 from "./model/RainExamination2";
   import TempExamination from "./model/TempExamination";
 
   export default {
@@ -19,6 +20,7 @@
       // ModelExamination,
       DailyComparision,
       RainExamination,
+      RainExamination2,
       TempExamination
     },
     data() {
@@ -27,6 +29,7 @@
           // {img: require('assets/img/tf.png'), text: '模式检验', index: 'modelExamination'},
           {img: require('assets/img/dlfc.png'), text: '每日实况预报对比', index: 'dailyComparision'},
           {img: require('assets/img/rain.png'), text: '降水检验', index: 'rainExamination'},
+          {img: require('assets/img/rain.png'), text: '降水检验', index: 'rainExamination2'},
           {img: require('assets/img/tem.png'), text: '温度检验', index: 'tempExamination'}
         ],
         conName: 'daily-comparision'
@@ -41,6 +44,8 @@
           this.conName = 'daily-comparision'
         } else if (activeName === 'rainExamination') {
           this.conName = 'rain-examination'
+        } else if (activeName === 'rainExamination2') {
+          this.conName = 'rain-examination2'
         } else if (activeName === 'tempExamination') {
           this.conName = 'temp-examination'
         }

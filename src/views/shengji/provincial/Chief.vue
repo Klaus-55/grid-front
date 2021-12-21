@@ -27,7 +27,7 @@
 
       <div class="chief-bottom">
         <h2>{{title}}</h2>
-        <div id="container" style="width: 100%; height:calc(100% - 84px)"></div>
+        <div id="chief-container" style="width: 100%; height:calc(100% - 84px)"></div>
       </div>
     </div>
   </div>
@@ -106,7 +106,7 @@
         }
       },
       getChiefScore() {
-        let loading = this.openLoading('#container');
+        let loading = this.openLoading('.chief-bottom');
         let start = moment(this.start).format('YYYYMMDD')
         let end = moment(this.end).format('YYYYMMDD')
         getChiefScore(start, end).then(res => {
@@ -137,7 +137,7 @@
         }
         chartData['categories'] = forecasters
         chartData['series'] = series
-        initProChart(chartData)
+        initProChart(chartData, 'chief-container')
       },
       numToFixed(num) {
         if (!isNaN(num) && num != null && num !== -999.0) {

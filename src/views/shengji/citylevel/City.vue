@@ -6,7 +6,7 @@
       </div>
       <hr>
 
-      <div class="chief-middle">
+      <div class="city-middle">
         <div class="time-period-radio">
           <span>检验时段：</span>
           <el-radio-group v-model="month" @change="changeTimePeriod">
@@ -25,9 +25,55 @@
         </div>
       </div>
 
-      <div class="chief-bottom">
+      <div class="city-bottom">
         <h2>{{title}}</h2>
-        <div id="container" style="width: 100%; height:calc(100% - 84px)"></div>
+        <el-radio-group v-model="showType" size="mini">
+          <el-radio-button label="图表"></el-radio-button>
+          <el-radio-button label="表格"></el-radio-button>
+        </el-radio-group>
+        <div id="city-container" style="width: 100%; height:calc(100% - 104px)" v-show="showType === '图表'"></div>
+        <el-table
+                id="table"
+                v-show="showType === '表格'"
+                :data="tableData"
+                border
+                class="table-fixed"
+                height="calc(100% - 140px)"
+                style="width: calc(100% - 50px); margin: 0 auto; transform: translateY(10px)"
+                :header-cell-style="{'text-align': 'center'}">
+          <el-table-column
+                  prop="area"
+                  label="地市"
+                  align="center"/>
+          <el-table-column
+                  prop="warning"
+                  label="预警信号(实际成绩)"
+                  align="center"/>
+          <el-table-column
+                  prop="zhzl"
+                  label="网格预报TS(实际成绩)"
+                  align="center"/>
+          <el-table-column
+                  prop="zhjq"
+                  label="网格预报技巧(实际成绩)"
+                  align="center"/>
+          <el-table-column
+                  prop="warning_per"
+                  label="预警信号(百分制成绩)"
+                  align="center"/>
+          <el-table-column
+                  prop="zhzl_per"
+                  label="网格预报TS(百分制成绩)"
+                  align="center"/>
+          <el-table-column
+                  prop="zhjq_per"
+                  label="网格预报技巧(百分制成绩)"
+                  align="center"/>
+          <el-table-column
+                  prop="zh"
+                  label="综合成绩"
+                  align="center"/>
+        </el-table>
       </div>
     </div>
   </div>
@@ -55,11 +101,14 @@
         radios: [],
         titleTime: moment().year() + '年' + (moment().month() + 1) + '月',
         data: {},
-        objArr: ['zh', 'zhjq', 'zhzl'],
+        tableData: [],
+        showType: "图表",
+        objArr: ['zh', 'warning_per', 'zhzl_per', 'zhjq_per'],
         obj: {
           zh: '综合',
-          zhjq: '综合技巧',
-          zhzl: '综合质量',
+          warning_per: '预警信号',
+          zhzl_per: '综合质量',
+          zhjq_per: '综合技巧',
         },
         towns: [
           {wfsrc: 'BECS', name: '湖南省'},
@@ -97,13 +146,18 @@
         this.getCityScore()
       },
       getCityScore() {
-        let loading = this.openLoading('#container');
+        let loading = this.openLoading('.city-bottom');
         let {start, end} = this
         start = moment(start).format('YYYYMMDD')
         end = moment(end).format('YYYYMMDD')
         getCityScore(start, end).then(res => {
           this.data = res.data
+          this.data.map(item => {
+            let town = this.towns.find(town => town.wfsrc === item['model']);
+            item.area = town.name
+          })
           this.initChart()
+          this.tableData = this.data
           loading.close()
         })
       },
@@ -131,7 +185,7 @@
         }
         chartData['categories'] = categories
         chartData['series'] = series
-        initProChart(chartData)
+        initProChart(chartData, 'city-container')
       },
       numToFixed(num) {
         if (!isNaN(num) && num != null && num !== -999.0) {
@@ -183,6 +237,111 @@
   }
 </script>
 
-<style scoped>
+<style lang="less">
+  @import "../../../assets/less/common";
+  .city-middle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 70px;
+    background-color: @bgColor;
+    margin-bottom: 20px;
 
+    .time-period-radio {
+      .el-select {
+        vertical-align: middle;
+      }
+      .el-input__inner {
+        width: 65px;
+        height: 25px;
+        line-height: 25px;
+        font-size: 12px;
+        background-color: @bgColor;
+        border-radius: 0;
+        padding: 0 0 0 6px;
+
+      }
+      .el-input__suffix {
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      .el-select .el-input .el-select__caret {
+        font-size: 12px;
+        color: @mainColor;
+      }
+      .el-input__icon {
+        width: 20px;
+        line-height: 25px;
+      }
+      .el-icon-arrow-up:before {
+        content: "\e78f";
+      }
+      .el-radio-button__inner {
+        width: 65px;
+        height: 25px;
+        line-height: 25px;
+        font-size: 12px;
+        background: @bgColor;
+        padding: 0;
+      }
+      .el-radio-button__orig-radio:checked + .el-radio-button__inner {
+        background-color: @mainColor
+      }
+    }
+  }
+  .city-bottom {
+    box-sizing: border-box;
+    width: 100%;
+    height: calc(100% - 150px);
+    background-color: @bgColor;
+    padding-top: 10px;
+    h2 {
+      font-size: 1.3em;
+      padding-top: 30px;
+      text-align: center;
+    }
+
+    .el-radio-group {
+      margin-left: 0 !important;
+      float: right;
+      margin-right: 10px;
+      margin-top: 10px;
+      background-color: #dfdfdf;
+      border-radius: 12px;
+    }
+
+    .el-radio-button__inner {
+      background-color: transparent;
+      border: none;
+    }
+
+    .el-radio-button--mini .el-radio-button__inner {
+      padding: 5px 13px;
+    }
+
+    .el-radio-button:first-child .el-radio-button__inner {
+      border-radius: 12px 0 0 12px;
+      border-left: none;
+    }
+
+    .el-radio-button:last-child .el-radio-button__inner {
+      border-radius: 0 12px 12px 0;
+    }
+
+    .el-radio-button__orig-radio:checked + .el-radio-button__inner {
+      box-shadow: none;
+      background-color: #49afcd;
+      border-radius: 12px 12px 12px 12px;
+    }
+
+    .el-radio-button__orig-radio:checked + .el-radio-button__inner:hover {
+      color: #fff;
+    }
+
+    .el-radio-button__inner:hover {
+      color: #49afcd;
+    }
+  }
 </style>

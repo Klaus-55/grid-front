@@ -27,7 +27,7 @@
 
       <div class="chief-bottom">
         <h2>{{title}}</h2>
-        <div id="container" style="width: 100%; height:calc(100% - 84px)"></div>
+        <div id="foreman-container" style="width: 100%; height:calc(100% - 84px)"></div>
       </div>
     </div>
   </div>
@@ -80,7 +80,7 @@
         this.getForemanScore()
       },
       getForemanScore() {
-        let loading = this.openLoading('#container');
+        let loading = this.openLoading('.chief-bottom');
         let start = moment(this.start).format('YYYYMMDD')
         let end = moment(this.end).format('YYYYMMDD')
         getForemanScore(start, end).then(res => {
@@ -110,7 +110,7 @@
         }
         chartData['categories'] = forecasters
         chartData['series'] = series
-        initProChart(chartData)
+        initProChart(chartData, 'foreman-container')
       },
       numToFixed(num) {
         if (!isNaN(num) && num != null && num !== -999.0) {

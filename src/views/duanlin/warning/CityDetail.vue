@@ -75,16 +75,16 @@
             <el-table-column prop="warningtype" label="预警类型" min-width="1"/>
             <el-table-column prop="level" label="预警等级" min-width="1"/>
             <el-table-column prop="area" label="受影响地市" min-width="1"/>
+            <el-table-column prop="district" label="受影响县" min-width="1"/>
           </el-table-column>
           <el-table-column label="实况预警信号">
-            <el-table-column prop="district" label="受影响县" min-width="1"/>
             <el-table-column prop="facttype" label="类型" min-width="1"/>
             <el-table-column prop="factlevel" label="等级" min-width="1"/>
             <el-table-column prop="occtime" label="发生时间" min-width="2"/>
             <el-table-column prop="farea" label="受影响地市" min-width="1"/>
+            <el-table-column prop="fdistrict" label="受影响县" min-width="1"/>
           </el-table-column>
           <el-table-column label="评定结果">
-            <el-table-column prop="fdistrict" label="受影响县" min-width="1"/>
             <el-table-column
                     prop="leadtime_bfj"
                     label="不分级提前量/分钟"

@@ -82,7 +82,7 @@
 <script>
   import DatePicker from "../../../components/content/DatePicker2";
   import moment from "momnet";
-  import {dailyForecast} from "../../../network/zhongduan";
+  import {dailyForecast, getScoreByYear} from "../../../network/zhongduan";
   import FileSaver from "file-saver";
   import XLSX from "xlsx";
   import {initRadios, initYears} from "../../../common/utils";
@@ -126,7 +126,11 @@
         this.getDailyForecast()
       },
       changePeriod() {
-        this.getDailyForecast()
+        if (this.month == 'year') {
+          this.getScoreByYear()
+        } else {
+          this.getDailyForecast()
+        }
       },
       changeObtTypes(val) {
         this.rainType = val
@@ -136,17 +140,34 @@
       changeTimePeriod() {
         this.updateInfo('month')
         this.initObtType()
-        this.getDailyForecast()
+        if (this.month == 'year') {
+          this.getScoreByYear()
+        } else {
+          this.getDailyForecast()
+        }
       },
       changeYear(year) {
         this.radios = initRadios(year)
         this.updateInfo('month')
         this.initObtType()
-        this.getDailyForecast()
+        if (this.month == 'year') {
+          this.getScoreByYear()
+        } else {
+          this.getDailyForecast()
+        }
       },
       getDailyForecast() {
         let loading = this.openLoading('#table');
         dailyForecast(this.start, this.end, this.period, this.rainType, this.tempType).then(res => {
+          this.tableData = res.data
+          loading.close()
+        }).catch(err => {
+          console.log(err)
+        })
+      },
+      getScoreByYear() {
+        let loading = this.openLoading('#table');
+        getScoreByYear(this.start, this.end, this.period).then(res => {
           this.tableData = res.data
           loading.close()
         }).catch(err => {

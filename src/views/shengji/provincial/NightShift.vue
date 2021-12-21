@@ -27,7 +27,7 @@
 
       <div class="chief-bottom">
         <h2>{{title}}</h2>
-        <div id="container" style="width: 100%; height:calc(100% - 84px)"></div>
+        <div id="night-container" style="width: 100%; height:calc(100% - 84px)"></div>
       </div>
     </div>
   </div>
@@ -80,7 +80,7 @@
         this.getNightShiftScore()
       },
       getNightShiftScore() {
-        let loading = this.openLoading('#container');
+        let loading = this.openLoading('.chief-bottom');
         let start = moment(this.start).format('YYYYMMDD')
         let end = moment(this.end).format('YYYYMMDD')
         getNightShiftScore(start, end).then(res => {
@@ -110,7 +110,7 @@
         }
         chartData['categories'] = forecasters
         chartData['series'] = series
-        initProChart(chartData)
+        initProChart(chartData, 'night-container')
       },
       numToFixed(num) {
         if (!isNaN(num) && num != null && num !== -999.0) {
@@ -156,7 +156,6 @@
       this.$nextTick(() => {
         this.radios = initRadios(this.year)
         this.years = initYears(7)
-        initProChart(this.data)
         this.getNightShiftScore()
       })
     }

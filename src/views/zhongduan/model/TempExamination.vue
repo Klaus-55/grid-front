@@ -16,7 +16,7 @@
       </div>
       <hr>
 
-      <div class="rain-examine-middle">
+      <div class="model-examine-middle">
         <el-menu mode="horizontal">
           <el-menu-item>
             <span>预报时次：</span>
@@ -72,7 +72,7 @@
         </el-menu>
       </div>
 
-      <div class="rain-examine-bottom">
+      <div class="model-examine-bottom">
         <div class="highcharts-title">
           <div class="maintitle">{{mainTitle}}</div>
           <div class="subtitle">{{subtitle}}</div>
@@ -475,7 +475,7 @@
 <style lang="less">
   @import "../../../assets/less/common";
 
-  .rain-examine-middle {
+  .model-examine-middle {
     background-color: @bgColor;
     height: 142px;
     margin-bottom: 20px;
@@ -620,7 +620,7 @@
     }
   }
 
-  .rain-examine-bottom {
+  .model-examine-bottom {
     height: calc(100% - 213px);
     background-color: @bgColor;
 

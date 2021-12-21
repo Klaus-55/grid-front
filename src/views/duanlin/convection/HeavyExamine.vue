@@ -28,6 +28,7 @@
             <span style="vertical-align: top">检验时段：</span>
             <div class="heavy-examine border-content">
               <el-checkbox-group v-model="fhour" class="heavy-examine-group" @change="changeFhour">
+                <el-checkbox label="000">综合</el-checkbox>
                 <el-checkbox label="006">0~6小时</el-checkbox>
                 <el-checkbox label="012">6~12小时</el-checkbox>
               </el-checkbox-group>
@@ -69,7 +70,7 @@
         end: moment(Date.now()).subtract(1, 'd').format('YYYY-MM-DD'),
         ftime: "zh",
         facname: "ts",
-        fhour: ["006", "012"],
+        fhour: ["000", "006", "012"],
         data: [],
         mainTitle: '',
         subtitle: ''
@@ -86,7 +87,11 @@
         let series = []
         for (let i = 0; i < fhour.length; i++) {
           let seriesItem = {}
-          seriesItem.name = (Number(fhour[i]) - 6) + '-' + Number(fhour[i])
+          if (fhour[i] === '000') {
+            seriesItem.name = '综合'
+          } else {
+            seriesItem.name = (Number(fhour[i]) - 6) + '-' + Number(fhour[i])
+          }
           let seriesData = []
           for (let j = 0; j < categories.length; j++) {
             for (let k = 0; k < data.length; k++) {
@@ -221,7 +226,7 @@
 <style lang="less">
   .rain-examine-middle {
     .heavy-examine {
-      width: 15% !important;
+      width: 23% !important;
       .heavy-examine-group {
         margin-left: 0.5rem !important;
       }

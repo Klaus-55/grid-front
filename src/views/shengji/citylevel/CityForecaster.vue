@@ -3,6 +3,11 @@
     <div class="content">
       <div class="head">
         <date-picker @changeDate="changeDate" :start="start" :end="end"/>
+        <el-button v-show="showType === '表格'"
+                   size="mini"
+                   type="primary"
+                   @click="exportExcel"
+                   style="margin-left: 30px">导出表格数据</el-button>
       </div>
       <hr>
 
@@ -31,8 +36,9 @@
           <el-radio-button label="图表"></el-radio-button>
           <el-radio-button label="表格"></el-radio-button>
         </el-radio-group>
-        <div id="container" style="width: 100%; height:calc(100% - 84px)" v-show="showType === '图表'"></div>
+        <div id="cityFore-container" style="width: 100%; height:calc(100% - 84px)" v-show="showType === '图表'"></div>
         <el-table
+                id="table"
                 v-show="showType === '表格'"
                 :data="tableData"
                 border
@@ -43,12 +49,47 @@
           <el-table-column
                   prop="forecaster"
                   label="预报员"
-                  align="center"></el-table-column>
+                  align="center"/>
           <el-table-column
-                  v-for="item in objArr"
-                  :prop="item"
-                  :label="obj[item]"
-                  align="center"></el-table-column>
+                  prop="area"
+                  label="地市"
+                  align="center"/>
+          <el-table-column
+                  prop="warning"
+                  label="预警信号(实际成绩)"
+                  align="center"/>
+          <el-table-column
+                  prop="zhzl"
+                  label="网格预报TS(实际成绩)"
+                  align="center"/>
+          <el-table-column
+                  prop="zhjq"
+                  label="网格预报技巧(实际成绩)"
+                  align="center"/>
+          <el-table-column
+                  prop="warning_per"
+                  label="预警信号(百分制成绩)"
+                  align="center"/>
+          <el-table-column
+                  prop="zhzl_per"
+                  label="网格预报TS(百分制成绩)"
+                  align="center"/>
+          <el-table-column
+                  prop="zhjq_per"
+                  label="网格预报技巧(百分制成绩)"
+                  align="center"/>
+          <el-table-column
+                  prop="bc"
+                  label="班次"
+                  align="center"/>
+          <el-table-column
+                  prop="zh"
+                  label="综合成绩"
+                  align="center"/>
+          <el-table-column
+                  prop="pm"
+                  label="排名"
+                  align="center"/>
         </el-table>
       </div>
     </div>
@@ -59,7 +100,7 @@
   import DatePicker from "../../../components/content/DatePicker2";
   import moment from "momnet";
   import {initRadios, initYears} from "../../../common/utils";
-  import {initProChart} from "../../../common/Base";
+  import {exportExcelCom, initProChart} from "../../../common/Base";
   import {getForecasterScore} from "../../../network/shengji";
 
   export default {
@@ -79,11 +120,13 @@
         data: {},
         tableData: [],
         showType: "图表",
-        objArr: ['zh', 'zhjq', 'zhzl'],
+        objArr: ['zh', 'warning_per', 'zhzl_per', 'zhjq_per'],
+        // tableArr: ['forecaster', 'area', 'warning_per', 'zhzl_per', 'zhjq_per', 'warning', 'zhjq', 'zhzl', 'bc', 'zh', 'pm'],
         obj: {
           zh: '综合',
-          zhjq: '综合技巧',
-          zhzl: '综合质量',
+          warning_per: '预警信号',
+          zhjq_per: '综合技巧',
+          zhzl_per: '综合质量',
         }
       }
     },
@@ -115,26 +158,35 @@
           loading.close()
         })
       },
+      exportExcel() {
+        let id = '#table'
+        let title = this.start + '至' + this.end + '日' + '市级预报员成绩.xlsx'
+        return exportExcelCom(document, id, title)
+      },
       initChart() {
         let chartData = {}
         let {data, objArr, obj} = this
         let forecasters = []
+        let categories = []
         let series = []
-        data.map(item => forecasters.push(item['forecaster']))
+        data.map(item => {
+          forecasters.push(item['forecaster'] + '_' + item['area'])
+          categories.push(item['forecaster'])
+        })
         for (let item of objArr) {
           let seriesItem = {}
           seriesItem.name = obj[item]
           let seriesData = []
           for (let forecaster of forecasters) {
-            let rs = data.find(item => item['forecaster'] === forecaster);
+            let rs = data.find(item => item['forecaster'] + '_' + item['area'] === forecaster);
             seriesData.push(this.numToFixed(rs[item]))
           }
           seriesItem.data = seriesData
           series.push(seriesItem)
         }
-        chartData['categories'] = forecasters
+        chartData['categories'] = categories
         chartData['series'] = series
-        initProChart(chartData)
+        initProChart(chartData, 'cityFore-container')
       },
       numToFixed(num) {
         if (!isNaN(num) && num != null && num !== -999.0) {

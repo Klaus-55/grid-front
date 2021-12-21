@@ -46,13 +46,6 @@
               <el-radio-button v-for="fac in factories" :label="fac.label">{{fac.name}}</el-radio-button>
             </el-radio-group>
           </el-menu-item>
-<!--          <el-menu-item>-->
-<!--            <span>检验时段：</span>-->
-<!--            <el-radio-group v-model="wfhours" @change="changeWfhours">-->
-<!--              <el-radio-button label="72">0~72小时</el-radio-button>-->
-<!--              <el-radio-button label="120">0~120小时</el-radio-button>-->
-<!--            </el-radio-group>-->
-<!--          </el-menu-item>-->
           <el-menu-item>
             <span style="vertical-align: top">检验时段：</span>
             <div class="border-content">
@@ -87,7 +80,7 @@
               <el-radio-button label="表格"></el-radio-button>
             </el-radio-group>
             <div
-                    id="model-rain-container"
+                    id="model-rain-container2"
                     class="container"
                     style="width: 100%; height: calc(100% - 50px)"
                     v-show="showType === '图表'"></div>
@@ -124,11 +117,13 @@
 <script>
   import DatePicker from "../../../components/content/DatePicker2";
   import moment from "momnet";
+  import HighchartsNoData from "highcharts/modules/no-data-to-display";
+  import Highcharts from "highcharts";
   import {rainScore} from "../../../network/zhongduan";
   import {exportExcelCom, renderModelChart} from "../../../common/Base";
 
   export default {
-    name: "RainExamination",
+    name: "RainExamination2",
     components: {
       DatePicker
     },
@@ -168,7 +163,6 @@
         activeText: '0~72小时',
         fhour: [0, 24, 48, 72],
         ftimeView: [0, 24, 48, 72],
-        wfhours: '72',
         mainTitle: '',
         subtitle: '',
         models: [],
@@ -220,7 +214,6 @@
           ]
         }
         this.updateTitle()
-        this.initModels()
         this.initEcharts()
       },
       changeFtime() {
@@ -237,20 +230,6 @@
         let id = '#table'
         let title = this.start + '至' + this.end + '日' + '降水检验.xlsx'
         return exportExcelCom(document, id, title)
-      },
-      changeWfhours(wfhours) {
-        this.fhour = []
-        this.ftimeView = []
-        this.activeText = '0~' + wfhours + '小时'
-        let fhours = Number(wfhours)
-        let fhourArr = []
-        fhourArr.push(0)
-        for (let fhour = 24; fhour <= fhours; fhour += 24) {
-          fhourArr.push(fhour)
-        }
-        this.fhour.push(...fhourArr)
-        this.ftimeView.push(...fhourArr)
-        this.getRainScore()
       },
       switchChange(val) {
         if (val) {
@@ -288,7 +267,18 @@
           return
         }
         let obj = this.initEchData();
-        renderModelChart(obj, this.mainTitle, this.subtitle, 'model-rain-container')
+        obj.categories = ['202110010800', '202110012000', '202110020800', '202110022000', '202110030800', '202110032000']
+        obj.series = [
+          {
+            name: '中央台',
+            data: [80.4, 81.9, 81.3, 78.1, 77.9, 75.8]
+          },
+          {
+            name: '地市融合',
+            data: [77.8, 79.6, 77.9, 75.8, 81.3, 78.1]
+          }
+        ]
+        renderModelChart(obj, this.mainTitle, this.subtitle, 'model-rain-container2')
       },
       initEchData() {
         let {fhour, models, modelOptions, facname, data} = this
@@ -349,6 +339,7 @@
             modelOptions.push(modelOption)
           }
         }
+
         this.models = models
         this.modelOptions = modelOptions
       },
@@ -425,7 +416,7 @@
 <style lang="less">
   @import "../../../assets/less/common";
 
-  .model-examine-middle {
+  .model-examine-bottom {
     background-color: @bgColor;
     height: 142px;
     margin-bottom: 20px;

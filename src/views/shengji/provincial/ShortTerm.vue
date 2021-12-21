@@ -27,7 +27,7 @@
 
       <div class="chief-bottom">
         <h2>{{title}}</h2>
-        <div id="container" style="width: 100%; height:calc(100% - 84px)"></div>
+        <div id="short-container" style="width: 100%; height:calc(100% - 84px)"></div>
       </div>
     </div>
   </div>
@@ -81,7 +81,7 @@
         this.getShortTermScore()
       },
       getShortTermScore() {
-        let loading = this.openLoading('#container');
+        let loading = this.openLoading('.chief-bottom');
         getShortTermScore(this.start, this.end).then(res => {
           this.data = res.data
           this.initChart()
@@ -109,7 +109,7 @@
         }
         chartData['categories'] = forecasters
         chartData['series'] = series
-        initProChart(chartData)
+        initProChart(chartData, 'short-container')
       },
       updateInfo(type) {
         if (type === 'date') {
