@@ -11,6 +11,7 @@
   import Foreman from "./provincial/Foreman";
   import NightShift from "./provincial/NightShift";
   import ShortTerm from "./provincial/ShortTerm";
+  import Objective from "./provincial/Objective";
 
   export default {
     name: "Provincial",
@@ -19,7 +20,8 @@
       Chief,
       Foreman,
       NightShift,
-      ShortTerm
+      ShortTerm,
+      Objective
     },
     data() {
       return {
@@ -28,6 +30,7 @@
           {img: require('assets/img/ybsk.png'), text: '中短期领班预报员', index: 'foreman'},
           {img: require('assets/img/ybsk.png'), text: '中短期夜班预报员', index: 'nightShift'},
           {img: require('assets/img/ybsk.png'), text: '短临岗预报员', index: 'shortTerm'},
+          {img: require('assets/img/ybsk.png'), text: '客观预报岗', index: 'objective'},
         ],
         conName: 'chief'
       }
@@ -42,6 +45,8 @@
           this.conName = 'night-shift'
         } else if (activeName === 'shortTerm') { //短临岗预报员
           this.conName = 'short-term'
+        } else if (activeName === 'objective') { //客观预报岗
+          this.conName = 'objective'
         }
       }
     }

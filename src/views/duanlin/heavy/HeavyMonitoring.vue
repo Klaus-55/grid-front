@@ -1,27 +1,25 @@
 <template>
-  <div class="body-content">
-    <side-bar :items="items"/>
-    <div class="side-content">
-      <div class="content">
-        <div class="head">
-          <date-picker @changeDate="changeDate" :start="start" :end="end"/>
-        </div>
-        <hr/>
-        <div class="rain-examine-middle">
-          <el-menu mode="horizontal">
-            <el-menu-item>
-              <span>检验指标：</span>
-              <el-radio-group v-model="defIndicator" @change="changeIndicator">
-                <el-radio-button
-                        v-for="item in indItems"
-                        :key="item.label"
-                        :label="item.label"
-                        :value="item.value"
-                >{{ item.value }}
-                </el-radio-button
-                >
-              </el-radio-group>
-            </el-menu-item>
+  <div class="side-content">
+    <div class="content">
+      <div class="head">
+        <date-picker @changeDate="changeDate" :start="start" :end="end"/>
+      </div>
+      <hr/>
+      <div class="rain-examine-middle">
+        <el-menu mode="horizontal">
+          <el-menu-item>
+            <span>检验指标：</span>
+            <el-radio-group v-model="defIndicator" @change="changeIndicator">
+              <el-radio-button
+                      v-for="item in indItems"
+                      :key="item.label"
+                      :label="item.label"
+                      :value="item.value"
+              >{{ item.value }}
+              </el-radio-button
+              >
+            </el-radio-group>
+          </el-menu-item>
 <!--            <el-menu-item>-->
 <!--              <span>地区级别：</span>-->
 <!--              <el-radio-group v-model="defLevel">-->
@@ -35,41 +33,40 @@
 <!--                >-->
 <!--              </el-radio-group>-->
 <!--            </el-menu-item>-->
-          </el-menu>
-          <el-menu mode="horizontal" class="heavyelmenu">
-            <el-menu-item>
-              <span>检验时段：</span>
-              <el-radio-group v-model="month" @change="changeTimePeriod">
-                <el-select v-model="year" @change="changeYear">
-                  <el-option
-                          v-for="item in years"
-                          :key="item"
-                          :label="item + '年'"
-                          :value="item"></el-option>
-                </el-select>
-                <el-radio-button v-for="item in radios"
-                                 :label="item.label"
-                                 :disabled="item.disabled">{{item.name}}</el-radio-button>>
-              </el-radio-group>
-            </el-menu-item>
-          </el-menu>
-        </div>
-        <div class="nav-bottom rain-examine-bottom">
-          <div id="map"></div>
-          <div class="rain-examine-bottom-right">
-            <span class="tableTitle">{{ "湖南省" + titleTime + "强降水监测警报质量" }}</span>
-            <el-table
-                    :data="tableData"
-                    border
-                    height="94%">
-              <el-table-column
-                      v-for="item in tableHeader"
-                      :prop="item.prop"
-                      :label="item.label"
-                      align="center"
-                      min-width="1"></el-table-column>
-            </el-table>
-          </div>
+        </el-menu>
+        <el-menu mode="horizontal" class="heavyelmenu">
+          <el-menu-item>
+            <span>检验时段：</span>
+            <el-radio-group v-model="month" @change="changeTimePeriod">
+              <el-select v-model="year" @change="changeYear">
+                <el-option
+                        v-for="item in years"
+                        :key="item"
+                        :label="item + '年'"
+                        :value="item"></el-option>
+              </el-select>
+              <el-radio-button v-for="item in radios"
+                               :label="item.label"
+                               :disabled="item.disabled">{{item.name}}</el-radio-button>>
+            </el-radio-group>
+          </el-menu-item>
+        </el-menu>
+      </div>
+      <div class="nav-bottom rain-examine-bottom">
+        <div id="map"></div>
+        <div class="rain-examine-bottom-right">
+          <span class="tableTitle">{{ "湖南省" + titleTime + "强降水监测警报质量" }}</span>
+          <el-table
+                  :data="tableData"
+                  border
+                  height="94%">
+            <el-table-column
+                    v-for="item in tableHeader"
+                    :prop="item.prop"
+                    :label="item.label"
+                    align="center"
+                    min-width="1"></el-table-column>
+          </el-table>
         </div>
       </div>
     </div>
@@ -77,30 +74,20 @@
 </template>
 
 <script>
-  import MenuList from "../../components/menu/MenuList";
-  import DatePicker from "../../components/content/DatePicker2";
+  import DatePicker from "../../../components/content/DatePicker2";
   import moment from "momnet";
-  import {initRadios, initYears} from "../../common/utils";
+  import {initRadios, initYears} from "../../../common/utils";
   import * as L from "leaflet";
-  import data from "../../assets/js/hunan";
-  import {heavyRainMonitor} from "../../network/duanlin";
+  import data from "../../../assets/js/hunan";
+  import {heavyRainMonitor} from "../../../network/duanlin";
 
   export default {
     name: "HeavyMonitoring",
     components: {
-      "side-bar": MenuList,
       DatePicker,
     },
     data() {
       return {
-        conName: "provincial-warning",
-        items: [
-          {
-            img: require("assets/img/wms.png"),
-            text: "强降水监测警报",
-            index: "pw",
-          },
-        ],
         defIndicator: "ts",
         indItems: [
           {label: "ts", value: "TS评分"},
@@ -313,7 +300,7 @@
 </script>
 
 <style lang="less">
-  @import "../../assets/less/common";
+  @import "../../../assets/less/common";
 
   .heavyelmenu {
     .el-select {

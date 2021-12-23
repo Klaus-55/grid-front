@@ -29,14 +29,14 @@
   import ShortApproach from "./ShortApproach";
   import StrongConvection from "./StrongConvection";
   import DisasterWarning from "./DisasterWarning";
-  import HeavyMonitoring from "./HeavyMonitoring";
+  import HeavyPre from "./HeavyPre";
   export default {
     name: "HeadMenu",
     components: {
       ShortApproach,
       StrongConvection,
       DisasterWarning,
-      HeavyMonitoring
+      HeavyPre
     },
     data() {
       return {
@@ -52,7 +52,7 @@
         } else if (val === 'warning') {
           this.conName = 'disaster-warning'
         } else {
-          this.conName = 'heavy-monitoring'
+          this.conName = 'heavy-pre'
         }
       }
     }

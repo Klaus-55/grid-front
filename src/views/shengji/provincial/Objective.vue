@@ -27,7 +27,7 @@
 
       <div class="chief-bottom">
         <h2>{{title}}</h2>
-        <div id="chief-container" style="width: 100%; height:calc(100% - 84px)"></div>
+        <div id="obj-container" style="width: 100%; height:calc(100% - 84px)"></div>
       </div>
     </div>
   </div>
@@ -38,10 +38,10 @@
   import moment from "momnet";
   import {initRadios, initYears} from "../../../common/utils";
   import {initProChart} from "../../../common/Base";
-  import {getChiefScore} from "../../../network/shengji";
+  import {getObjectiveScore} from "../../../network/shengji";
 
   export default {
-    name: "Chief",
+    name: "Objective",
     components: {
       DatePicker
     },
@@ -55,12 +55,13 @@
         radios: [],
         titleTime: moment().year() + '年' + (moment().month() + 1) + '月',
         data: {},
-        objArr: ['zh', 'warning', 'public', 'rain'],
+        objArr: ['zh', 'zhjs', 'qy', 'maxt', 'mint'],
         obj: {
           zh: '综合',
-          warning: '预警消息',
-          public: '天气公报',
-          rain: '降水过程',
+          zhjs: '综合降水',
+          qy: '晴雨',
+          maxt: '最高温',
+          mint: '最低温',
         }
       }
     },
@@ -69,16 +70,16 @@
         this.start = moment(startTime).format("YYYY-MM-DD")
         this.end = moment(endTime).format("YYYY-MM-DD")
         this.updateInfo('date')
-        this.getChiefScore()
+        this.getObjectiveScore()
       },
       changeTimePeriod() {
         this.updateInfo('month')
-        this.getChiefScore()
+        this.getObjectiveScore()
       },
       changeYear(year) {
         this.radios = initRadios(year)
         this.updateInfo('month')
-        this.getChiefScore()
+        this.getObjectiveScore()
       },
       updateInfo(type) {
         if (type === 'date') {
@@ -105,11 +106,11 @@
           }
         }
       },
-      getChiefScore() {
+      getObjectiveScore() {
         let loading = this.openLoading('.chief-bottom');
         let start = moment(this.start).format('YYYYMMDD')
         let end = moment(this.end).format('YYYYMMDD')
-        getChiefScore(start, end).then(res => {
+        getObjectiveScore(start, end).then(res => {
           this.data = res.data
           this.initChart()
           loading.close()
@@ -120,23 +121,18 @@
       initChart() {
         let chartData = {}
         let {data, objArr, obj} = this
-        let forecasters = []
         let series = []
-        data.map(item => forecasters.push(item['forecaster']))
         for (let item of objArr) {
           let seriesItem = {}
           seriesItem.name = obj[item]
           let seriesData = []
-          for (let forecaster of forecasters) {
-            let rs = data.find(item => item['forecaster'] === forecaster);
-            seriesData.push(this.numToFixed(rs[item]))
-          }
+          seriesData.push(this.numToFixed(data[item]))
           seriesItem.data = seriesData
           series.push(seriesItem)
         }
-        chartData['categories'] = forecasters
+        chartData['categories'] = ['客观预报岗']
         chartData['series'] = series
-        initProChart(chartData, 'chief-container')
+        initProChart(chartData, 'obj-container')
       },
       numToFixed(num) {
         if (!isNaN(num) && num != null && num !== -999.0) {
@@ -150,81 +146,19 @@
     },
     computed: {
       title() {
-        return this.titleTime + '首席岗预报员评分'
+        return this.titleTime + '客观预报岗评分'
       }
     },
     created() {
       this.$nextTick(() => {
         this.radios = initRadios(this.year)
         this.years = initYears(7)
-        this.getChiefScore()
+        this.getObjectiveScore()
       })
     }
   }
 </script>
 
-<style lang="less">
-  @import "../../../assets/less/common";
-  .chief-middle {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 70px;
-    background-color: @bgColor;
-    margin-bottom: 20px;
+<style scoped>
 
-    .time-period-radio {
-      .el-select {
-        vertical-align: middle;
-      }
-      .el-input__inner {
-        width: 65px;
-        height: 25px;
-        line-height: 25px;
-        font-size: 12px;
-        background-color: @bgColor;
-        border-radius: 0;
-        padding: 0 0 0 6px;
-
-      }
-      .el-input__suffix {
-        right: 0;
-        top: 50%;
-        transform: translateY(-50%);
-      }
-      .el-select .el-input .el-select__caret {
-        font-size: 12px;
-        color: @mainColor;
-      }
-      .el-input__icon {
-        width: 20px;
-        line-height: 25px;
-      }
-      .el-icon-arrow-up:before {
-        content: "\e78f";
-      }
-      .el-radio-button__inner {
-        width: 65px;
-        height: 25px;
-        line-height: 25px;
-        font-size: 12px;
-        background: @bgColor;
-        padding: 0;
-      }
-    }
-  }
-  .chief-bottom {
-    box-sizing: border-box;
-    width: 100%;
-    height: calc(100% - 150px);
-    background-color: @bgColor;
-    padding-top: 10px;
-    h2 {
-      font-size: 1.3em;
-      padding-top: 30px;
-      padding-bottom: 30px;
-      text-align: center;
-    }
-  }
 </style>

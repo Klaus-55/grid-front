@@ -32,6 +32,14 @@ export function getShortTermScore(start, end) {
   })
 }
 
+//客观预报岗评分
+export function getObjectiveScore(start, end) {
+  let url = '/provincial/getObjectiveScore/' + start + '/' + end
+  return request({
+    url
+  })
+}
+
 //市级评分
 export function getCityScore(start, end) {
   let url = '/provincial/getCityScore/' + start + '/' + end

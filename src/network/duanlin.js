@@ -143,3 +143,12 @@ export function heavyRainMonitor(start, end, area) {
     url
   })
 }
+
+//强降水监测警报详情
+// /heavyRainMonitor/{start}/{end}/{level}
+export function heavyDetail(start, end, level) {
+  let url = '/duanlin/heavyDetail/' + start + '/' + end + '/' + level
+  return request({
+    url
+  })
+}

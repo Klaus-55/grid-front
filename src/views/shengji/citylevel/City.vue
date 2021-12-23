@@ -3,6 +3,11 @@
     <div class="content">
       <div class="head">
         <date-picker @changeDate="changeDate" :start="start" :end="end"/>
+        <el-button v-show="showType === '表格'"
+                   size="mini"
+                   type="primary"
+                   @click="exportExcel"
+                   style="margin-left: 30px">导出表格数据</el-button>
         <el-button size="mini" type="primary" @click="getCityScore2" style="margin-left: 30px">2021临时成绩</el-button>
       </div>
       <hr>
@@ -63,16 +68,32 @@
                   label="预警信号(百分制成绩)"
                   align="center"/>
           <el-table-column
+                  prop="warning_pm"
+                  label="预警信号排名"
+                  align="center"/>
+          <el-table-column
                   prop="zhzl_per"
                   label="网格预报TS(百分制成绩)"
+                  align="center"/>
+          <el-table-column
+                  prop="zhzl_pm"
+                  label="网格预报TS排名"
                   align="center"/>
           <el-table-column
                   prop="zhjq_per"
                   label="网格预报技巧(百分制成绩)"
                   align="center"/>
           <el-table-column
+                  prop="zhjq_pm"
+                  label="网格预报技巧排名"
+                  align="center"/>
+          <el-table-column
                   prop="zh"
                   label="综合成绩"
+                  align="center"/>
+          <el-table-column
+                  prop="pm"
+                  label="排名"
                   align="center"/>
         </el-table>
       </div>
@@ -84,7 +105,7 @@
   import DatePicker from "../../../components/content/DatePicker2";
   import moment from "momnet";
   import {initRadios, initYears} from "../../../common/utils";
-  import {initProChart} from "../../../common/Base";
+  import {exportExcelCom, initProChart} from "../../../common/Base";
   import {getCityScore, getCityScore2} from "../../../network/shengji";
 
   export default {
@@ -174,6 +195,11 @@
           this.tableData = this.data
           loading.close()
         })
+      },
+      exportExcel() {
+        let id = '#table'
+        let title = this.start + '至' + this.end + '日' + '地市成绩.xlsx'
+        return exportExcelCom(document, id, title)
       },
       initChart() {
         let chartData = {}

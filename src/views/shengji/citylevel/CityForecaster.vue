@@ -70,15 +70,30 @@
                   align="center"/>
           <el-table-column
                   prop="warning_per"
+                  sortable
                   label="预警信号(百分制成绩)"
                   align="center"/>
           <el-table-column
+                  prop="warning_pm"
+                  label="预警信号排名"
+                  align="center"/>
+          <el-table-column
                   prop="zhzl_per"
+                  sortable
                   label="网格预报TS(百分制成绩)"
                   align="center"/>
           <el-table-column
+                  prop="zhzl_pm"
+                  label="网格预报TS排名"
+                  align="center"/>
+          <el-table-column
                   prop="zhjq_per"
+                  sortable
                   label="网格预报技巧(百分制成绩)"
+                  align="center"/>
+          <el-table-column
+                  prop="zhjq_pm"
+                  label="网格预报技巧排名"
                   align="center"/>
           <el-table-column
                   prop="bc"

@@ -29,7 +29,7 @@
           // {img: require('assets/img/tf.png'), text: '模式检验', index: 'modelExamination'},
           {img: require('assets/img/dlfc.png'), text: '每日实况预报对比', index: 'dailyComparision'},
           {img: require('assets/img/rain.png'), text: '降水检验', index: 'rainExamination'},
-          {img: require('assets/img/rain.png'), text: '降水检验', index: 'rainExamination2'},
+          // {img: require('assets/img/rain.png'), text: '降水检验', index: 'rainExamination2'},
           {img: require('assets/img/tem.png'), text: '温度检验', index: 'tempExamination'}
         ],
         conName: 'daily-comparision'
