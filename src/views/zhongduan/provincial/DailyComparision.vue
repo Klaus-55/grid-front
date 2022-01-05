@@ -68,14 +68,14 @@
             <el-checkbox v-model="isShowLegend">图例</el-checkbox>
             <!--            <el-checkbox v-model="isShowDetailed">详情</el-checkbox>-->
           </el-menu-item>
-          <el-menu-item>
-            <span>放大：</span>
-            <el-slider
-                    v-model="sliderValue"
-                    :show-tooltip="false"
-                    :step="20">
-            </el-slider>
-          </el-menu-item>
+<!--          <el-menu-item>-->
+<!--            <span>放大：</span>-->
+<!--            <el-slider-->
+<!--                    v-model="sliderValue"-->
+<!--                    :show-tooltip="false"-->
+<!--                    :step="20">-->
+<!--            </el-slider>-->
+<!--          </el-menu-item>-->
           <el-menu-item>
             <el-button type="primary" size="mini" @click="backToCenter">居中地图</el-button>
           </el-menu-item>
@@ -136,38 +136,6 @@
         </div>
         <div class="result-content" v-html="resultContent" v-show="isShowRsCon">
         </div>
-<!--        <div class="result-content">-->
-<!--          <tbody style='border:1px solid black'>-->
-<!--          <tr style='border:1px solid black'>-->
-<!--            <td style='text-align: center;font-size:15px;border:1px solid black'>≤1℃个数</td>-->
-<!--            <td style='padding-left: 5px;font-size:15px;border:1px solid black'>count1</td>-->
-<!--          </tr>-->
-<!--          <tr style='border:1px solid black'>-->
-<!--            <td style='text-align: center;font-size:15px;border:1px solid black'>≤2℃个数</td>-->
-<!--            <td style='padding-left: 5px;font-size:15px;border:1px solid black'>count2</td>-->
-<!--          </tr>-->
-<!--          <tr style='border:1px solid black'>-->
-<!--            <td style='text-align: center;font-size:15px;border:1px solid black'>总数</td>-->
-<!--            <td style='padding-left: 5px;font-size:15px;border:1px solid black'>total</td>-->
-<!--          </tr>-->
-<!--          <tr style='border:1px solid black'>-->
-<!--            <td style='text-align: center;font-size:15px;border:1px solid black'>≤1℃预报准确率</td>-->
-<!--            <td style='padding-left: 5px;font-size:15px;border:1px solid black'>ar1</td>-->
-<!--          </tr>-->
-<!--          <tr style='border:1px solid black'>-->
-<!--            <td style='text-align: center;font-size:15px;border:1px solid black'>≤2℃预报准确率</td>-->
-<!--            <td style='padding-left: 5px;font-size:15px;border:1px solid black'>ar2</td>-->
-<!--          </tr>-->
-<!--          <tr style='border:1px solid black'>-->
-<!--            <td style='text-align: center;font-size:15px;border:1px solid black'>均方根误差</td>-->
-<!--            <td style='padding-left: 5px;font-size:15px;border:1px solid black'>rmse</td>-->
-<!--          </tr>-->
-<!--          <tr style='border:1px solid black'>-->
-<!--            <td style='text-align: center;font-size:15px;border:1px solid black'>平均绝对误差</td>-->
-<!--            <td style='padding-left: 5px;font-size:15px;border:1px solid black'>mae</td>-->
-<!--          </tr>-->
-<!--          </tbody>-->
-<!--        </div>-->
       </div>
     </div>
   </div>
@@ -510,7 +478,7 @@
           //resolveGribToObt();
           this.renderColorOverlay(map);
         } else {  //站点
-          this.resolveGribToObt()
+          this.resolveGribToObt(map)
           this.renderObtValue(map, this.data, 'zd');
         }
       },
@@ -722,7 +690,7 @@
       convertUVtoWindSpeed(u, v) {
         return Math.sqrt(Math.pow(u, 2) + Math.pow(v, 2));
       },
-      resolveGribToObt() {
+      resolveGribToObt(map) {
         let obtFacname = this.getLiveObtFacname();
         let obtWfDataInGrib = [];
         let rmse1 = 0;
@@ -790,6 +758,7 @@
           obtWfDataInGrib.push(obtWfData);
         }
         this.data = obtWfDataInGrib;
+        if (map.boxZoom._container.id === 'left-map') return
         let resultTable = "<span>检验结果</span>";
         this.isShowRsCon = false
         if (this.model != 'fm' && (this.facValue == 'TMP' || this.facValue == 'TMAX' || this.facValue == 'TMIN')) {
@@ -931,9 +900,11 @@
           resultTable += "</table>";
           this.isShowRsCon = true
           this.resultContent = resultTable
-          $('#'+qyid).css("color","red");
-          $('#'+ybxid).css("color","red");
-          $('#'+byid).css("color","red");
+          this.$nextTick(() => {
+            $('#'+qyid).css("color","red");
+            $('#'+ybxid).css("color","red");
+            $('#'+byid).css("color","red");
+          })
         }else if(this.facValue == "TMIN" || this.facValue == "TMAX"){
           let tem;
           if(this.facValue == "TMIN") tem = "最低气温";
@@ -1002,8 +973,10 @@
           resultTable += "</table>";
           this.isShowRsCon = true
           this.resultContent = resultTable
-          $('#'+p1id).css("color","red");
-          $('#'+p2id).css("color","red");
+          this.$nextTick(() => {
+            $('#'+p1id).css("color","red");
+            $('#'+p2id).css("color","red");
+          })
         }
       },
       async getWFData2(model){
