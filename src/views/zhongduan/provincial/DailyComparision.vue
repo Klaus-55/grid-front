@@ -91,7 +91,7 @@
           </div>
         </div>
         <div class="left-info-panel">
-          实况{{timeRangeHtml}}
+          {{leftModelName + timeRangeHtml}}
         </div>
         <div id="right-map"></div>
         <div class="right-legend" v-show="isShowLegend">
@@ -103,7 +103,7 @@
         <div class="right-info-panel">
           {{modelName + timeRangeHtml}}
         </div>
-        <div class="model-select">
+        <div class="model-select model-select-right">
           <el-select v-model="model" placeholder="请选择" :popper-append-to-body="false" @change="changeModel">
             <el-option
                     v-for="item in models"
@@ -113,9 +113,61 @@
             </el-option>
           </el-select>
         </div>
-        <div class="result-content" v-html="resultContent" v-show="isShowRsCon">
-
+        <div class="model-select model-select-left">
+          <el-select v-model="leftModel" placeholder="请选择" :popper-append-to-body="false" @change="changeLeftModel">
+            <el-option
+                    v-for="item in leftModels"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+            </el-option>
+          </el-select>
         </div>
+
+        <div class="model-select model-select-fm" v-show="model === 'fm'">
+          <el-select v-model="fm" placeholder="请选择" :popper-append-to-body="false" @change="changeFm">
+            <el-option
+                    v-for="item in fms"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+            </el-option>
+          </el-select>
+        </div>
+        <div class="result-content" v-html="resultContent" v-show="isShowRsCon">
+        </div>
+<!--        <div class="result-content">-->
+<!--          <tbody style='border:1px solid black'>-->
+<!--          <tr style='border:1px solid black'>-->
+<!--            <td style='text-align: center;font-size:15px;border:1px solid black'>≤1℃个数</td>-->
+<!--            <td style='padding-left: 5px;font-size:15px;border:1px solid black'>count1</td>-->
+<!--          </tr>-->
+<!--          <tr style='border:1px solid black'>-->
+<!--            <td style='text-align: center;font-size:15px;border:1px solid black'>≤2℃个数</td>-->
+<!--            <td style='padding-left: 5px;font-size:15px;border:1px solid black'>count2</td>-->
+<!--          </tr>-->
+<!--          <tr style='border:1px solid black'>-->
+<!--            <td style='text-align: center;font-size:15px;border:1px solid black'>总数</td>-->
+<!--            <td style='padding-left: 5px;font-size:15px;border:1px solid black'>total</td>-->
+<!--          </tr>-->
+<!--          <tr style='border:1px solid black'>-->
+<!--            <td style='text-align: center;font-size:15px;border:1px solid black'>≤1℃预报准确率</td>-->
+<!--            <td style='padding-left: 5px;font-size:15px;border:1px solid black'>ar1</td>-->
+<!--          </tr>-->
+<!--          <tr style='border:1px solid black'>-->
+<!--            <td style='text-align: center;font-size:15px;border:1px solid black'>≤2℃预报准确率</td>-->
+<!--            <td style='padding-left: 5px;font-size:15px;border:1px solid black'>ar2</td>-->
+<!--          </tr>-->
+<!--          <tr style='border:1px solid black'>-->
+<!--            <td style='text-align: center;font-size:15px;border:1px solid black'>均方根误差</td>-->
+<!--            <td style='padding-left: 5px;font-size:15px;border:1px solid black'>rmse</td>-->
+<!--          </tr>-->
+<!--          <tr style='border:1px solid black'>-->
+<!--            <td style='text-align: center;font-size:15px;border:1px solid black'>平均绝对误差</td>-->
+<!--            <td style='padding-left: 5px;font-size:15px;border:1px solid black'>mae</td>-->
+<!--          </tr>-->
+<!--          </tbody>-->
+<!--        </div>-->
       </div>
     </div>
   </div>
@@ -170,7 +222,8 @@
         isShowLegend: true,
         isShowDetailed: true,
         sliderValue: 80,
-        models: [{value: 'ECMT', label: '欧洲中心'},
+        models: [
+          {value: 'ECMT', label: '欧洲中心'},
           {value: 'GGFS', label: 'GRAPES_GFS'},
           {value: 'G3KM', label: 'GRAPES_3KM'},
           {value: 'GZHR', label: '华南模式'},
@@ -178,9 +231,34 @@
           {value: 'BABJ', label: '央台预报'},
           {value: 'SOTS', label: '省台(客观)'},
           {value: 'PFSN', label: '省台(融合前)'},
-          {value: 'BECS', label: '省台(融合后)'}],
+          {value: 'BECS', label: '省台(融合后)'},
+          {value: 'fm', label: '四种模式'},
+        ],
         model: 'BECS',
         modelName: '省台(融合后)',
+        leftModels: [
+          {value: 'LIVE', label: '实况'},
+          {value: 'ECMT', label: '欧洲中心'},
+          {value: 'GGFS', label: 'GRAPES_GFS'},
+          {value: 'G3KM', label: 'GRAPES_3KM'},
+          {value: 'GZHR', label: '华南模式'},
+          {value: 'SHMR', label: '华东模式'},
+          {value: 'BABJ', label: '央台预报'},
+          {value: 'SOTS', label: '省台(客观)'},
+          {value: 'PFSN', label: '省台(融合前)'},
+          {value: 'BECS', label: '省台(融合后)'}
+        ],
+        leftModel: 'LIVE',
+        leftModelName: '实况',
+        fms: [
+          {value: 'SOTS', label: '省台客观'},
+          {value: 'PFSN', label: '省台指导'},
+          {value: 'BECS', label: '地市订正'},
+          {value: 'BABJ', label: '中央台'},
+          {value: 'ECMT', label: '欧洲中心'}
+        ],
+        fm: 'PFSN',
+        fmName: '省台指导',
         liveData: [],
         leftMap: {},
         rightMap: {},
@@ -263,7 +341,25 @@
       },
       changeModel(val) {
         let obj = this.models.find(item => val === item.value);
+        if(val === 'fm') {
+          this.modelName = this.fmName
+          this.rightMap.dataSrcCode = this.fm
+        } else {
+          this.modelName = obj.label
+          this.rightMap.dataSrcCode = val
+        }
+        this.renderMap(this.rightMap)
+      },
+      changeLeftModel(val) {
+        let obj = this.leftModels.find(item => val === item.value);
+        this.leftModelName = obj.label
+        this.leftMap.dataSrcCode = this.leftModel
+        this.renderMap(this.leftMap)
+      },
+      changeFm(val) {
+        let obj = this.fms.find(item => val === item.value);
         this.modelName = obj.label
+        this.rightMap.dataSrcCode = val
         this.renderMap(this.rightMap)
       },
       async getLiveObtData() {
@@ -395,13 +491,13 @@
           "cal_fun": cal_fun
         };
       },
-      getWFData() {
-        let data = this.getWFRequestData();
+      getWFData(map) {
+        let data = this.getWFRequestData(map);
         wfData(data).then(res => {
           if (res.code === 1 && res["data"].length > 0) {
-            this.renderGribValue(res['data'][0], this.rightMap);
+            this.renderGribValue(res['data'][0], map);
           } else {
-            this.rightMap.clearAll();
+            map.clearAll();
             this.$message.warning('查无该模式格点预报数据');
           }
         }).catch(err => {
@@ -415,7 +511,7 @@
           this.renderColorOverlay(map);
         } else {  //站点
           this.resolveGribToObt()
-          this.renderObtValue(this.rightMap, this.data, 'zd');
+          this.renderObtValue(map, this.data, 'zd');
         }
       },
       renderColorOverlay(map) {
@@ -695,8 +791,8 @@
         }
         this.data = obtWfDataInGrib;
         let resultTable = "<span>检验结果</span>";
-
-        if (this.facValue == 'TMP' || this.facValue == 'TMAX' || this.facValue == 'TMIN') {
+        this.isShowRsCon = false
+        if (this.model != 'fm' && (this.facValue == 'TMP' || this.facValue == 'TMAX' || this.facValue == 'TMIN')) {
           //均方根误差
           let rmse = Math.sqrt(rmse1 / obtWfDataInGrib.length).toFixed(1);
           //平均绝对误差
@@ -714,9 +810,252 @@
             "<div>" + "<span>平均绝对误差：</span>" + "<span>" + mae + "</span>" + "</div>"
           this.isShowRsCon = true
           this.resultContent = resultTable
-        } else {
-          this.isShowRsCon = false
+        } else if (this.model != 'fm' && (this.facValue == 'ER03' || this.facValue == 'ER12' || this.facValue == 'ER24')) {
+
+          resultTable += '<table border="1" style="border-collapse: collapse;">'+
+            '<tr style="border:1px solid black">\n' +
+            '<td style="text-align: center;">要素</td>\n' +
+            '<td style="text-align: center;">正确站点数</td>\n' +
+            '<td style="text-align: center;">总站点数</td>\n' +
+            '<td style="text-align: center;">TS</td>\n' +
+            '<td style="text-align: center;">准确率</td>\n' +
+            '</tr>'+
+            '<tr style="border:1px solid black;">\n' +
+            '<td style="text-align: center;">晴雨(雪)</td>\n' +
+            '<td style="text-align: center;">'+(qy_na+qy_nd)+'</td>\n' +
+            '<td style="text-align: center;">'+(qy_na+qy_nb+qy_nc+qy_nd)+'</td>\n' +
+            '<td style="text-align: center;">'+this.calPre(qy_na,qy_na+qy_nb+qy_nc)+'</td>\n' +
+            '<td style="text-align: center;">'+this.calPre(qy_na+qy_nd,qy_na+qy_nb+qy_nc+qy_nd)+'</td>\n' +
+            '</tr>'+
+            '<tr>\n' +
+            '<td style="text-align: center;">一般性降水</td>\n' +
+            '<td style="text-align: center;">'+ybx_na+'</td>\n' +
+            '<td style="text-align: center;">'+(ybx_na+ybx_nb+ybx_nc)+'</td>\n' +
+            '<td style="text-align: center;">'+this.calPre(ybx_na,ybx_na+ybx_nb+ybx_nc)+'</td>\n' +
+            '<td style="text-align: center;">-</td>\n' +
+            '</tr>' +
+            '<tr style="border:1px solid black;">\n' +
+            '<td style="text-align: center;">暴雨及以上</td>\n' +
+            '<td style="text-align: center;">'+by_na+'</td>\n' +
+            '<td style="text-align: center;">'+(by_na+by_nb+by_nc)+'</td>\n' +
+            '<td style="text-align: center;">'+this.calPre(by_na,by_na+by_nb+by_nc)+'</td>\n' +
+            '<td style="text-align: center;">-</td>\n' +
+            '</tr></table>';
+          this.isShowRsCon = true
+          this.resultContent = resultTable
+        } else if(this.model == 'fm'&&(this.facValue == 'ER24' ||this.facValue == 'TMAX' ||this.facValue == 'TMIN')){
+          this.resolveFm();
         }
+      },
+      async resolveFm(){
+        var obtFacname = this.getLiveObtFacname();
+        if(this.facValue == "ER24"){
+          let arr = ["SOTS","PFSN","BECS","BABJ","ECMT"];
+          let resultTable = "<span>检验结果</span>"+
+            "<table border='1' style='border-collapse: collapse;'"+
+            "<tr style='background-color:#e9edf4'>\n" +
+            "<td style='text-align: center;background-color:#e9edf4'>数据源</td>\n" +
+            "<td style='text-align: center;background-color:#e9edf4'>晴雨准确率</td>\n" +
+            "<td style='text-align: center;background-color:#e9edf4'>一般性降水TS</td>\n" +
+            "<td style='text-align: center;background-color:#e9edf4'>暴雨及以上TS</td>\n" +
+            "</tr>";
+          let qyid = "";
+          let ybxid = "";
+          let byid = "";
+          let qy_p = 0;
+          let ybx_ts = 0;
+          let by_ts = 0;
+          for(let i = 0; i < arr.length; i++){
+            let data2 = await this.getWFData2(arr[i]);
+            let qy_na = 0;
+            let qy_nb = 0;
+            let qy_nc = 0;
+            let qy_nd = 0;
+            let ybx_na = 0;
+            let ybx_nb = 0;
+            let ybx_nc = 0;
+            let by_na = 0;
+            let by_nb = 0;
+            let by_nc = 0;
+            for (let j = 0; j < this.liveData.length; j++) {
+              let obt = this.liveData[j];
+              let index = this.getIndexBylatlng(obt['grid_lat'], obt['grid_lon']);
+
+              //站点对应的格点数据
+              let obtV = obt[obtFacname];
+              let gribV = data2[index];
+              let v = gribV - obtV;//vm.isDiffValue ? (gribV - obtV) : gribV;
+              if(obtV >= 0.1 && gribV >= 0.1) qy_na++;
+              if(obtV < 0.1 && gribV >= 0.1) qy_nb++;
+              if(obtV >= 0.1 && gribV < 0.1) qy_nc++;
+              if(obtV < 0.1 && gribV < 0.1) qy_nd++;
+              if((obtV >= 0.1 && obtV <= 49.9) && (gribV >= 0.1 && gribV <= 49.9)) ybx_na++;
+              if((obtV == 0) && (gribV >= 0.1 && gribV <= 49.9)) ybx_nb++;
+              if((obtV >= 0.1 && obtV <= 49.9) && (gribV == 0)) ybx_nc++;
+              if(obtV >= 50 && gribV >= 50) by_na++;
+              if(obtV < 50 && gribV >= 50) by_nb++;
+              if(gribV < 50 && obtV >= 50) by_nc++;
+            }
+            let qy_p1 = this.calPre(qy_na+qy_nd,qy_na+qy_nb+qy_nc+qy_nd);
+            let ybx_ts1 = this.calPre(ybx_na,ybx_na+ybx_nb+ybx_nc);
+            let by_ts1 = this.calPre(by_na,by_na+by_nb+by_nc);
+            if(parseFloat(qy_p1) > parseFloat(qy_p)){
+              qy_p = qy_p1;
+              qyid = "qy" + (i+1);
+            }
+            if(parseFloat(ybx_ts1) > parseFloat(ybx_ts)){
+              ybx_ts = ybx_ts1;
+              ybxid = "ybx" + (i+1);
+            }
+            if(parseFloat(by_ts1) > parseFloat(by_ts)){
+              by_ts = by_ts1;
+              byid = "by" + (i+1);
+            }
+            let model = this.fms.find(item => item.value === arr[i]);
+            if(data2.length > 0){
+              resultTable += "<tr>\n" +
+                "<td style='text-align: center;background-color:#dce6f2'>"+model.label+"</td>\n" +
+                "<td style='text-align: center;background-color:#dce6f2'><span id='qy"+(i+1)+"'>"+qy_p1+"%</span><br>（"+(qy_na+qy_nd)+"/"+(qy_na+qy_nb+qy_nc+qy_nd)+"）</td>\n" +
+                "<td style='text-align: center;background-color:#dce6f2'><span id='ybx"+(i+1)+"'>"+ybx_ts1+"%</span><br>（"+ybx_na+"/"+(ybx_na+ybx_nb+ybx_nc)+"）</td>\n" +
+                "<td style='text-align: center;background-color:#dce6f2'><span id='by"+(i+1)+"'>"+(by_ts1=="-"?"/":(by_ts1+"%</span><br>（"+by_na+"/"+(by_na+by_nb+by_nc)+"）"))+"</td>\n" +
+                "</tr>";
+            }else{
+              resultTable += "<tr style='border:1px solid #4f81bd;background-color:#e9edf4'>\n" +
+                "<td style='text-align: center;border:1px solid #4f81bd;background-color:#dce6f2'>"+model.label+"</td>\n" +
+                "<td style='text-align: center;border:1px solid #4f81bd;background-color:#dce6f2'>/</td>\n" +
+                "<td style='text-align: center;border:1px solid #4f81bd;background-color:#dce6f2'>/</td>\n" +
+                "<td style='text-align: center;border:1px solid #4f81bd;background-color:#dce6f2'>/</td>\n" +
+                "</tr>";
+            }
+          }
+          resultTable += "</table>";
+          this.isShowRsCon = true
+          this.resultContent = resultTable
+          $('#'+qyid).css("color","red");
+          $('#'+ybxid).css("color","red");
+          $('#'+byid).css("color","red");
+        }else if(this.facValue == "TMIN" || this.facValue == "TMAX"){
+          let tem;
+          if(this.facValue == "TMIN") tem = "最低气温";
+          if(this.facValue == "TMAX") tem = "最高气温";
+          let arr = ["SOTS","PFSN","BECS","BABJ","ECMT"];
+          let resultTable = "<span>检验结果</span>"+
+            "<table border='1' style='border-collapse: collapse;'"+
+            "<tr>\n" +
+            "<td style='text-align: center;background-color:#e9edf4' rowspan='2'>数据源</td>\n" +
+            "<td style='text-align: center;background-color:#e9edf4' colspan='2'>"+tem+"</td>\n" +
+            "</tr>"+
+            "<tr>\n" +
+            "<td style='text-align: center;background-color:#e9edf4'>≤2℃准确率</td>\n" +
+            "<td style='text-align: center;background-color:#e9edf4'>≤1℃准确率</td>\n" +
+            "</tr>";
+          let p1 = 0;
+          let p2 = 0;
+          let p1id = "";
+          let p2id = "";
+          for(let i = 0; i < arr.length; i++){
+            let data2 = await this.getWFData2(arr[i]);
+            console.log(data2)
+            let count1 = 0;
+            let count2 = 0;
+            for (let j = 0; j < this.liveData.length; j++) {
+              let obt = this.liveData[j];
+              let index = this.getIndexBylatlng(obt['grid_lat'], obt['grid_lon']);
+
+              //站点对应的格点数据
+              let obtV = obt[obtFacname];
+              let gribV = data2[index];
+              let v = gribV - obtV;//vm.isDiffValue ? (gribV - obtV) : gribV;
+              if(Math.abs(v.toFixed(1)) <= 1) count1++;
+              if(Math.abs(v.toFixed(1)) <= 2) count2++;
+            }
+            let p1_1 = (count1*100/this.liveData.length).toFixed(1);
+            let p2_1 = (count2*100/this.liveData.length).toFixed(1);
+            console.log((i+1)+"**"+p1_1+'****'+p1+'*****');
+
+            if(parseFloat(p1_1) > parseFloat(p1)){
+              p1 = p1_1;
+              p1id = "p1" + (i+1);
+            }
+            if(parseFloat(p2_1) > parseFloat(p2)){
+              p2 = p2_1;
+              p2id = "p2" + (i+1);
+            }
+            let model = this.fms.find(item => item.value === arr[i]);
+            if(data2.length > 0){
+              resultTable += "<tr>\n" +
+                "<td style='text-align: center;background-color:#e9edf4'>"+model.label+"</td>\n" +
+                "<td style='text-align: center;background-color:#e9edf4'><span id='p2"+(i+1)+"'>"+
+                p2_1+"%</span>（"+count2+"/"+this.liveData.length+"）</td>\n" +
+                "<td style='text-align: center;background-color:#e9edf4'><span id='p1"+(i+1)+"'>" +
+                p1_1+"%</span>（"+count1+"/"+this.liveData.length+"）</td>\n" +
+                "</tr>";
+            }else{
+              resultTable += "<tr>\n" +
+                "<td style='text-align: center;background-color:#e9edf4'>"+model.label+"</td>\n" +
+                "<td style='text-align: center;background-color:#e9edf4'>/</td>\n" +
+                "<td style='text-align: center;background-color:#e9edf4'>/</td>\n" +
+                "</tr>";
+            }
+
+          }
+          resultTable += "</table>";
+          this.isShowRsCon = true
+          this.resultContent = resultTable
+          $('#'+p1id).css("color","red");
+          $('#'+p2id).css("color","red");
+        }
+      },
+      async getWFData2(model){
+        let data1 = this.getWFRequestData2(model);
+        let data2;
+        await wfData(data1).then(res => {
+          data2 = []
+          if (res.code === 1 && res["data"].length > 0) {
+            data2 = this.parseOriginalData(res['data'][0]);
+            data2 = eval(data2["data"]["value"]);
+          }
+        }).catch(err => {
+          console.log(err)
+        })
+        return data2;
+      },
+      getWFRequestData2(model) {
+        let wfinterval, wfhours, wfhour, facname, wfsrc, wfdatetime;
+
+        let intervalArr = this.intervalValue.split('-');
+        //预报时段
+        wfhour = intervalArr[1];
+        //预报间隔
+        wfinterval = intervalArr[1] - intervalArr[0];
+        //预报总时次
+        // wfhours = 240;
+        //预报要素
+        facname = this.facValue;
+        //预报主体
+        wfsrc = model;
+        //预报时间
+        wfdatetime = moment(this.dateValue).format('YYYYMMDD') + this.ftvalue + '00';
+
+        let datatype = '';
+        if (wfsrc === 'PFSN' && this.ftvalue === '20') {
+          datatype = ' and datatype = ' + this.datatype;
+        }
+        return {
+          wfinterval: wfinterval,
+          // wfhours: wfhours,
+          wfhour: wfhour,
+          facname: facname,
+          wfsrc: wfsrc,
+          wfdatetime: wfdatetime,
+          datatype: datatype
+        }
+      },
+      calPre(a,b) {
+        if(a == 0 && b != 0) return 0;
+        if(a != 0 && b == 0) return 0;
+        if(a == 0 && b == 0) return '-';
+        return (a*100/b).toFixed(1);
       },
       getIndexBylatlng(lat, lng) {
         let oriLon = this.uppperLeft[1];
@@ -728,7 +1067,7 @@
         //这里要先确认
         return x * 116 + y;
       },
-      getWFRequestData() {
+      getWFRequestData(map) {
         let wfinterval, wfhour, facname, wfsrc, wfdatetime;
 
         let intervalArr = this.intervalValue.split('-');
@@ -741,7 +1080,7 @@
         //预报要素
         facname = this.facValue;
         //预报主体
-        wfsrc = this.model;
+        wfsrc = map.dataSrcCode;
         //预报时间
         wfdatetime = moment(this.dateValue).format('YYYYMMDD') + this.ftvalue + '00';
 
@@ -1160,7 +1499,7 @@
             this.renderObtValue(map, this.liveData, 'sk');
           }
         } else {//预报
-          this.getWFData();
+          this.getWFData(map);
         }
       },
       getGribDataBylatlng(lat, lng) {
@@ -1792,7 +2131,7 @@
           let value = values[i];
           single += '<div><span style="background-color: ' + value[0] + '"></span><span>' + value[2] + '</span></div>';
         }
-        if (map.dataSrcCode) {
+        if (map.boxZoom._container.id === 'left-map') {
           this.leftLegendHtml = single
         } else {
           this.rightLegendHtml = single
@@ -1942,8 +2281,9 @@
 
         window.drawSeries = this.drawSeries
         this.leftMap = this.initMap('left-map')
-        this.leftMap.dataSrcCode = 'LIVE'
+        this.leftMap.dataSrcCode = this.leftModel
         this.rightMap = this.initMap('right-map')
+        this.rightMap.dataSrcCode = this.model
         this.wfMaps.push(this.leftMap)
         this.wfMaps.push(this.rightMap)
         this.linkMap(this.wfMaps)
@@ -2226,11 +2566,6 @@
     }
 
     .model-select {
-      position: absolute;
-      top: 20px;
-      right: 10px;
-      z-index: 1000;
-      width: 115px;
 
       .el-input__inner {
         border: 1px solid #409EFF;
@@ -2302,6 +2637,30 @@
         font-weight: normal;
         border-radius: 2px;
       }
+    }
+
+    .model-select-right {
+      position: absolute;
+      top: 20px;
+      right: 10px;
+      z-index: 1000;
+      width: 115px;
+    }
+
+    .model-select-left {
+      position: absolute;
+      top: 20px;
+      right: 51%;
+      z-index: 1000;
+      width: 115px;
+    }
+
+    .model-select-fm {
+      position: absolute;
+      top: 53%;
+      right: 10px;
+      z-index: 1000;
+      width: 115px;
     }
 
     .result-content {

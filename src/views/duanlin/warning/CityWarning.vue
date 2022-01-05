@@ -126,6 +126,9 @@
         factories: [
           { label: "zh", value: "综合成绩" },
           { label: "ts", value: "预报准确率" },
+          { label: "far", value: "空报率" },
+          { label: "po", value: "漏报率" },
+          { label: "pod", value: "命中率" },
           { label: "t1", value: "t1" },
           { label: "t2", value: "t2" },
           { label: "t3", value: "t3" },
@@ -399,7 +402,7 @@
         }
         chartData.data = seriesData
         chartData.series = series
-        initCityEcharts(chartData, title)
+        initCityEcharts(chartData, title);
       },
       changeDate(startTime, endTime) {
         this.start = moment(startTime).format("YYYY-MM-DD")

@@ -202,6 +202,15 @@ export function initCityEcharts(data, title) {
     chart: {
       type: "column",
       backgroundColor: "#F8F8F8",
+      events: {
+        drillup: function(e) {
+          // 上钻回调事件
+          console.log(e.seriesOptions);
+        },
+        drilldown: function (e) {
+          console.log(e)
+        }
+      }
     },
     lang: {
       downloadPNG: "下载PNG文件",
