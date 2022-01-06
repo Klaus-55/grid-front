@@ -1,75 +1,80 @@
 <template>
   <div class="side-content">
-    <div class="content">
-      <div class="head">
-        <date-picker @changeDate="changeDate" :start="start" :end="end"/>
-      </div>
-      <hr/>
-      <div class="rain-examine-middle">
-        <el-menu mode="horizontal">
-          <el-menu-item>
-            <span>检验指标：</span>
-            <el-radio-group v-model="defIndicator" @change="changeIndicator">
-              <el-radio-button
-                      v-for="item in indItems"
-                      :key="item.label"
-                      :label="item.label"
-                      :value="item.value"
-              >{{ item.value }}
-              </el-radio-button
-              >
-            </el-radio-group>
-          </el-menu-item>
-<!--            <el-menu-item>-->
-<!--              <span>地区级别：</span>-->
-<!--              <el-radio-group v-model="defLevel">-->
-<!--                <el-radio-button-->
-<!--                        v-for="item in levelItems"-->
-<!--                        :key="item.value"-->
-<!--                        :label="item.label"-->
-<!--                        :value="item.value"-->
-<!--                >{{ item.label }}-->
-<!--                </el-radio-button-->
-<!--                >-->
-<!--              </el-radio-group>-->
-<!--            </el-menu-item>-->
-        </el-menu>
-        <el-menu mode="horizontal" class="heavyelmenu">
-          <el-menu-item>
-            <span>检验时段：</span>
-            <el-radio-group v-model="month" @change="changeTimePeriod">
-              <el-select v-model="year" @change="changeYear">
-                <el-option
-                        v-for="item in years"
-                        :key="item"
-                        :label="item + '年'"
-                        :value="item"></el-option>
-              </el-select>
-              <el-radio-button v-for="item in radios"
-                               :label="item.label"
-                               :disabled="item.disabled">{{item.name}}</el-radio-button>>
-            </el-radio-group>
-          </el-menu-item>
-        </el-menu>
-      </div>
-      <div class="nav-bottom rain-examine-bottom">
-        <div id="map"></div>
-        <div class="rain-examine-bottom-right">
-          <span class="tableTitle">{{ "湖南省" + titleTime + "强降水监测警报质量" }}</span>
-          <el-table
-                  :data="tableData"
-                  border
-                  height="94%">
-            <el-table-column
-                    v-for="item in tableHeader"
-                    :prop="item.prop"
-                    :label="item.label"
-                    align="center"
-                    min-width="1"></el-table-column>
-          </el-table>
+    <el-scrollbar style="height: 100%">
+      <div class="content">
+        <div class="head">
+          <date-picker @changeDate="changeDate" :start="start" :end="end"/>
         </div>
+        <hr/>
+        <div class="rain-examine-middle">
+          <el-menu mode="horizontal">
+            <el-menu-item>
+              <span>检验指标：</span>
+              <el-radio-group v-model="defIndicator" @change="changeIndicator">
+                <el-radio-button
+                        v-for="item in indItems"
+                        :key="item.label"
+                        :label="item.label"
+                        :value="item.value"
+                >{{ item.value }}
+                </el-radio-button>
+              </el-radio-group>
+            </el-menu-item>
+
+            <el-menu-item>
+              <span>级别：</span>
+              <el-radio-group v-model="regLevel" @change="changeRegLevel">
+                <el-radio-button
+                        v-for="item in regLevels"
+                        :key="item.label"
+                        :label="item.label"
+                        :value="item.value"
+                >{{ item.value }}
+                </el-radio-button>
+              </el-radio-group>
+            </el-menu-item>
+          </el-menu>
+          <el-menu mode="horizontal" class="heavyelmenu">
+            <el-menu-item>
+              <span>检验时段：</span>
+              <el-radio-group v-model="month" @change="changeTimePeriod">
+                <el-select v-model="year" @change="changeYear">
+                  <el-option
+                          v-for="item in years"
+                          :key="item"
+                          :label="item + '年'"
+                          :value="item"></el-option>
+                </el-select>
+                <el-radio-button v-for="item in radios"
+                                 :label="item.label"
+                                 :disabled="item.disabled">{{item.name}}</el-radio-button>
+              </el-radio-group>
+            </el-menu-item>
+          </el-menu>
+        </div>
+        <div class="nav-bottom rain-examine-bottom">
+          <div id="map"></div>
+          <div class="rain-examine-bottom-right">
+            <span class="tableTitle">{{title}}</span>
+            <el-table
+                    :data="tableData"
+                    border
+                    height="94%">
+              <el-table-column
+                      v-for="item in tableHeader"
+                      :prop="item.prop"
+                      :label="item.label"
+                      align="center"
+                      min-width="1"></el-table-column>
+            </el-table>
+          </div>
+        </div>
+        <div id="heavy-chart" style="height: 300px">
+
+        </div>
+
       </div>
-    </div>
+    </el-scrollbar>
   </div>
 </template>
 
@@ -79,6 +84,7 @@
   import {initRadios, initYears} from "../../../common/utils";
   import * as L from "leaflet";
   import data from "../../../assets/js/hunan";
+  import {initHeavyChart} from "../../../common/Base";
   import {heavyRainMonitor} from "../../../network/duanlin";
 
   export default {
@@ -96,11 +102,12 @@
           {label: "pod", value: "命中率"},
           {label: "t", value: "及时性"},
         ],
-        levelItems: [
-          {label: "市级", value: "city"},
-          {label: "县级", value: "county"},
+        regLevel: "city",
+        regLevels: [
+          {label: "city", value: "市级"},
+          {label: "district", value: "区县"},
+          {label: "village", value: "乡镇"}
         ],
-        defLevel: ["市级"],
         year: moment().year(),
         years: [],
         month: moment().month() + 1,
@@ -112,6 +119,7 @@
         titleTime: moment().year() + '年' + (moment().month() + 1) + '月',
         tableHeader: [],
         tableData: [],
+        data: {},
         map: {},
         hunanLayer: {},
         isInitCity: true,
@@ -137,6 +145,10 @@
       },
       changeIndicator() {
         this.updateTableHeader()
+        this.renderChart()
+      },
+      changeRegLevel() {
+        this.updateHunanLayer()
       },
       changItems(item) {
       },
@@ -233,6 +245,7 @@
             });
             L.marker([citylnglat[1], citylnglat[0]], {icon: cityIcon, interactive: false}).addTo(_this.map);
           }
+          if (_this.regLevel === 'city') return
           if (cityName === _this.area) {
             layer.setStyle({fillColor: '#65A4F0'})
           }
@@ -273,19 +286,61 @@
         }
         this.tableHeader = tableHeader
       },
+      renderChart() {
+        let {data, defIndicator, title} = this
+        let districtArr = data['district']
+        let forecasters = data['forecaster']
+        let chartData = {}
+        let seriesData = []
+        let series = []
+        let districts = []
+        districtArr.map(item => districts.push(item['district']))
+        for (let district of districts) {
+          let res = districtArr.find(obj => obj.district === district);
+          if (typeof res === "undefined") continue
+          let item = {}
+          item.name = res['district']
+          item.y = res[defIndicator]
+          item.drilldown = res['district']
+          seriesData.push(item)
+          let seriesItem = {}
+          seriesItem.id = district
+          let data = []
+          let districtForecasters = forecasters.filter(obj => obj.district === district);
+          for (let f of districtForecasters) {
+            let dataItem = {}
+            dataItem.name = f['forecaster']
+            dataItem.y = f[defIndicator]
+            data.push(dataItem)
+          }
+          data.sort((a, b) => b.y - a.y)
+          seriesItem.data = data
+          series.push(seriesItem)
+        }
+        chartData.data = seriesData
+        chartData.series = series
+        initHeavyChart(chartData, title, 'heavy-chart');
+      },
       getHeavyMonitor() {
         let loading = this.openLoading('.rain-examine-bottom-right');
         heavyRainMonitor(this.start, this.end, this.area).then(res => {
-          if (res.data.length > 1) {
-            this.tableData = res.data
+          this.data = res.data
+          if (res.data.table.length > 1) {
+            this.tableData = res.data.table
           } else {
             this.tableData = []
           }
           this.updateTableHeader()
+          this.renderChart()
           loading.close()
         }).catch(err => {
           console.log(err)
         })
+      }
+    },
+    computed: {
+      title() {
+        return "湖南省" + this.titleTime + "强降水监测警报质量"
       }
     },
     created() {
@@ -352,13 +407,13 @@
     #map {
       /*background-color: #F8F8F8;*/
       width: 69%;
-      height: 100%;
+      height: 500px;
       margin-right: 1%;
     }
 
     .rain-examine-bottom-right {
       width: 30%;
-      height: 100%;
+      height: 500px;
 
       .tableTitle {
         display: flex;

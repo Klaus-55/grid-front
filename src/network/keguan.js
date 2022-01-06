@@ -10,6 +10,14 @@ export function getAllModels() {
   })
 }
 
+//获取模式数据（测试版）
+export function getAllModelsTest() {
+  let url = '/keguan/test/getAllModels'
+  return request({
+    url: url
+  })
+}
+
 //降水请求接口
 export function getRainHttp(start, end, ybsc, jysd, jysx, jycp, isZhuri) {
   let path = window.location.pathname

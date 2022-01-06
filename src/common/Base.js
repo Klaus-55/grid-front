@@ -9,9 +9,11 @@ import XLSX from "xlsx";
 loadExporting(Highcharts)
 
 export function initEcharts(data, ftime, jyys) {
+  console.log(data)
   ftime.sort((a, b) => a - b)
   let modes = store.state.modes
   let series = []
+  console.log(modes)
   for (let i = 0; i < modes.length; i++) {
     let seriesItem = {}
     let seriesDate = []
@@ -30,6 +32,9 @@ export function initEcharts(data, ftime, jyys) {
   let categories = []
   categories.push(...ftime)
   if (categories[0] === 0) categories[0] = '综合'
+  if (data.length === 0) categories = []
+  console.log(categories)
+  console.log(series)
   renderChart('grid-chart', categories, series)
 }
 
@@ -203,7 +208,7 @@ export function initCityEcharts(data, title) {
       type: "column",
       backgroundColor: "#F8F8F8",
       events: {
-        drillup: function(e) {
+        drillup: function (e) {
           // 上钻回调事件
           console.log(e.seriesOptions);
         },
@@ -341,8 +346,8 @@ export function initCityEcharts(data, title) {
 export function initCityEcharts2({data, factory, title}) {
   let rd = data['area']
   let series = []
-  let areas = ["湖南省", "长沙市","株洲市","湘潭市","衡阳市","邵阳市","岳阳市",
-    "常德市","张家界市","益阳市","郴州市","永州市","怀化市","娄底市","湘西州"]
+  let areas = ["湖南省", "长沙市", "株洲市", "湘潭市", "衡阳市", "邵阳市", "岳阳市",
+    "常德市", "张家界市", "益阳市", "郴州市", "永州市", "怀化市", "娄底市", "湘西州"]
   let levels = ["红色", "橙色", "黄色", "蓝色"]
   for (let level of levels) {
     let seriesItem = {}
@@ -388,9 +393,9 @@ export function initCityEcharts2({data, factory, title}) {
       enabled: false,
     },
     colors: ["#EA7B7B",
-              "#F6A467",
-              "#F9CE73",
-              "#83A8F2",],
+      "#F6A467",
+      "#F9CE73",
+      "#83A8F2",],
     title: {
       text: title,
     },
@@ -504,6 +509,7 @@ function renderChart(id, categories, series) {
     },
     series
   }
+  HighchartsNoData(Highcharts)
   Highcharts.chart(id, option)
 }
 
@@ -669,6 +675,139 @@ export function renderModelChart(data, mainTitle, subtitle, container) {
   Highcharts.chart(container, options);
 }
 
+//强降水监测图表初始化
+export function initHeavyChart(data, title , container) {
+  let options = {
+    chart: {
+      type: "column",
+      backgroundColor: "#F8F8F8",
+    },
+    lang: {
+      downloadPNG: "下载PNG文件",
+      downloadJPEG: "下载JPEG图片",
+      downloadSVG: "下载SVG文件",
+      drillUpText: '<< 返回上一级',
+      noData: '暂无数据'
+    },
+    noData: {
+      style: {
+        fontWeight: 'bold',
+        fontSize: '15px',
+        color: '#303030'
+      }
+    },
+    exporting: {
+      buttons: {
+        contextButton: {
+          menuItems: ['downloadPNG', 'downloadJPEG', 'downloadSVG']
+        }
+      }
+    },
+    credits: {
+      enabled: false,
+    },
+    colors: ["#88B5EB"],
+    title: {
+      text: title,
+      // text: '湖南省强降水监测',
+    },
+    legend: {
+      enabled: false
+    },
+    xAxis: {
+      type: 'category'
+    },
+    yAxis: {
+      title: {
+        text: "",
+      },
+    },
+    tooltip: {
+      headerFormat:
+        '<span style="font-size:10px"><b>{point.key}:{point.y:.1f}</b></span>',
+      pointFormat: "",
+      footerFormat: "",
+      shared: true,
+      useHTML: true,
+    },
+    plotOptions: {
+      column: {
+        borderWidth: 0,
+        dataLabels: {
+          enabled: true,
+        },
+      },
+    },
+    series: [{
+      colorByPoint: true,
+      data: data.data
+      // data: [
+      //   {name: '湖南省', y: 75.2, drilldown: '湖南省'},
+      //   {name: '长沙', y: 3.2, drilldown: 'changsha'},
+      //   {name: '株洲', y: 3.1, drilldown: 'zhuzhou'},
+      //   {name: '湘潭', y: 3.0, drilldown: 'xiangtan'},
+      //   {name: '衡阳', y: 3.0, drilldown: 'hengyang'},
+        // {name: '岳阳', y: 3.0, drilldown: 'yueyang'},
+        // {name: '张家界', y: 3.0, drilldown: 'zhangjiajie'},
+        // {name: '娄底', y: 3.0, drilldown: 'loudi'},
+        // {name: '郴州', y: 3.0, drilldown: 'chenzhou'},
+        // {name: '常德', y: 3.0, drilldown: 'changde'},
+        // {name: '益阳', y: 3.0, drilldown: 'yiyang'},
+        // {name: '邵阳', y: 3.0, drilldown: 'shaoyang'},
+        // {name: '永州', y: 3.0, drilldown: 'yongzhou'},
+        // {name: '怀化', y: 3.0, drilldown: 'huaihua'},
+        // {name: '湘西州', y: 3.0, drilldown: 'xiangxizhou'},
+      // ]
+    }],
+    drilldown: {
+      drillUpButton: {
+        relativeTo: 'spacingBox',
+        position: {
+          align: 'left',
+          y: -5,
+          x: -5
+        }
+      },
+      series: data.series
+      // series: [
+      //   {
+      //     id: '湖南省',
+      //     data: [
+      //       {name: '唐佳', y: 2.1},
+      //       {name: '陈龙', y: 1.8},
+      //       {name: '兰明才', y: 1.6},
+      //       {name: '徐靖宇', y: 1.8},
+      //       {name: '蔡瑾婕', y: 1.3},
+      //       {name: '苏涛', y: 1.1},
+      //     ]
+      //   }, {
+      //     id: 'changsha',
+      //     data: [
+      //       {name: '长沙市气象台', y: 4}
+      //     ]
+      //   }, {
+      //     id: 'zhuzhou',
+      //     data: [
+      //       {name: '株洲市气象台', y: 4}
+      //     ]
+      //   }, {
+      //     id: 'xiangtan',
+      //     data: [
+      //       {name: '湘潭市气象台', y: 4}
+      //     ]
+      //   }, {
+      //     id: 'hengyang',
+      //     data: [
+      //       {name: '衡阳市气象台', y: 4}
+      //     ]
+      //   }
+      // ]
+    }
+  }
+  HighchartsDrilldown(Highcharts)
+  Highcharts.chart(container, options);
+}
+
 export function exportExcelCom(document, id, title) {
   /* 从表生成工作簿对象 */
   let fix = document.querySelector('.el-table__fixed');
@@ -691,7 +830,7 @@ export function exportExcelCom(document, id, title) {
       //Blob 表示的不一定是JavaScript原生格式的数据。
       //File 接口基于Blob，继承了 blob 的功能并将其扩展使其支持用户系统上的文件。
       //返回一个新创建的 Blob 对象，其内容由参数中给定的数组串联组成。
-      new Blob([wbout], { type: "application/octet-stream" }),
+      new Blob([wbout], {type: "application/octet-stream"}),
       //设置导出文件名称
       title
     );
@@ -700,4 +839,6 @@ export function exportExcelCom(document, id, title) {
   }
   return wbout;
 }
+
+
 

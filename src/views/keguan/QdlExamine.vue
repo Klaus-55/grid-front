@@ -94,10 +94,7 @@
             <div class="maintitle">{{mainTitle}}</div>
             <div class="subtitle">{{subTitle}}</div>
           </div>
-          <div class="highcharts-content" v-show="isMask" style="text-align: center;line-height: 312px;">
-            暂无评分
-          </div>
-          <div class="highcharts-content" v-show="!isMask">
+          <div class="highcharts-content">
             <!--              <div style="width: 100%;height: 100%;background-color: red" v-show="true"></div>-->
             <el-checkbox-group v-model="$store.state.modes" @change="changeModes">
               <el-checkbox v-for="item in $store.state.modelViews" :label="item">{{$store.getters.unitName(item)}}</el-checkbox>
@@ -142,7 +139,7 @@
   import MenuList from "../../components/menu/MenuList";
   import * as Basic from "../../common/Base"
   import moment from "momnet"
-  import {getHeavyHttp} from "../../network/keguan";
+  import {getAllModels, getAllModelsTest, getHeavyHttp, getTempHttp} from "../../network/keguan";
   import * as Utils from "../../common/utils";
   import * as types from "../../store/mutation-types";
   import FlMonitor from "./FlMonitor";
@@ -166,7 +163,6 @@
           {img: require('../../assets/img/smg.png'), text: '雷暴大风', index: 'SMG'},
           {img: require('../../assets/img/ybsk.png'), text: '预报及实况监测', index: 'monitor'}
         ],
-        isMask: false,
         mainTitle: '',
         subTitle: '',
         startDate: Date.now() - 24 * 60 * 60 * 1000 * 7,
@@ -217,7 +213,6 @@
     },
     methods: {
       changeDate() {
-        this.isMask = false
         this.getHeavyData()
       },
       changeValue(isZhuri) {
@@ -248,8 +243,7 @@
         }
         this.initEcharts()
       },
-      changeJycp(val) {
-        this.isMask = false
+      changeJycp() {
         this.getHeavyData()
       },
       switchChange(val) {
@@ -272,20 +266,40 @@
         this.initEcharts()
       },
       getHeavyData() {
+        let loading = this.openLoading('.footer');
         let {startDate, endDate, jysx, facname, ybsc, ftime, jycp, isZhuri} = this
         this.updateTitle()
-        getHeavyHttp(startDate, endDate, ybsc, ftime, jysx, facname, jycp, isZhuri).then(res => {
-          if (res.data.length === 0) {
-            this.isMask = true
-            return
-          }
-          this.$store.commit({type: types.updateModes, data: res.data, jyx: this.jyx})
-          this.data = res.data
-          this.initFtime()
-          this.initEcharts()
-        }).catch(err => {
-          console.log(err);
-        })
+        if (window.location.pathname.indexOf('test') === -1) {
+          getAllModels().then(res => {
+            this.$store.commit({type: types.initUnits, units: res.data})
+            getHeavyHttp(startDate, endDate, ybsc, ftime, jysx, facname, jycp, isZhuri).then(res => {
+              this.$store.commit({type: types.updateModes, data: res.data, jyx: this.jyx})
+              this.data = res.data
+              this.initFtime()
+              this.initEcharts()
+              loading.close()
+            }).catch(err => {
+              console.log(err);
+            })
+          }).catch(err => {
+            console.log(err)
+          })
+        } else {
+          getAllModelsTest().then(res => {
+            this.$store.commit({type: types.initUnits, units: res.data})
+            getHeavyHttp(startDate, endDate, ybsc, ftime, jysx, facname, jycp, isZhuri).then(res => {
+              this.$store.commit({type: types.updateModes, data: res.data, jyx: this.jyx})
+              this.data = res.data
+              this.initFtime()
+              this.initEcharts()
+              loading.close()
+            }).catch(err => {
+              console.log(err);
+            })
+          }).catch(err => {
+            console.log(err)
+          })
+        }
       },
       updateTitle() {
         let {startDate, endDate, jysx, jyys, ybsc} = this
@@ -392,7 +406,9 @@
       '$route' (to, from) {
         this.initFtime()
         this.$store.state.modelViews = []
-        this.getHeavyData()
+        this.$nextTick(() =>{
+          this.getHeavyData()
+        })
       }
     },
     created() {

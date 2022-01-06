@@ -100,21 +100,12 @@
           </div>
         </div>
 
-        <div class="footer"
-             v-loading="loading"
-             element-loading-text="加载中"
-             element-loading-spinner="el-icon-loading"
-             element-loading-background="rgba(248, 248, 248, 0.8)"
-             custom-class="loading-class-custom"
-        >
+        <div class="footer">
           <div class="highcharts-title">
             <div class="maintitle">{{mainTitle}}</div>
             <div class="subtitle">{{subTitle}}</div>
           </div>
-          <div class="highcharts-content" v-show="isMask" style="text-align: center;line-height: 312px;">
-            暂无评分
-          </div>
-          <div class="highcharts-content" v-show="!isMask">
+          <div class="highcharts-content">
             <!--              <div style="width: 100%;height: 100%;background-color: red" v-show="true"></div>-->
             <el-checkbox-group v-model="$store.state.modes" @change="changeModes">
               <el-checkbox v-for="item in $store.state.modelViews" :label="item">{{$store.getters.unitName(item)}}</el-checkbox>
@@ -159,7 +150,7 @@
   import MenuList from "../../components/menu/MenuList";
   import * as Basic from "../../common/Base"
   import moment from "momnet"
-  import {getTempHttp} from "../../network/keguan";
+  import {getAllModels, getAllModelsTest, getRainHttp, getTempHttp} from "../../network/keguan";
   import * as Utils from "../../common/utils";
   import * as types from "../../store/mutation-types";
   import FlMonitor from "./FlMonitor";
@@ -193,7 +184,6 @@
           {img: require('../../assets/img/tem.png'), text: '温度评分', index: 'tmpScore'},
           {img: require('../../assets/img/ybsk.png'), text: '预报及实况监测', index: 'monitor'}
         ],
-        isMask: false,
         isJq: false,
         mainTitle: '',
         subTitle: '',
@@ -226,7 +216,6 @@
           // 14, 15, 16, 17, 18, 19, 20,21, 22, 23, 24
         ],
         showType: '图表',
-        loading: true,
         data: null,
         active: '',
         isZhuri: false,
@@ -245,7 +234,6 @@
         }
       },
       changeDate() {
-        this.isMask = false
         this.getTempData()
       },
       changeValue(isZhuri) {
@@ -285,9 +273,7 @@
         }
         this.initEcharts()
       },
-      changeJycp(val) {
-        this.isMask = false
-
+      changeJycp() {
         this.getTempData()
       },
       switchChange(val) {
@@ -326,34 +312,48 @@
         this.getTempData()
       },
       changeJyys() {
-        this.loading = true
         this.updateTitle()
         this.getTempData()
-        this.loading = false
       },
       changeModes(modes) {
         this.$store.commit(types.changeModes, modes)
         this.initEcharts()
       },
       getTempData() {
-        this.isMask = false
-        this.loading = true
+        let loading = this.openLoading('.footer');
         let {startDate, endDate, jysx, jyys, ybsc, ftime, jycp, isZhuri} = this
         this.updateTitle()
-        getTempHttp(startDate, endDate, ybsc, ftime, jysx, jyys, jycp, isZhuri).then(res => {
-          console.log(res.data)
-          if (res.data.length === 0) {
-            this.isMask = true
-            return
-          }
-          this.$store.commit({type: types.updateModes, data: res.data, jyx: this.jyx})
-          this.data = res.data
-          this.initFtime()
-          this.initEcharts()
-        }).catch(err => {
-          console.log(err);
-        })
-        this.loading = false
+        if (window.location.pathname.indexOf('test') === -1) {
+          getAllModels().then(res => {
+            this.$store.commit({type: types.initUnits, units: res.data})
+            getTempHttp(startDate, endDate, ybsc, ftime, jysx, jyys, jycp, isZhuri).then(res => {
+              this.$store.commit({type: types.updateModes, data: res.data, jyx: this.jyx})
+              this.data = res.data
+              this.initFtime()
+              this.initEcharts()
+              loading.close()
+            }).catch(err => {
+              console.log(err);
+            })
+          }).catch(err => {
+            console.log(err)
+          })
+        } else {
+          getAllModelsTest().then(res => {
+            this.$store.commit({type: types.initUnits, units: res.data})
+            getTempHttp(startDate, endDate, ybsc, ftime, jysx, jyys, jycp, isZhuri).then(res => {
+              this.$store.commit({type: types.updateModes, data: res.data, jyx: this.jyx})
+              this.data = res.data
+              this.initFtime()
+              this.initEcharts()
+              loading.close()
+            }).catch(err => {
+              console.log(err);
+            })
+          }).catch(err => {
+            console.log(err)
+          })
+        }
       },
       updateTitle() {
         let {startDate, endDate, jysx, jyys, ybsc} = this
@@ -431,13 +431,15 @@
       '$route' (to, from) {
         this.initFtime()
         this.$store.state.modelViews = []
-        this.getTempData()
+        this.$nextTick(() =>{
+          this.getTempData()
+        })
       }
     },
     created() {
       this.initFtime()
       this.$store.state.modelViews = []
-      this.$nextTick(() => {
+      this.$nextTick(() =>{
         this.getTempData()
       })
     }

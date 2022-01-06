@@ -31,3 +31,7 @@ body {
     padding: 0 20px;
     float: right;
 }
+
+body .el-scrollbar__wrap {
+    overflow-x: hidden;
+}
