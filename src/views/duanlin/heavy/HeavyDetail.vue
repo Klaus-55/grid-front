@@ -53,7 +53,8 @@
           <el-table-column prop="level" label="预警等级"/>
           <el-table-column prop="district" label="受影响县"/>
           <el-table-column prop="leadtime_fj" label="提前量"/>
-          <el-table-column prop="fact_level_fj" label="实况等级"/>
+          <el-table-column prop="test_level" label="实况等级"/>
+          <el-table-column prop="fact_starttime_fj" label="实况时间"/>
           <el-table-column prop="warningp_fj" label="检验结果"/>
         </el-table>
       </div>
