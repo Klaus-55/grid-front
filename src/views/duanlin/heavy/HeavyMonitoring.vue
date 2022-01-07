@@ -4,6 +4,8 @@
       <div class="content">
         <div class="head">
           <date-picker @changeDate="changeDate" :start="start" :end="end"/>
+
+          <el-button size="mini" type="primary" @click="exportExcel" style="margin-left: 30px">导出</el-button>
         </div>
         <hr/>
         <div class="rain-examine-middle">
@@ -57,6 +59,7 @@
           <div class="rain-examine-bottom-right">
             <span class="tableTitle">{{title}}</span>
             <el-table
+                    id="table"
                     :data="tableData"
                     border
                     height="94%">
@@ -84,7 +87,7 @@
   import {initRadios, initYears} from "../../../common/utils";
   import * as L from "leaflet";
   import data from "../../../assets/js/hunan";
-  import {initHeavyChart} from "../../../common/Base";
+  import {exportExcelCom, initHeavyChart} from "../../../common/Base";
   import {heavyRainMonitor} from "../../../network/duanlin";
 
   export default {
@@ -102,11 +105,12 @@
           {label: "pod", value: "命中率"},
           {label: "t", value: "及时性"},
         ],
-        regLevel: "city",
+        regLevel: "area_district",
         regLevels: [
-          {label: "city", value: "市级"},
+          {label: "area_district", value: "市区县"},
+          {label: "area", value: "市级"},
           {label: "district", value: "区县"},
-          {label: "village", value: "乡镇"}
+          {label: "country", value: "乡镇"}
         ],
         year: moment().year(),
         years: [],
@@ -133,6 +137,11 @@
         this.updateInfo('date')
         this.getHeavyMonitor()
       },
+      exportExcel() {
+        let id = '#table'
+        let title = this.start + '至' + this.end + '日' + '强降水检测警报质量.xlsx'
+        return exportExcelCom(document, id, title)
+      },
       changeYear(year) {
         this.radios = initRadios(year)
         this.updateInfo('month')
@@ -149,8 +158,7 @@
       },
       changeRegLevel() {
         this.updateHunanLayer()
-      },
-      changItems(item) {
+        this.getHeavyMonitor()
       },
       updateInfo(type) {
         if (type === 'date') {
@@ -245,7 +253,7 @@
             });
             L.marker([citylnglat[1], citylnglat[0]], {icon: cityIcon, interactive: false}).addTo(_this.map);
           }
-          if (_this.regLevel === 'city') return
+          if (_this.regLevel === 'area_district' || _this.regLevel === 'area') return
           if (cityName === _this.area) {
             layer.setStyle({fillColor: '#65A4F0'})
           }
@@ -272,7 +280,7 @@
       updateTableHeader() {
         let ind = this.defIndicator
         let tableHeader = []
-        tableHeader.push({prop: 'district', label: '区域'})
+        tableHeader.push({prop: this.regLevel, label: '区域'})
         if (ind === 'ts') {
           tableHeader.push({prop: 'ts', label: 'TS评分'})
         } else if (ind === 'far') {
@@ -287,27 +295,27 @@
         this.tableHeader = tableHeader
       },
       renderChart() {
-        let {data, defIndicator, title} = this
-        let districtArr = data['district']
+        let {data, defIndicator, title, regLevel} = this
+        let regArr = data[regLevel]
         let forecasters = data['forecaster']
         let chartData = {}
         let seriesData = []
         let series = []
-        let districts = []
-        districtArr.map(item => districts.push(item['district']))
-        for (let district of districts) {
-          let res = districtArr.find(obj => obj.district === district);
+        let regs = []
+        regArr.map(item => regs.push(item[regLevel]))
+        for (let reg of regs) {
+          let res = regArr.find(obj => obj[regLevel] === reg);
           if (typeof res === "undefined") continue
           let item = {}
-          item.name = res['district']
+          item.name = res[regLevel]
           item.y = res[defIndicator]
-          item.drilldown = res['district']
+          item.drilldown = res[regLevel]
           seriesData.push(item)
           let seriesItem = {}
-          seriesItem.id = district
+          seriesItem.id = reg
           let data = []
-          let districtForecasters = forecasters.filter(obj => obj.district === district);
-          for (let f of districtForecasters) {
+          let regForecasters = forecasters.filter(obj => obj[regLevel] === reg);
+          for (let f of regForecasters) {
             let dataItem = {}
             dataItem.name = f['forecaster']
             dataItem.y = f[defIndicator]
@@ -319,14 +327,14 @@
         }
         chartData.data = seriesData
         chartData.series = series
-        initHeavyChart(chartData, title, 'heavy-chart');
+        initHeavyChart(chartData, title, regLevel, 'heavy-chart');
       },
       getHeavyMonitor() {
         let loading = this.openLoading('.rain-examine-bottom-right');
-        heavyRainMonitor(this.start, this.end, this.area).then(res => {
+        heavyRainMonitor(this.start, this.end, this.area, this.regLevel).then(res => {
           this.data = res.data
-          if (res.data.table.length > 1) {
-            this.tableData = res.data.table
+          if (res.data[this.regLevel].length > 1) {
+            this.tableData = res.data[this.regLevel]
           } else {
             this.tableData = []
           }

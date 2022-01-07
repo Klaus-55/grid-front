@@ -3,15 +3,22 @@
     <div class="content">
       <div class="head">
         <DatePicker @changeDate="changeDate" :start="start" :end="end"/>
-<!--        <span style="margin-left: 50px">发布单位：</span>-->
-<!--        <el-select v-model="department" class="unitSelect" @change="changeDepartment">-->
-<!--          <el-option-->
-<!--                  v-for="item in departments"-->
-<!--                  :key="item.value"-->
-<!--                  :label="item.label"-->
-<!--                  :value="item.value"-->
-<!--          >-->
-<!--          </el-option>-->
+        <span style="margin-left: 30px">地市：</span>
+        <el-select v-model="filters.value1" placeholder="请选择" @change="getDistricts($event)">
+          <el-option
+                  v-for="item in select1"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+          </el-option>
+        </el-select>
+        <span style="margin-left: 10px">区县：</span>
+        <el-select v-model="filters.value2" placeholder="请选择" :loading="loading" @change="getList($event)">
+          <el-option
+                  v-for="item in select2"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"></el-option>
         </el-select>
         <el-button size="mini" type="primary" @click="exportExcel" style="margin-left: 30px">导出</el-button>
       </div>
@@ -57,7 +64,7 @@
 <script>
   import DatePicker from "../../../components/content/DatePicker2";
   import moment from "momnet";
-  import {heavyDetail} from "../../../network/duanlin";
+  import {getHeavyDistrict, heavyDetail} from "../../../network/duanlin";
   import {exportExcelCom} from "../../../common/Base";
 
   export default {
@@ -69,6 +76,38 @@
       return {
         start: moment(Date.now()).startOf('month').format('YYYY-MM-DD'),
         end: moment(Date.now()).format('YYYY-MM-DD'),
+        select1: [
+          {value: '长沙市', label: '长沙市'},
+          {value: '株洲市', label: '株洲市'},
+          {value: '湘潭市', label: '湘潭市'},
+          {value: '衡阳市', label: '衡阳市'},
+          {value: '邵阳市', label: '邵阳市'},
+          {value: '岳阳市', label: '岳阳市'},
+          {value: '常德市', label: '常德市'},
+          {value: '张家界市', label: '张家界市'},
+          {value: '益阳市', label: '益阳市'},
+          {value: '郴州市', label: '郴州市'},
+          {value: '永州市', label: '永州市'},
+          {value: '怀化市', label: '怀化市'},
+          {value: '娄底市', label: '娄底市'},
+          {value: '湘西州', label: '湘西州'},
+        ],
+        allDistricts: [],
+        loading: false,
+        filters: {
+          value1: '长沙市',
+          value2: '岳麓区'
+        },
+        select2: [
+          {value: '岳麓区', label: '岳麓区'},
+          {value: '开福区', label: '开福区'},
+          {value: '浏阳市', label: '浏阳市'},
+          {value: '望城区', label: '望城区'},
+          {value: '长沙县', label: '长沙县'},
+          {value: '天心区', label: '天心区'},
+          {value: '宁乡市', label: '宁乡市'},
+          {value: '雨花区', label: '雨花区'},
+        ],
         department: "all",
         departments: [
           {label: "所有气象台", value: "all"},
@@ -99,6 +138,22 @@
         this.end = moment(endTime).format("YYYY-MM-DD")
         this.getHeavyDetail()
       },
+      getDistricts(prov) {
+        let districts = []
+        this.select2 = []
+        for (let val of this.allDistricts) {
+          if (prov === val['pro']) {
+            console.log(val)
+            districts.push({label: val.label, value: val.label})
+          }
+          this.select2 = districts
+        }
+        this.filters.value2 = districts[0]['label']
+        this.getHeavyDetail()
+      },
+      getList() {
+        this.getHeavyDetail()
+      },
       changeDepartment() {
         this.getHeavyDetail()
       },
@@ -118,7 +173,9 @@
       },
       getHeavyDetail() {
         let loading = this.openLoading('.rain-examine-bottom');
-        heavyDetail(this.start, this.end, this.level).then(res => {
+        let area = this.filters.value1
+        let district = this.filters.value2
+        heavyDetail(this.start, this.end, area, district, this.level).then(res => {
           this.tableData = res.data
           loading.close()
         }).catch(err => {
@@ -128,7 +185,10 @@
     },
     created() {
       this.$nextTick(() => {
-        this.getHeavyDetail()
+        getHeavyDistrict().then(res => {
+          this.allDistricts = res.data
+          this.getHeavyDetail()
+        })
       })
     },
   };

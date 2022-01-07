@@ -136,18 +136,27 @@ export function cityEffDetail(start, end, department, warningType, level) {
 }
 
 //强降水监测警报
-// /heavyRainMonitor/{start}/{end}/{area}
-export function heavyRainMonitor(start, end, area) {
-  let url = '/duanlin/heavyRainMonitor/' + start + '/' + end + '/' + area
+// /heavyRainMonitor/{start}/{end}/{area}/{regLevel}
+export function heavyRainMonitor(start, end, area, regLevel) {
+  let url = '/duanlin/heavyRainMonitor/' + start + '/' + end + '/' + area + '/' + regLevel
   return request({
     url
   })
 }
 
 //强降水监测警报详情
-// /heavyRainMonitor/{start}/{end}/{level}
-export function heavyDetail(start, end, level) {
-  let url = '/duanlin/heavyDetail/' + start + '/' + end + '/' + level
+// /heavyRainMonitor/{start}/{end}/{area}/{district}/{level}
+export function heavyDetail(start, end, area, district, level) {
+  let url = '/duanlin/heavyDetail/' + start + '/' + end + '/' + area + '/' +district + '/' + level
+  return request({
+    url
+  })
+}
+
+//强降水监测警报市县
+// /getHeavyDistrict
+export function getHeavyDistrict() {
+  let url = '/duanlin/getHeavyDistrict'
   return request({
     url
   })

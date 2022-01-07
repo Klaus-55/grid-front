@@ -676,7 +676,7 @@ export function renderModelChart(data, mainTitle, subtitle, container) {
 }
 
 //强降水监测图表初始化
-export function initHeavyChart(data, title , container) {
+export function initHeavyChart(data, title, regLevel, container) {
   let options = {
     chart: {
       type: "column",
