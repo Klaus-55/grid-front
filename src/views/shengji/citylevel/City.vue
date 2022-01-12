@@ -48,52 +48,9 @@
                 style="width: calc(100% - 50px); margin: 0 auto; transform: translateY(10px)"
                 :header-cell-style="{'text-align': 'center'}">
           <el-table-column
-                  prop="area"
-                  label="地市"
-                  align="center"/>
-          <el-table-column
-                  prop="warning"
-                  label="预警信号(实际成绩)"
-                  align="center"/>
-          <el-table-column
-                  prop="zhzl"
-                  label="网格预报TS(实际成绩)"
-                  align="center"/>
-          <el-table-column
-                  prop="zhjq"
-                  label="网格预报技巧(实际成绩)"
-                  align="center"/>
-          <el-table-column
-                  prop="warning_per"
-                  label="预警信号(百分制成绩)"
-                  align="center"/>
-          <el-table-column
-                  prop="warning_pm"
-                  label="预警信号排名"
-                  align="center"/>
-          <el-table-column
-                  prop="zhzl_per"
-                  label="网格预报TS(百分制成绩)"
-                  align="center"/>
-          <el-table-column
-                  prop="zhzl_pm"
-                  label="网格预报TS排名"
-                  align="center"/>
-          <el-table-column
-                  prop="zhjq_per"
-                  label="网格预报技巧(百分制成绩)"
-                  align="center"/>
-          <el-table-column
-                  prop="zhjq_pm"
-                  label="网格预报技巧排名"
-                  align="center"/>
-          <el-table-column
-                  prop="zh"
-                  label="综合成绩"
-                  align="center"/>
-          <el-table-column
-                  prop="pm"
-                  label="排名"
+                  v-for="item in tableHeader"
+                  :prop="item.prop"
+                  :label="item.label"
                   align="center"/>
         </el-table>
       </div>
@@ -125,12 +82,13 @@
         data: {},
         tableData: [],
         showType: "图表",
-        objArr: ['zh', 'warning_per', 'zhzl_per', 'zhjq_per'],
+        objArr: ['zh', 'warning_per', 'zhzl_per', 'zhjq_per', 'heavy_per'],
         obj: {
           zh: '综合',
           warning_per: '预警信号',
           zhzl_per: '综合质量',
           zhjq_per: '综合技巧',
+          heavy_per: '强降水监测',
         },
         towns: [
           {wfsrc: 'BECS', name: '湖南省'},
@@ -148,6 +106,23 @@
           {wfsrc: 'BFCE', name: '郴州市'},
           {wfsrc: 'BFCS', name: '长沙市'},
           {wfsrc: 'BFLD', name: '娄底市'},
+        ],
+        tableHeader: [
+          {prop: 'area', label: '地市'},
+          {prop: 'warning', label: '预警信号(实际成绩)'},
+          {prop: 'zhzl', label: '网格预报TS(实际成绩)'},
+          {prop: 'zhjq', label: '网格预报技巧(实际成绩)'},
+          {prop: 'heavy', label: '强降水监测(实际成绩)'},
+          {prop: 'warning_per', label: '预警信号(百分制成绩)'},
+          {prop: 'warning_pm', label: '预警信号排名'},
+          {prop: 'zhzl_per', label: '网格预报TS(百分制成绩)'},
+          {prop: 'zhzl_pm', label: '网格预报TS排名'},
+          {prop: 'zhjq_per', label: '网格预报技巧(百分制成绩)'},
+          {prop: 'zhjq_pm', label: '网格预报技巧排名'},
+          {prop: 'heavy_per', label: '强降水监测(百分制成绩)'},
+          {prop: 'heavy_pm', label: '强降水监测排名'},
+          {prop: 'zh', label: '综合成绩'},
+          {prop: 'pm', label: '排名'},
         ]
       }
     },
