@@ -217,7 +217,7 @@
   .chief-bottom {
     box-sizing: border-box;
     width: 100%;
-    height: calc(100% - 150px);
+    height: calc(100% - 170px);
     background-color: @bgColor;
     padding-top: 10px;
     h2 {
@@ -225,6 +225,47 @@
       padding-top: 30px;
       padding-bottom: 30px;
       text-align: center;
+    }
+
+    .el-radio-group {
+      margin-left: 0 !important;
+      float: right;
+      margin-right: 10px;
+      margin-top: 10px;
+      background-color: #dfdfdf;
+      border-radius: 12px;
+    }
+
+    .el-radio-button__inner {
+      background-color: transparent;
+      border: none;
+    }
+
+    .el-radio-button--mini .el-radio-button__inner {
+      padding: 5px 13px;
+    }
+
+    .el-radio-button:first-child .el-radio-button__inner {
+      border-radius: 12px 0 0 12px;
+      border-left: none;
+    }
+
+    .el-radio-button:last-child .el-radio-button__inner {
+      border-radius: 0 12px 12px 0;
+    }
+
+    .el-radio-button__orig-radio:checked + .el-radio-button__inner {
+      box-shadow: none;
+      background-color: #49afcd;
+      border-radius: 12px 12px 12px 12px;
+    }
+
+    .el-radio-button__orig-radio:checked + .el-radio-button__inner:hover {
+      color: #fff;
+    }
+
+    .el-radio-button__inner:hover {
+      color: #49afcd;
     }
   }
 </style>

@@ -3,6 +3,11 @@
     <div class="content">
       <div class="head">
         <date-picker @changeDate="changeDate" :start="start" :end="end"/>
+        <el-button v-show="showType === '表格'"
+                   size="mini"
+                   type="primary"
+                   @click="exportExcel"
+                   style="margin-left: 30px">导出表格数据</el-button>
       </div>
       <hr>
 
@@ -27,7 +32,49 @@
 
       <div class="chief-bottom">
         <h2>{{title}}</h2>
-        <div id="foreman-container" style="width: 100%; height:calc(100% - 84px)"></div>
+        <el-radio-group v-model="showType" size="mini">
+          <el-radio-button label="图表"></el-radio-button>
+          <el-radio-button label="表格"></el-radio-button>
+        </el-radio-group>
+        <div id="foreman-container" style="width: 100%; height:calc(100% - 84px)" v-show="showType === '图表'"></div>
+        <el-table
+                id="table"
+                v-show="showType === '表格'"
+                :data="tableData"
+                border
+                class="table-fixed"
+                height="calc(100% - 140px)"
+                style="width: calc(100% - 50px); margin: 0 auto; transform: translateY(10px)"
+                :header-cell-style="{'text-align': 'center'}">
+          <el-table-column
+                  prop="forecaster"
+                  label="预报员"
+                  align="center"/>
+          <el-table-column
+                  prop="zhzl"
+                  label="综合质量(实际成绩)"
+                  align="center"/>
+          <el-table-column
+                  prop="zhjq"
+                  label="综合技巧(实际成绩)"
+                  align="center"/>
+          <el-table-column
+                  prop="zhzl_per"
+                  label="综合质量(百分制成绩)"
+                  align="center"/>
+          <el-table-column
+                  prop="zhjq_per"
+                  label="综合技巧(百分制成绩)"
+                  align="center"/>
+          <el-table-column
+                  prop="zh"
+                  label="综合成绩"
+                  align="center"/>
+          <el-table-column
+                  prop="pm"
+                  label="排名"
+                  align="center"/>
+        </el-table>
       </div>
     </div>
   </div>
@@ -37,7 +84,7 @@
   import DatePicker from "../../../components/content/DatePicker2";
   import moment from "momnet";
   import {initRadios, initYears} from "../../../common/utils";
-  import {initProChart} from "../../../common/Base";
+  import {exportExcelCom, initProChart} from "../../../common/Base";
   import {getForemanScore} from "../../../network/shengji";
 
   export default {
@@ -55,12 +102,14 @@
         radios: [],
         titleTime: moment().year() + '年' + (moment().month() + 1) + '月',
         data: {},
-        objArr: ['zh', 'zhjq', 'zhzl'],
+        tableData: [],
+        objArr: ['zh', 'zhjq_per', 'zhzl_per'],
         obj: {
           zh: '综合',
-          zhjq: '综合技巧',
-          zhzl: '综合质量',
-        }
+          zhjq_per: '综合技巧',
+          zhzl_per: '综合质量',
+        },
+        showType: "图表",
       }
     },
     methods: {
@@ -69,6 +118,11 @@
         this.end = moment(endTime).format("YYYY-MM-DD")
         this.updateInfo('date')
         this.getForemanScore()
+      },
+      exportExcel() {
+        let id = '#table'
+        let title = this.start + '至' + this.end + '日' + '中短期领班预报员成绩.xlsx'
+        return exportExcelCom(document, id, title)
       },
       changeTimePeriod() {
         this.updateInfo('month')
@@ -85,6 +139,7 @@
         let end = moment(this.end).format('YYYYMMDD')
         getForemanScore(start, end).then(res => {
           this.data = res.data
+          this.tableData = res.data
           this.initChart()
           loading.close()
         }).catch(err => {
@@ -114,7 +169,7 @@
       },
       numToFixed(num) {
         if (!isNaN(num) && num != null && num !== -999.0) {
-          return Number(num.toFixed(1))
+          return Number(num.toFixed(2))
         } else if (num === -999.0) {
           return NaN
         } else {
