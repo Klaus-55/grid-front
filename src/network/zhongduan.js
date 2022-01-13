@@ -111,6 +111,15 @@ export function rainScore(start, end, fTime, type) {
   })
 }
 
+//降水检验2
+// /zhongduan/rainScore2/{start}/{end}/{fTime}/{type}
+export function rainScore2(start, end, fTime, type) {
+  let url = '/zhongduan/rainScore2/' + start + '/' + end + '/' + fTime + '/' + type
+  return request({
+    url: url
+  })
+}
+
 //温度检验
 // /zhongduan/tempScore/{start}/{end}/{fTime}/{type}/{wfhours}/{facname}
 export function tempScore(start, end, fTime, type, wfhours, facname) {

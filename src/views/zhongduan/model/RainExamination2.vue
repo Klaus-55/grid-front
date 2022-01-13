@@ -46,30 +46,11 @@
               <el-radio-button v-for="fac in factories" :label="fac.label">{{fac.name}}</el-radio-button>
             </el-radio-group>
           </el-menu-item>
-          <el-menu-item>
-            <span style="vertical-align: top">检验时段：</span>
-            <div class="border-content">
-              <el-switch
-                v-model="switchStatus"
-                @change="switchChange"
-                :active-text="activeText"
-                active-color="#03B452"
-                inactive-color="#7E7772"></el-switch>
-              <el-checkbox-group v-model="fhour" @change="changeFhour">
-                <el-checkbox
-                        v-for="item in ftimeView"
-                        :label="item"
-                        :key="item">{{ item == "0" ? "综合" : item + "时" }}</el-checkbox>
-              </el-checkbox-group>
-            </div>
-          </el-menu-item>
         </el-menu>
       </div>
 
       <div class="model-examine-bottom">
         <div class="highcharts-title">
-<!--          <div class="maintitle">{{mainTitle}}</div>-->
-<!--          <div class="subtitle">{{subtitle}}</div>-->
           <div class="highcharts-content">
             <el-checkbox-group v-model="models" @change="changeModes">
               <el-checkbox v-for="item in modelOptions" :label="item.label" :key="item.label">{{item.value}}
@@ -93,12 +74,6 @@
                     height="calc(100% - 64px)"
                     style="width: calc(100% - 50px); margin: 0 auto; transform: translateY(10px)"
                     :header-cell-style="{'text-align': 'center'}">
-<!--              <el-table-column-->
-<!--                      prop="ftime"-->
-<!--                      label="预报时段（小时）"-->
-<!--                      align="center"-->
-<!--              >-->
-<!--              </el-table-column>-->
               <el-table-column
                       v-for="item in tableHeader"
                       :prop="item.prop"
@@ -117,9 +92,7 @@
 <script>
   import DatePicker from "../../../components/content/DatePicker2";
   import moment from "momnet";
-  import HighchartsNoData from "highcharts/modules/no-data-to-display";
-  import Highcharts from "highcharts";
-  import {rainScore} from "../../../network/zhongduan";
+  import {rainScore2} from "../../../network/zhongduan";
   import {exportExcelCom, renderModelChart} from "../../../common/Base";
 
   export default {
@@ -161,8 +134,6 @@
         ],
         switchStatus: true,
         activeText: '0~72小时',
-        fhour: [0, 24, 48, 72],
-        ftimeView: [0, 24, 48, 72],
         mainTitle: '',
         subtitle: '',
         models: [],
@@ -170,7 +141,7 @@
 
         ],
         showType: "图表",
-        data: [],
+        data: {},
         tableHeader: [],
         tableData: []
 
@@ -180,7 +151,7 @@
       changeDate(startDate, endDate) {
         this.start = moment(startDate).format("YYYY-MM-DD");
         this.end = moment(endDate).format("YYYY-MM-DD");
-        this.getRainScore()
+        this.getRainScore2()
       },
       changItems(val) {
         if (val === 'skillScore') {
@@ -217,10 +188,10 @@
         this.initEcharts()
       },
       changeFtime() {
-        this.getRainScore()
+        this.getRainScore2()
       },
       changeProduct() {
-        this.getRainScore()
+        this.getRainScore2()
       },
       changeFacname() {
         this.updateTitle()
@@ -230,23 +201,6 @@
         let id = '#table'
         let title = this.start + '至' + this.end + '日' + '降水检验.xlsx'
         return exportExcelCom(document, id, title)
-      },
-      switchChange(val) {
-        if (val) {
-          this.fhour = [0, 24, 48, 72]
-        } else {
-          this.fhour = []
-        }
-        this.initEcharts()
-      },
-      changeFhour(val) {
-        if (val.length === 0) {
-          this.switchStatus = false
-        } else {
-          this.switchStatus = true
-        }
-        this.fhour = val.sort((a, b) => a - b)
-        this.initEcharts()
       },
       changeModes(val) {
         let models = []
@@ -267,43 +221,22 @@
           return
         }
         let obj = this.initEchData();
-        obj.categories = ['202110010800', '202110012000', '202110020800', '202110022000', '202110030800', '202110032000']
-        obj.series = [
-          {
-            name: '中央台',
-            data: [80.4, 81.9, 81.3, 78.1, 77.9, 75.8]
-          },
-          {
-            name: '地市融合',
-            data: [77.8, 79.6, 77.9, 75.8, 81.3, 78.1]
-          }
-        ]
         renderModelChart(obj, this.mainTitle, this.subtitle, 'model-rain-container2')
       },
       initEchData() {
-        let {fhour, models, modelOptions, facname, data} = this
-        let categories = []
-        for (let i = 0; i < fhour.length; i++) {
-          if (fhour[i] === 0) {
-            categories.push('综合')
-          } else {
-            categories.push(fhour[i])
-          }
-        }
+        let {models, modelOptions, facname, data} = this
+        let categories = data['categories']
+        let rData = data['data']
         let series = []
         for (let i = 0; i < models.length; i++) {
           let seriesData = []
           for (let j = 0; j < categories.length; j++) {
             let sData = NaN
-            for (let k = 0; k < data.length; k++) {
-              let cat
-              if (data[k]['wfhour'] === 0) {
-                cat = '综合'
-              } else {
-                cat = data[k]['wfhour']
-              }
-              if (cat === categories[j] && models[i] === data[k]['wfsrc']) {
-                sData = this.resolveData(data[k][facname])
+            for (let k = 0; k < rData.length; k++) {
+              let cat = rData[k]['wfdatetime']
+              if (cat === categories[j] && models[i] === rData[k]['wfsrc']) {
+                sData = this.resolveData(rData[k][facname])
+                console.log(sData)
                 break
               }
             }
@@ -326,8 +259,9 @@
       initModels() {
         let models = []
         let modelOptions = []
-        for (let i = 0; i < this.data.length; i++) {
-          let model = this.data[i]['wfsrc'];
+        let data = this.data['data']
+        for (let i = 0; i < data.length; i++) {
+          let model = data[i]['wfsrc'];
           if (this.inspectionItem === 'skillScore' && model === 'BABJ') {
             continue
           }
@@ -335,7 +269,7 @@
             models.push(model)
             let modelOption = {}
             modelOption.label = model
-            modelOption.value = this.data[i]['zwname']
+            modelOption.value = data[i]['zwname']
             modelOptions.push(modelOption)
           }
         }
@@ -344,27 +278,29 @@
         this.modelOptions = modelOptions
       },
       initTable() {
-        let {models, modelOptions, fhour, data, facname} = this
+        let {models, modelOptions, data, facname} = this
         let tableHeader = []
         let tableData = []
-        if (data.length === 0 || models.length === 0) {
+        let rData = data['data']
+        let categories = data['categories']
+        if (rData.length === 0 || models.length === 0) {
           this.tableHeader = []
           this.tableData = []
           return
         }
-        tableHeader.push({prop: 'ftime', label: '预报时段（小时）'})
+        tableHeader.push({prop: 'ftime', label: '预报时段'})
         for (let i = 0; i < models.length; i++) {
           let option = modelOptions.find(model => model.label === models[i]);
           tableHeader.push({prop: models[i], label: option.value})
         }
-        for (let i = 0; i < fhour.length; i++) {
+        for (let i = 0; i < categories.length; i++) {
           let row = {}
-          fhour[i] === 0 ? row['ftime'] = '综合' : row['ftime'] = fhour[i]
+          row['ftime'] = categories[i]
           for (let j = 0; j < models.length; j++) {
             let colData = NaN
-            for (let k = 0; k < data.length; k++) {
-              if (fhour[i] === data[k]['wfhour'] && data[k]['wfsrc'] === models[j]) {
-                colData = data[k][facname]
+            for (let k = 0; k < rData.length; k++) {
+              if (categories[i] === rData[k]['wfdatetime'] && rData[k]['wfsrc'] === models[j]) {
+                colData = rData[k][facname]
               }
             }
             row[models[j]] = isNaN(colData) ? '/' : colData.toFixed(2)
@@ -392,11 +328,11 @@
         ftime === 'zh' ? ftime = '综合' : ftime += '时'
         this.subtitle = '起报时间：' + this.start + '至' + this.end + '逐24时 ' + ftime
       },
-      getRainScore() {
+      getRainScore2() {
         this.updateTitle()
         let start = moment(this.start).format('YYYYMMDD')
         let end = moment(this.end).format('YYYYMMDD')
-        rainScore(start, end, this.ftime, this.product).then(res => {
+        rainScore2(start, end, this.ftime, this.product).then(res => {
           this.data = res.data
           this.initModels()
           this.initEcharts()
@@ -407,7 +343,7 @@
     },
     created() {
       this.$nextTick(() => {
-        this.getRainScore()
+        this.getRainScore2()
       })
     }
   }
