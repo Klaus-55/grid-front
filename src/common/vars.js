@@ -20,7 +20,7 @@ export const warningDetailVar = `
 export const skill = ['zhjq', 'qyjq', 'genjq', 'baoyujq', 'zhjsjq', 'maxtjq', 'mintjq']
 export const quality = ["qyzql","qyts","genzql","stormzql", "ljo1zql","ljo2zql",
   "ljo3zql","ljo4zql", "zhjs","tmaxozql","tmaxtzql","tminozql","tmintzql"]
-export const townQuality = ['qyzql', 'qyts', 'genzql', 'stormzql', 'tmaxozql',
+export const townQuality = ['zhzl', 'qyzql', 'qyts', 'genzql', 'stormzql', 'tmaxozql',
   'tmaxtzql', 'tminozql', 'tmintzql', 'fj1zql', 'fj2zql',
   'fj3zql', 'fj4zql', 'fj5zql', 'fj6zql', 'ljo1zql', 'ljo2zql',
   'ljo3zql', 'ljo4zql', 'ljo5zql', 'ljo6zql', 'zhjs']
@@ -35,6 +35,7 @@ export const keyValue = {
   zhjsjq: "综合降水技巧",
   maxtjq: "最高温度预报技巧",
   mintjq: "最低温度预报技巧",
+  zhzl: '综合质量',
   qyzql: "晴雨（雪）准确率",
   qyts: "晴雨（雪）TS",
   genzql: "一般性降水准确率",

@@ -26,6 +26,11 @@
           >
           </el-option>
         </el-select>
+        <el-button v-show="showType === '表格'"
+                   size="mini"
+                   type="primary"
+                   @click="exportExcel"
+                   style="margin-left: 30px">导出表格数据</el-button>
       </div>
       <hr>
       <div class="town-forecast-middle">
@@ -60,7 +65,27 @@
       </div>
       <div class="town-forecast-bottom">
 <!--        <h2>{{titleTime}}乡镇天气预报质量评分报表</h2>-->
-        <div id="town-forecast-chart" style="width: 100%; height:calc(100% - 44px)"></div>
+        <el-radio-group v-model="showType" size="mini" @change="changeType">
+          <el-radio-button label="图表"></el-radio-button>
+          <el-radio-button label="表格"></el-radio-button>
+        </el-radio-group>
+        <div id="town-forecast-chart" style="width: 100%; height:calc(100% - 44px)" v-show="showType === '图表'"></div>
+        <el-table
+                id="table"
+                v-show="showType === '表格'"
+                :data="tableData"
+                height="calc(100% - 44px)"
+                border
+                stripe
+                style="width: 100%"
+                :header-cell-style="{'text-align': 'center', backgroundColor: '#39A5F8', color: '#FFF', fontFamily: 'LatoBold', fontWeight: 'normal'}"
+                :cell-style="{'text-align': 'center'}">
+          <el-table-column
+                  v-for="item in tableHeader"
+                  :prop="item"
+                  :label="item">
+          </el-table-column>
+        </el-table>
       </div>
       <component :is="dialog.name" :ref="dialog.name" v-model="dialog.visible" v-bind="dialog.args"/>
     </div>
@@ -76,6 +101,7 @@
   import {keyValue, skill, townQuality} from "../../../common/vars";
   import {initRadios, initYears} from "../../../common/utils";
   import {townForecastScore} from "../../../network/zhongduan";
+  import {exportExcelCom} from "../../../common/Base";
 
   export default {
     name: "TownForecast",
@@ -96,12 +122,15 @@
         product: 'quality',
         type: 'zh',
         titleTime: moment().month() + 1 + '月',
-        checkedFacs: ['zhjq', 'qyjq', 'genjq', 'baoyujq', 'zhjsjq', 'maxtjq', 'mintjq', 'qyzql', 'genzql', 'stormzql', 'tmaxtzql', 'tmintzql'],
-        currentFacs: ['qyzql', 'genzql', 'stormzql', 'tmaxtzql', 'tmintzql'],
+        checkedFacs: ['zhjq', 'qyjq', 'genjq', 'baoyujq', 'zhjsjq', 'maxtjq', 'mintjq', 'zhzl', 'qyzql', 'genzql', 'stormzql', 'tmaxtzql', 'tmintzql'],
+        currentFacs: ['zhzl', 'qyzql', 'genzql', 'stormzql', 'tmaxtzql', 'tmintzql'],
         facs: townQuality,
         facValue: keyValue,
+        showType: "图表",
         radios: [],
         data: [],
+        tableHeader: [],
+        tableData: [],
         towns: [
           {wfsrc: 'BECS', name: '湖南省'},
           {wfsrc: 'BFXK', name: '湘潭市'},
@@ -140,6 +169,11 @@
       changeObtTypes() {
         this.getTownForecast()
       },
+      exportExcel() {
+        let id = '#table'
+        let title = this.start + '至' + this.end + '日' + '地市网格预报评分.xlsx'
+        return exportExcelCom(document, id, title)
+      },
       changeTimePeriod() {
         this.updateInfo()
         this.getTownForecast()
@@ -156,6 +190,9 @@
           this.facs = townQuality
         }
         this.updateCurrentFacs()
+        this.initEcharts()
+      },
+      changeType() {
         this.initEcharts()
       },
       changeFacs() {
@@ -194,7 +231,7 @@
         this.currentFacs = currentFacs
       },
       getTownForecast() {
-        let loading = this.openLoading('#town-forecast-chart');
+        let loading = this.openLoading('.town-forecast-bottom');
         let {start, end, period, obtType} = this
         start = moment(start).format('YYYYMMDD')
         end = moment(end).format('YYYYMMDD')
@@ -244,6 +281,10 @@
         }
       },
       initEcharts() {
+        if (this.showType === '表格') {
+          this.initTable()
+          return
+        }
         let rs = this.resolveEchartData();
         let options = {
           chart: {
@@ -327,7 +368,43 @@
             })
           });
         })
-      }
+      },
+      initTable() {
+        let tableHeader = []
+        let tableData = []
+        for (let i = 0; i < this.data.length; i++) {
+          if (i === 0) {
+            tableHeader.push('要素')
+            continue
+          }
+          let area = this.towns.find(item => item.wfsrc === this.data[i]['model']);
+          tableHeader.push(area.name)
+        }
+        this.tableHeader = tableHeader
+        let facs = []
+        facs.push(...skill)
+        facs.push(...townQuality)
+        for (let fac of facs) {
+          let obj = {}
+          for (let th of tableHeader) {
+            if (th === '要素') {
+              obj[th] = keyValue[fac]
+              continue
+            }
+            let area = this.towns.find(item => item.name === th);
+            let res = this.data.find(obj => obj.model === area.wfsrc);
+            obj[th] = this.unmDigits(res[fac])
+          }
+          tableData.push(obj)
+        }
+        this.tableData = tableData
+      },
+      unmDigits(num) {
+        if (typeof num === undefined) return "-"
+        if (isNaN(num)) return "-"
+        if (num == null || num === -999) return "-"
+        return num.toFixed(2)
+      },
     },
     created() {
       this.$nextTick(() =>{
@@ -452,6 +529,47 @@
     height: calc(100% - 270px);
     background-color: @bgColor;
     padding-top: 50px;
+
+    .el-radio-group {
+      margin-left: 0 !important;
+      float: right;
+      margin-right: 10px;
+      margin-top: 10px;
+      background-color: #dfdfdf;
+      border-radius: 12px;
+    }
+
+    .el-radio-button__inner {
+      background-color: transparent;
+      border: none;
+    }
+
+    .el-radio-button--mini .el-radio-button__inner {
+      padding: 5px 13px;
+    }
+
+    .el-radio-button:first-child .el-radio-button__inner {
+      border-radius: 12px 0 0 12px;
+      border-left: none;
+    }
+
+    .el-radio-button:last-child .el-radio-button__inner {
+      border-radius: 0 12px 12px 0;
+    }
+
+    .el-radio-button__orig-radio:checked + .el-radio-button__inner {
+      box-shadow: none;
+      background-color: #49afcd;
+      border-radius: 12px 12px 12px 12px;
+    }
+
+    .el-radio-button__orig-radio:checked + .el-radio-button__inner:hover {
+      color: #fff;
+    }
+
+    .el-radio-button__inner:hover {
+      color: #49afcd;
+    }
   }
 
 </style>
