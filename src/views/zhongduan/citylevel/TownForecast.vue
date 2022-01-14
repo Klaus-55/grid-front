@@ -372,12 +372,10 @@
       initTable() {
         let tableHeader = []
         let tableData = []
-        for (let i = 0; i < this.data.length; i++) {
-          if (i === 0) {
-            tableHeader.push('要素')
-            continue
-          }
-          let area = this.towns.find(item => item.wfsrc === this.data[i]['model']);
+        let {data, towns} = this
+        for (let i = 0; i < towns.length; i++) {
+          if (i === 0) tableHeader.push('要素')
+          let area = towns[i]
           tableHeader.push(area.name)
         }
         this.tableHeader = tableHeader
@@ -391,8 +389,8 @@
               obj[th] = keyValue[fac]
               continue
             }
-            let area = this.towns.find(item => item.name === th);
-            let res = this.data.find(obj => obj.model === area.wfsrc);
+            let area = towns.find(item => item.name === th);
+            let res = data.find(obj => obj.model === area.wfsrc);
             obj[th] = this.unmDigits(res[fac])
           }
           tableData.push(obj)
