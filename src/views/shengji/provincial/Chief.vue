@@ -3,6 +3,7 @@
     <div class="content">
       <div class="head">
         <date-picker @changeDate="changeDate" :start="start" :end="end"/>
+        <download file-type="provincial_pro"></download>
       </div>
       <hr>
 
@@ -39,10 +40,12 @@
   import {initRadios, initYears} from "../../../common/utils";
   import {initProChart} from "../../../common/Base";
   import {getChiefScore} from "../../../network/shengji";
+  import Download from "../../../components/downFile/download";
 
   export default {
     name: "Chief",
     components: {
+      Download,
       DatePicker
     },
     data() {

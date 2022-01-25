@@ -3,16 +3,7 @@
     <div class="content">
       <div class="head">
         <date-picker @changeDate="changeDate" :start="start" :end="end"/>
-        <!--        <span style="margin-left: 50px">检验项：</span>-->
-        <!--        <el-select v-model="tempItem" placeholder="" @change="changItems">-->
-        <!--          <el-option-->
-        <!--            v-for="item in tempItems"-->
-        <!--            :key="item.value"-->
-        <!--            :label="item.label"-->
-        <!--            :value="item.value"-->
-        <!--          >-->
-        <!--          </el-option>-->
-        <!--        </el-select>-->
+        <download file-type="approach"></download>
       </div>
       <hr/>
       <div class="rain-examine-middle">
@@ -127,11 +118,13 @@
   import Highcharts from "highcharts";
   import {temScore} from "../../../network/duanlin";
   import HighchartsNoData from "highcharts/modules/no-data-to-display";
+  import Download from "../../../components/downFile/download";
 
   export default {
     name: "TempExamine",
     components: {
       DatePicker,
+      Download
     },
     data() {
       return {

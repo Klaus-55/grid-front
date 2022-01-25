@@ -3,6 +3,7 @@
     <div class="content">
       <div class="head">
         <date-picker @changeDate="changeDate" :start="start" :end="end"/>
+        <download file-type="convection"></download>
       </div>
       <hr/>
       <div class="rain-examine-middle">
@@ -58,10 +59,12 @@
   import Highcharts from "highcharts";
   import HighchartsNoData from "highcharts/modules/no-data-to-display";
   import {thunderScore} from "../../../network/duanlin";
+  import Download from "../../../components/downFile/download";
 
   export default {
     name: "ThunderExamine",
     components: {
+      Download,
       DatePicker,
     },
     data() {

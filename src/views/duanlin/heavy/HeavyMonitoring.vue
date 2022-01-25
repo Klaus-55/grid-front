@@ -6,6 +6,7 @@
           <date-picker @changeDate="changeDate" :start="start" :end="end"/>
 
           <el-button size="mini" type="primary" @click="exportExcel" style="margin-left: 30px">导出</el-button>
+          <download file-type="heavy"></download>
         </div>
         <hr/>
         <div class="rain-examine-middle">
@@ -89,10 +90,12 @@
   import data from "../../../assets/js/hunan";
   import {exportExcelCom, initHeavyChart} from "../../../common/Base";
   import {heavyRainMonitor} from "../../../network/duanlin";
+  import Download from "../../../components/downFile/download";
 
   export default {
     name: "HeavyMonitoring",
     components: {
+      Download,
       DatePicker,
     },
     data() {

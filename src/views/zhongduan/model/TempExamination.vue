@@ -74,8 +74,8 @@
 
       <div class="model-examine-bottom">
         <div class="highcharts-title">
-          <div class="maintitle">{{mainTitle}}</div>
-          <div class="subtitle">{{subtitle}}</div>
+<!--          <div class="maintitle">{{mainTitle}}</div>-->
+<!--          <div class="subtitle">{{subtitle}}</div>-->
           <div class="highcharts-content">
             <el-checkbox-group v-model="models" @change="changeModes">
               <el-checkbox v-for="item in modelOptions" :label="item.label" :key="item.label">{{item.value}}

@@ -9,6 +9,7 @@
                 type="primary"
                 @click="exportExcel"
                 style="margin-left: 30px">导出</el-button>
+        <download file-type="warning"></download>
       </div>
       <hr />
       <div class="rain-examine-middle">
@@ -112,10 +113,12 @@
   import moment from "momnet";
   import {provincialWarning} from "../../../network/duanlin";
   import {exportExcelCom, initSaEcharts} from "../../../common/Base";
+  import Download from "../../../components/downFile/download";
 
   export default {
     name: "ProvincialWarning",
     components: {
+      Download,
       DatePicker,
     },
     data() {

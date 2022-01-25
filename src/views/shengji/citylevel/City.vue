@@ -9,6 +9,7 @@
                    @click="exportExcel"
                    style="margin-left: 30px">导出表格数据</el-button>
         <el-button size="mini" type="primary" @click="getCityScore2" style="margin-left: 30px">2021临时成绩</el-button>
+        <download file-type="provincial_city"></download>
       </div>
       <hr>
 
@@ -64,10 +65,12 @@
   import {initRadios, initYears} from "../../../common/utils";
   import {exportExcelCom, initProChart} from "../../../common/Base";
   import {getCityScore, getCityScore2} from "../../../network/shengji";
+  import Download from "../../../components/downFile/download";
 
   export default {
     name: "City",
     components: {
+      Download,
       DatePicker
     },
     data() {

@@ -3,10 +3,7 @@
     <div class="content">
       <div class="head">
         <date-picker @changeDate="changeDate" :start="start" :end="end"/>
-<!--        <div class="download-file">-->
-<!--          <a :href="fileName" download>评分办法文件</a>-->
-<!--          <i class="el-icon-download"></i>-->
-<!--        </div>-->
+        <download file-type="approach"></download>
       </div>
       <hr/>
       <div class="rain-examine-middle">
@@ -124,10 +121,12 @@
   import Highcharts from "highcharts";
   import {download, rainScore} from "../../../network/duanlin";
   import HighchartsNoData from "highcharts/modules/no-data-to-display";
+  import Download from "../../../components/downFile/download";
 
   export default {
     name: "RainExamine",
     components: {
+      Download,
       DatePicker,
     },
     data() {
@@ -421,22 +420,6 @@
 
 <style lang="less">
   @import "../../../assets/less/common";
-
-  .download-file{
-    float: right;
-    color: #fff;
-    padding: 4px 4px;
-    border-radius: 2px;
-    cursor: pointer;
-    background: linear-gradient(#28abe2, #2685d5);
-    a{
-      color: #fff;
-      text-decoration: none
-    }
-    i{
-      margin-left: .2rem;
-    }
-  }
 
   .rain-examine-middle {
     background-color: @bgColor;
