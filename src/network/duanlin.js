@@ -161,3 +161,12 @@ export function getHeavyDistrict() {
     url
   })
 }
+
+//强降水监测警报市县
+// /download
+export function download(fileName) {
+  let url = '/duanlin/download/' + fileName
+  return request({
+    url
+  })
+}

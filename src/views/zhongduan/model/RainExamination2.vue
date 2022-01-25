@@ -102,7 +102,7 @@
     },
     data() {
       return {
-        start: moment(new Date()).subtract(8, 'd').format('YYYY-MM-DD'),
+        start: moment(new Date()).subtract(2, 'd').format('YYYY-MM-DD'),
         end: moment(new Date()).subtract(1, 'd').format('YYYY-MM-DD'),
         inspectionItem: "quality",
         inspectionItems: [
@@ -225,18 +225,20 @@
       },
       initEchData() {
         let {models, modelOptions, facname, data} = this
+        let fTimes = [24, 48, 72]
         let categories = data['categories']
+        let times = []
+        categories.map(item => fTimes.forEach(obj => times.push(item + '(' + obj + '时)')))
         let rData = data['data']
         let series = []
         for (let i = 0; i < models.length; i++) {
           let seriesData = []
-          for (let j = 0; j < categories.length; j++) {
+          for (let j = 0; j < times.length; j++) {
             let sData = NaN
             for (let k = 0; k < rData.length; k++) {
-              let cat = rData[k]['wfdatetime']
-              if (cat === categories[j] && models[i] === rData[k]['wfsrc']) {
+              let cat = rData[k]['wfdatetime'] + '(' + rData[k]['wfhour'] + '时)'
+              if (cat === times[j] && models[i] === rData[k]['wfsrc']) {
                 sData = this.resolveData(rData[k][facname])
-                console.log(sData)
                 break
               }
             }
@@ -248,8 +250,8 @@
           seriesItem.data = seriesData
           series.push(seriesItem)
         }
-        if (categories.length === 0) series = []
-        return {series, categories}
+        if (times.length === 0) series = []
+        return {series, categories: times}
       },
       resolveData(num) {
         if (num == null) return NaN
@@ -282,7 +284,10 @@
         let tableHeader = []
         let tableData = []
         let rData = data['data']
+        let fTimes = [24, 48, 72]
         let categories = data['categories']
+        let times = []
+        categories.map(item => fTimes.forEach(obj => times.push(item + '(' + obj + '时)')))
         if (rData.length === 0 || models.length === 0) {
           this.tableHeader = []
           this.tableData = []
@@ -293,13 +298,14 @@
           let option = modelOptions.find(model => model.label === models[i]);
           tableHeader.push({prop: models[i], label: option.value})
         }
-        for (let i = 0; i < categories.length; i++) {
+        for (let i = 0; i < times.length; i++) {
           let row = {}
-          row['ftime'] = categories[i]
+          row['ftime'] = times[i]
           for (let j = 0; j < models.length; j++) {
             let colData = NaN
             for (let k = 0; k < rData.length; k++) {
-              if (categories[i] === rData[k]['wfdatetime'] && rData[k]['wfsrc'] === models[j]) {
+              let cat = rData[k]['wfdatetime'] + '(' + rData[k]['wfhour'] + '时)'
+              if (times[i] === cat && rData[k]['wfsrc'] === models[j]) {
                 colData = rData[k][facname]
               }
             }

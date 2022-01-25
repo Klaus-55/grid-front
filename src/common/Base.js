@@ -9,11 +9,9 @@ import XLSX from "xlsx";
 loadExporting(Highcharts)
 
 export function initEcharts(data, ftime, jyys) {
-  console.log(data)
   ftime.sort((a, b) => a - b)
   let modes = store.state.modes
   let series = []
-  console.log(modes)
   for (let i = 0; i < modes.length; i++) {
     let seriesItem = {}
     let seriesDate = []
@@ -33,8 +31,6 @@ export function initEcharts(data, ftime, jyys) {
   categories.push(...ftime)
   if (categories[0] === 0) categories[0] = '综合'
   if (data.length === 0) categories = []
-  console.log(categories)
-  console.log(series)
   renderChart('grid-chart', categories, series)
 }
 

@@ -3,16 +3,10 @@
     <div class="content">
       <div class="head">
         <date-picker @changeDate="changeDate" :start="start" :end="end"/>
-        <!--        <span style="margin-left: 50px">检验项：</span>-->
-        <!--        <el-select v-model="inspectionItem" placeholder="" @change="changItems">-->
-        <!--          <el-option-->
-        <!--            v-for="item in inspectionItems"-->
-        <!--            :key="item.value"-->
-        <!--            :label="item.label"-->
-        <!--            :value="item.value"-->
-        <!--          >-->
-        <!--          </el-option>-->
-        <!--        </el-select>-->
+<!--        <div class="download-file">-->
+<!--          <a :href="fileName" download>评分办法文件</a>-->
+<!--          <i class="el-icon-download"></i>-->
+<!--        </div>-->
       </div>
       <hr/>
       <div class="rain-examine-middle">
@@ -128,7 +122,7 @@
   import DatePicker from "../../../components/content/DatePicker2";
   import moment from "momnet";
   import Highcharts from "highcharts";
-  import {rainScore} from "../../../network/duanlin";
+  import {download, rainScore} from "../../../network/duanlin";
   import HighchartsNoData from "highcharts/modules/no-data-to-display";
 
   export default {
@@ -412,6 +406,11 @@
         })
       }
     },
+    computed: {
+      fileName() {
+        return 'http://10.111.102.28:9000/grid-server/api/duanlin/download/附件3：湖南省短时临近格点预报检验办法.docx';
+      }
+    },
     created() {
       this.$nextTick(() => {
         this.getRainScore()
@@ -422,6 +421,22 @@
 
 <style lang="less">
   @import "../../../assets/less/common";
+
+  .download-file{
+    float: right;
+    color: #fff;
+    padding: 4px 4px;
+    border-radius: 2px;
+    cursor: pointer;
+    background: linear-gradient(#28abe2, #2685d5);
+    a{
+      color: #fff;
+      text-decoration: none
+    }
+    i{
+      margin-left: .2rem;
+    }
+  }
 
   .rain-examine-middle {
     background-color: @bgColor;
