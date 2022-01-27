@@ -136,7 +136,7 @@
       return {
         start: moment(new Date()).subtract(8, 'd').format('YYYY-MM-DD'),
         end: moment(new Date()).subtract(1, 'd').format('YYYY-MM-DD'),
-        inspectionItem: "skillScore",
+        inspectionItem: "quality",
         inspectionItems: [
           {value: "skillScore", label: "技巧评分"},
           {value: "quality", label: "分项质量"},
@@ -144,10 +144,16 @@
         ftime: "zh",
         wfinterval: "24",
         product: "BBBUSI",
-        facname: "maxtsst",
+        facname: "maxtok2",
         factories: [
-          {label: 'maxtsst', name: '最高温平均绝对误差技巧'},
-          {label: 'mintsst', name: '最低温平均绝对误差技巧'}
+          {label: 'maxtok2', name: '最高温小于2度准确率'},
+          {label: 'maxtok1', name: '最高温小于1度准确率'},
+          {label: 'mintok2', name: '最低温小于2度准确率'},
+          {label: 'mintok1', name: '最低温小于1度准确率'},
+          {label: 'maxtmae', name: '最高温平均绝对误差'},
+          {label: 'maxtrmse', name: '最高温均方根误差'},
+          {label: 'mintmae', name: '最低温平均绝对误差'},
+          {label: 'mintrmse', name: '最低温均方根误差'},
         ],
         switchStatus: true,
         activeText: '0~72小时',

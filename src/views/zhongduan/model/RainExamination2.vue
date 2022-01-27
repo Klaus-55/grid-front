@@ -185,6 +185,7 @@
           ]
         }
         this.updateTitle()
+        this.initModels()
         this.initEcharts()
       },
       changeFtime() {
@@ -225,19 +226,16 @@
       },
       initEchData() {
         let {models, modelOptions, facname, data} = this
-        let fTimes = [24, 48, 72]
         let categories = data['categories']
-        let times = []
-        categories.map(item => fTimes.forEach(obj => times.push(item + '(' + obj + '时)')))
         let rData = data['data']
         let series = []
         for (let i = 0; i < models.length; i++) {
           let seriesData = []
-          for (let j = 0; j < times.length; j++) {
+          for (let j = 0; j < categories.length; j++) {
             let sData = NaN
             for (let k = 0; k < rData.length; k++) {
               let cat = rData[k]['wfdatetime'] + '(' + rData[k]['wfhour'] + '时)'
-              if (cat === times[j] && models[i] === rData[k]['wfsrc']) {
+              if (cat === categories[j] && models[i] === rData[k]['wfsrc']) {
                 sData = this.resolveData(rData[k][facname])
                 break
               }
@@ -250,8 +248,8 @@
           seriesItem.data = seriesData
           series.push(seriesItem)
         }
-        if (times.length === 0) series = []
-        return {series, categories: times}
+        if (categories.length === 0) series = []
+        return {series, categories}
       },
       resolveData(num) {
         if (num == null) return NaN
@@ -275,7 +273,6 @@
             modelOptions.push(modelOption)
           }
         }
-
         this.models = models
         this.modelOptions = modelOptions
       },
@@ -284,10 +281,7 @@
         let tableHeader = []
         let tableData = []
         let rData = data['data']
-        let fTimes = [24, 48, 72]
         let categories = data['categories']
-        let times = []
-        categories.map(item => fTimes.forEach(obj => times.push(item + '(' + obj + '时)')))
         if (rData.length === 0 || models.length === 0) {
           this.tableHeader = []
           this.tableData = []
@@ -298,14 +292,14 @@
           let option = modelOptions.find(model => model.label === models[i]);
           tableHeader.push({prop: models[i], label: option.value})
         }
-        for (let i = 0; i < times.length; i++) {
+        for (let i = 0; i < categories.length; i++) {
           let row = {}
-          row['ftime'] = times[i]
+          row['ftime'] = categories[i]
           for (let j = 0; j < models.length; j++) {
             let colData = NaN
             for (let k = 0; k < rData.length; k++) {
               let cat = rData[k]['wfdatetime'] + '(' + rData[k]['wfhour'] + '时)'
-              if (times[i] === cat && rData[k]['wfsrc'] === models[j]) {
+              if (categories[i] === cat && rData[k]['wfsrc'] === models[j]) {
                 colData = rData[k][facname]
               }
             }
