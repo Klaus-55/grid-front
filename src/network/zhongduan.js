@@ -172,3 +172,11 @@ export function liveGribData(data) {
     params: data
   })
 }
+
+//降雪实况
+export function getSnowFact(start, end) {
+  let url = '/zhongduan/getSnowFact/' + start + '/' + end
+  return request({
+    url
+  })
+}
